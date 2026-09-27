@@ -1,0 +1,167 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Merah Marun (Primary) */
+    --color-marun-50: #fdf2f2;
+    --color-marun-100: #fce4e4;
+    --color-marun-200: #f9cece;
+    --color-marun-300: #f3a8a8;
+    --color-marun-400: #e87474;
+    --color-marun-500: #d94545;
+    --color-marun-600: #c52d2d;
+    --color-marun-700: #a52222;
+    --color-marun-800: #800000;
+    --color-marun-900: #6b1a1a;
+    --color-marun-950: #3d0a0a;
+
+    /* Kuning Mustard (Accent) */
+    --color-mustard-50: #fffbeb;
+    --color-mustard-100: #fef3c7;
+    --color-mustard-200: #fde68a;
+    --color-mustard-300: #fcd34d;
+    --color-mustard-400: #ffc107;
+    --color-mustard-500: #e5a93c;
+    --color-mustard-600: #d97706;
+    --color-mustard-700: #b45309;
+    --color-mustard-800: #92400e;
+    --color-mustard-900: #78350f;
+    --color-mustard-950: #451a03;
+
+    /* Slate Text */
+    --color-slate-text: #212529;
+    --color-off-white: #F8F9FA;
+}
+
+/* ========================================
+   SIMORA FST UINIB – Global Styles
+   ======================================== */
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: var(--color-off-white);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--color-marun-300);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-marun-800);
+}
+
+/* Selection */
+::selection {
+    background: var(--color-marun-800);
+    color: white;
+}
+
+/* Focus rings */
+*:focus-visible {
+    outline: 2px solid var(--color-mustard-500);
+    outline-offset: 2px;
+}
+
+/* Smooth transitions globally */
+*, *::before, *::after {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+/* Glass card effect */
+.glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Card hover animation */
+.card-hover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(128, 0, 0, 0.1), 0 8px 10px -6px rgba(128, 0, 0, 0.1);
+}
+
+/* Gradient text */
+.text-gradient-marun {
+    background: linear-gradient(135deg, var(--color-marun-800), var(--color-marun-600));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Status badges */
+.badge-menunggu {
+    background-color: var(--color-mustard-100);
+    color: var(--color-mustard-800);
+    border: 1px solid var(--color-mustard-300);
+}
+.badge-disetujui {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+}
+.badge-ditolak {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+.badge-selesai {
+    background-color: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #93c5fd;
+}
+
+/* Skeleton loader */
+.skeleton {
+    animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes skeleton-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Slide in animation */
+@keyframes slide-in-right {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+.animate-slide-in-right {
+    animation: slide-in-right 0.3s ease-out;
+}
+
+@keyframes fade-in-up {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+.animate-fade-in-up {
+    animation: fade-in-up 0.4s ease-out;
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+}
+
+/* Pulse dot */
+.pulse-dot {
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.5; }
+}
