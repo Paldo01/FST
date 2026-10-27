@@ -12,6 +12,14 @@ class FasilitasController extends Controller
 {
     public function index(Request $request)
     {
+        if ($request->jenis === 'ruangan' || $request->routeIs('admin.ruang.*')) {
+            return $this->ruangIndex($request);
+        }
+
+        if ($request->jenis === 'peralatan' || $request->routeIs('admin.alat.*')) {
+            return $this->alatIndex($request);
+        }
+
         $fasilitas = Fasilitas::with('kategori')
             ->when($request->cari, function ($q) use ($request) {
                 $q->where('nama_fasilitas', 'like', "%{$request->cari}%")
@@ -29,6 +37,58 @@ class FasilitasController extends Controller
         return view('admin.fasilitas.index', compact('fasilitas', 'kategoriList'));
     }
 
+    public function ruangIndex(Request $request)
+    {
+        $query = Fasilitas::whereHas('kategori', fn($q) => $q->where('jenis', 'ruangan'))
+            ->with('kategori');
+
+        if ($request->filled('cari')) {
+            $query->where(function($q) use ($request) {
+                $q->where('nama_fasilitas', 'like', "%{$request->cari}%")
+                  ->orWhere('kode_fasilitas', 'like', "%{$request->cari}%");
+            });
+        }
+
+        if ($request->filled('kategori_id')) {
+            $query->where('kategori_id', $request->kategori_id);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $ruangan = $query->orderBy('id', 'asc')->paginate(20);
+        $kategoriList = KategoriFasilitas::where('jenis', 'ruangan')->orderBy('nama_kategori')->get();
+
+        return view('admin.ruang.index', compact('ruangan', 'kategoriList'));
+    }
+
+    public function alatIndex(Request $request)
+    {
+        $query = Fasilitas::whereHas('kategori', fn($q) => $q->where('jenis', 'peralatan'))
+            ->with('kategori');
+
+        if ($request->filled('cari')) {
+            $query->where(function($q) use ($request) {
+                $q->where('nama_fasilitas', 'like', "%{$request->cari}%")
+                  ->orWhere('kode_fasilitas', 'like', "%{$request->cari}%");
+            });
+        }
+
+        if ($request->filled('kategori_id')) {
+            $query->where('kategori_id', $request->kategori_id);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $alat = $query->orderBy('id', 'asc')->paginate(20);
+        $kategoriList = KategoriFasilitas::where('jenis', 'peralatan')->orderBy('nama_kategori')->get();
+
+        return view('admin.alat.index', compact('alat', 'kategoriList'));
+    }
+
     public function create()
     {
         $kategoriList = KategoriFasilitas::all();
@@ -39,21 +99,43 @@ class FasilitasController extends Controller
     {
         $validated = $request->validate([
             'kategori_id' => 'required|exists:kategori_fasilitas,id',
-            'kode_fasilitas' => 'required|string|unique:fasilitas,kode_fasilitas',
+            'kode_fasilitas' => 'nullable|string|unique:fasilitas,kode_fasilitas',
             'nama_fasilitas' => 'required|string|max:255',
             'status' => 'required|in:tersedia,dipinjam,perbaikan',
-            'kondisi_awal' => 'required|string',
+            'kondisi_awal' => 'nullable|string',
+            'kapasitas' => 'nullable|string|max:100',
+            'jumlah' => 'nullable|string|max:100',
             'deskripsi' => 'nullable|string',
             'gambar' => 'nullable|image|max:2048',
         ]);
+
+        if (empty($validated['kode_fasilitas'])) {
+            $kategori = KategoriFasilitas::find($validated['kategori_id']);
+            $prefix = ($kategori && $kategori->jenis === 'ruangan') ? 'RNG-' : 'ALT-';
+            $validated['kode_fasilitas'] = $prefix . strtoupper(substr(uniqid(), -5));
+        }
+
+        if (empty($validated['kondisi_awal'])) {
+            $validated['kondisi_awal'] = 'baik';
+        }
 
         if ($request->hasFile('gambar')) {
             $validated['gambar'] = $request->file('gambar')->store('fasilitas', 'public');
         }
 
-        Fasilitas::create($validated);
+        $fasilitas = Fasilitas::create($validated);
 
         LogAktivitas::catat('tambah_fasilitas', 'Menambahkan fasilitas: ' . $validated['nama_fasilitas']);
+
+        if ($request->filled('from_alat') || ($fasilitas->kategori && $fasilitas->kategori->jenis === 'peralatan')) {
+            return redirect()->route('admin.alat.index')
+                ->with('pesan_sukses', 'Alat berhasil ditambahkan!');
+        }
+
+        if ($request->filled('from_ruang') || ($fasilitas->kategori && $fasilitas->kategori->jenis === 'ruangan')) {
+            return redirect()->route('admin.ruang.index')
+                ->with('pesan_sukses', 'Ruangan berhasil ditambahkan!');
+        }
 
         return redirect()->route('admin.fasilitas.index')
             ->with('pesan_sukses', 'Fasilitas berhasil ditambahkan!');
@@ -73,10 +155,16 @@ class FasilitasController extends Controller
             'kode_fasilitas' => 'required|string|unique:fasilitas,kode_fasilitas,' . $fasilita->id,
             'nama_fasilitas' => 'required|string|max:255',
             'status' => 'required|in:tersedia,dipinjam,perbaikan',
-            'kondisi_awal' => 'required|string',
+            'kondisi_awal' => 'nullable|string',
+            'kapasitas' => 'nullable|string|max:100',
+            'jumlah' => 'nullable|string|max:100',
             'deskripsi' => 'nullable|string',
             'gambar' => 'nullable|image|max:2048',
         ]);
+
+        if (empty($validated['kondisi_awal'])) {
+            $validated['kondisi_awal'] = $fasilita->kondisi_awal ?? 'baik';
+        }
 
         if ($request->hasFile('gambar')) {
             if ($fasilita->gambar) {
@@ -88,6 +176,16 @@ class FasilitasController extends Controller
         $fasilita->update($validated);
 
         LogAktivitas::catat('ubah_fasilitas', 'Mengubah fasilitas: ' . $fasilita->nama_fasilitas);
+
+        if ($request->filled('from_alat') || ($fasilita->kategori && $fasilita->kategori->jenis === 'peralatan')) {
+            return redirect()->route('admin.alat.index')
+                ->with('pesan_sukses', 'Data alat berhasil diperbarui!');
+        }
+
+        if ($request->filled('from_ruang') || ($fasilita->kategori && $fasilita->kategori->jenis === 'ruangan')) {
+            return redirect()->route('admin.ruang.index')
+                ->with('pesan_sukses', 'Data ruangan berhasil diperbarui!');
+        }
 
         return redirect()->route('admin.fasilitas.index')
             ->with('pesan_sukses', 'Fasilitas berhasil diperbarui!');
@@ -105,8 +203,7 @@ class FasilitasController extends Controller
 
         LogAktivitas::catat('hapus_fasilitas', 'Menghapus fasilitas: ' . $nama);
 
-        return redirect()->route('admin.fasilitas.index')
-            ->with('pesan_sukses', 'Fasilitas berhasil dihapus!');
+        return back()->with('pesan_sukses', 'Fasilitas ' . $nama . ' berhasil dihapus!');
     }
 
     /* ---- Kategori Fasilitas ---- */

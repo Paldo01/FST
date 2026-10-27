@@ -11,18 +11,30 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     @stack('styles')
 </head>
-<body class="bg-off-white text-slate-text font-sans antialiased min-h-screen flex flex-col">
+<body class="@yield('body_class', 'bg-off-white text-slate-text font-sans antialiased min-h-screen flex flex-col')">
     
+    @unless(View::hasSection('no_nav'))
     <!-- Navbar untuk Publik -->
     <nav class="bg-white shadow-sm border-b border-gray-100 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <a href="{{ route('beranda') }}" class="flex items-center gap-2 group">
-                        <div class="w-10 h-10 bg-marun-800 rounded-lg flex items-center justify-center text-mustard-400 group-hover:bg-mustard-500 group-hover:text-marun-900 transition-colors">
-                            <i data-lucide="building-2" class="w-6 h-6"></i>
-                        </div>
-                        <span class="font-bold text-xl text-marun-900 tracking-tight">SIMORA <span class="text-mustard-600">FST</span></span>
+                        @php
+                            $webLogo = \App\Models\Pengaturan::where('key', 'logo')->first();
+                            $namaWeb = \App\Models\Pengaturan::where('key', 'nama_website')->first()->value ?? 'SIMORA FST';
+                            $warnaNamaWeb = \App\Models\Pengaturan::where('key', 'warna_nama_website')->first()->value ?? '';
+                        @endphp
+                        @if($webLogo && $webLogo->value)
+                            <div class="w-10 h-10 rounded overflow-hidden flex items-center justify-center">
+                                <img src="{{ Storage::url($webLogo->value) }}" alt="Logo" class="max-w-full max-h-full object-contain">
+                            </div>
+                        @else
+                            <div class="w-10 h-10 bg-marun-800 rounded-lg flex items-center justify-center text-mustard-400 group-hover:bg-mustard-500 group-hover:text-marun-900 transition-colors">
+                                <i data-lucide="building-2" class="w-6 h-6"></i>
+                            </div>
+                        @endif
+                        <span class="font-bold text-xl tracking-tight text-marun-900" {!! $warnaNamaWeb ? 'style="color: ' . $warnaNamaWeb . ';"' : '' !!}>{{ $namaWeb }}</span>
                     </a>
                 </div>
                 
@@ -37,15 +49,17 @@
             </div>
         </div>
     </nav>
+    @endunless
 
     <!-- Main Content Area -->
-    <main class="flex-1 flex flex-col items-center justify-center">
+    <main class="@yield('main_class', 'flex-1 flex flex-col items-center justify-center')">
         <!-- Flash Messages via Toast -->
         <x-toast />
         
         @yield('content')
     </main>
 
+    @unless(View::hasSection('no_footer'))
     <!-- Footer -->
     <footer class="bg-white border-t border-gray-200 mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -59,6 +73,7 @@
             </div>
         </div>
     </footer>
+    @endunless
 
     <!-- Initialize Lucide Icons -->
     <script>

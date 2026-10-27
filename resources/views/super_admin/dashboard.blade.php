@@ -3,194 +3,240 @@
 @section('title', 'Dashboard Super Admin - SIMORA FST')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6 pb-12 pt-1 sm:pt-2">
 
-    {{-- Header --}}
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">Dashboard Super Admin</h1>
-            <p class="text-sm text-gray-500 mt-1">Selamat datang, {{ auth()->user()->nama_lengkap }}. Pantau seluruh aktivitas sistem SIMORA.</p>
-        </div>
-        <div class="text-sm text-gray-400 bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-sm">
-            <i data-lucide="calendar" class="w-4 h-4 inline-block mr-1 text-marun-700"></i>
-            {{ now()->isoFormat('dddd, D MMMM Y') }}
-        </div>
+    <!-- Header Halaman (Sesuai Mockup) -->
+    <div class="space-y-1">
+        <h1 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">
+            Dashboard Super Admin
+        </h1>
+        <p class="text-xs sm:text-sm text-gray-500 font-medium">
+            Monitoring Sistem Peminjaman Fasilitas FST
+        </p>
     </div>
 
-    {{-- Statistik Utama --}}
-    <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex flex-col gap-2 col-span-2 lg:col-span-1">
-            <div class="flex items-center justify-between">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Pengguna</p>
-                <span class="w-8 h-8 rounded-lg bg-marun-50 flex items-center justify-center">
-                    <i data-lucide="users" class="w-4 h-4 text-marun-700"></i>
-                </span>
+    <!-- 4 Kartu Statistik Utama (Sesuai Mockup) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+        
+        <!-- Kartu 1: Total Admin -->
+        <div class="bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-2xs p-4 sm:p-5 flex items-center gap-4 transition-all hover:shadow-xs">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#FEE2E2] flex items-center justify-center shrink-0">
+                <i data-lucide="users" class="w-6 h-6 sm:w-7 sm:h-7 text-[#EF4444]"></i>
             </div>
-            <p class="text-3xl font-extrabold text-gray-900">{{ $statistik['total_pengguna'] }}</p>
-        </div>
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex flex-col gap-2">
-            <div class="flex items-center justify-between">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Admin Aktif</p>
-                <span class="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                    <i data-lucide="shield-check" class="w-4 h-4 text-blue-600"></i>
-                </span>
+            <div>
+                <p class="text-xs sm:text-sm font-medium text-gray-500">Total Admin</p>
+                <h3 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight mt-0.5 leading-none">
+                    {{ $statistik['total_admin'] }}
+                </h3>
+                <span class="text-xs font-semibold text-gray-400 mt-1 inline-block">Admin</span>
             </div>
-            <p class="text-3xl font-extrabold text-gray-900">{{ $statistik['total_admin'] }}</p>
         </div>
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex flex-col gap-2">
-            <div class="flex items-center justify-between">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Fasilitas</p>
-                <span class="w-8 h-8 rounded-lg bg-green-50 flex items-center justify-center">
-                    <i data-lucide="building-2" class="w-4 h-4 text-green-600"></i>
-                </span>
+
+        <!-- Kartu 2: Total Peminjaman -->
+        <div class="bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-2xs p-4 sm:p-5 flex items-center gap-4 transition-all hover:shadow-xs">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#DBEAFE] flex items-center justify-center shrink-0">
+                <i data-lucide="file-text" class="w-6 h-6 sm:w-7 sm:h-7 text-[#2563EB]"></i>
             </div>
-            <p class="text-3xl font-extrabold text-gray-900">{{ $statistik['total_fasilitas'] }}</p>
-        </div>
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex flex-col gap-2">
-            <div class="flex items-center justify-between">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Peminjaman</p>
-                <span class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
-                    <i data-lucide="clipboard-list" class="w-4 h-4 text-purple-600"></i>
-                </span>
+            <div>
+                <p class="text-xs sm:text-sm font-medium text-gray-500">Total Peminjaman</p>
+                <h3 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight mt-0.5 leading-none">
+                    {{ $statistik['total_peminjaman'] }}
+                </h3>
+                <span class="text-xs font-semibold text-gray-400 mt-1 inline-block">Peminjaman</span>
             </div>
-            <p class="text-3xl font-extrabold text-gray-900">{{ $statistik['total_peminjaman'] }}</p>
         </div>
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex flex-col gap-2">
-            <div class="flex items-center justify-between">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Bulan Ini</p>
-                <span class="w-8 h-8 rounded-lg bg-mustard-50 flex items-center justify-center">
-                    <i data-lucide="trending-up" class="w-4 h-4 text-mustard-600"></i>
-                </span>
+
+        <!-- Kartu 3: Total Ruangan -->
+        <div class="bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-2xs p-4 sm:p-5 flex items-center gap-4 transition-all hover:shadow-xs">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#D1FAE5] flex items-center justify-center shrink-0">
+                <i data-lucide="door-open" class="w-6 h-6 sm:w-7 sm:h-7 text-[#10B981]"></i>
             </div>
-            <p class="text-3xl font-extrabold text-gray-900">{{ $statistik['peminjaman_bulan_ini'] }}</p>
-        </div>
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5 flex flex-col gap-2">
-            <div class="flex items-center justify-between">
-                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Rata-rata Rating</p>
-                <span class="w-8 h-8 rounded-lg bg-yellow-50 flex items-center justify-center">
-                    <i data-lucide="star" class="w-4 h-4 text-yellow-500"></i>
-                </span>
+            <div>
+                <p class="text-xs sm:text-sm font-medium text-gray-500">Total Ruangan</p>
+                <h3 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight mt-0.5 leading-none">
+                    {{ $statistik['total_ruangan'] }}
+                </h3>
+                <span class="text-xs font-semibold text-gray-400 mt-1 inline-block">Ruang</span>
             </div>
-            <p class="text-3xl font-extrabold text-gray-900">{{ $statistik['rata_rata_rating'] > 0 ? $statistik['rata_rata_rating'] : 'N/A' }}</p>
         </div>
+
+        <!-- Kartu 4: Total Peralatan -->
+        <div class="bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-2xs p-4 sm:p-5 flex items-center gap-4 transition-all hover:shadow-xs">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#FEF3C7] flex items-center justify-center shrink-0">
+                <i data-lucide="package" class="w-6 h-6 sm:w-7 sm:h-7 text-[#F59E0B]"></i>
+            </div>
+            <div>
+                <p class="text-xs sm:text-sm font-medium text-gray-500">Total Peralatan</p>
+                <h3 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight mt-0.5 leading-none">
+                    {{ $statistik['total_peralatan'] }}
+                </h3>
+                <span class="text-xs font-semibold text-gray-400 mt-1 inline-block">Alat</span>
+            </div>
+        </div>
+
     </div>
 
-    {{-- Grafik & Ulasan Terbaru --}}
-    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+    <!-- Bagian Tengah: Status Peminjaman & Aktivitas Terbaru (Sesuai Mockup) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        
+        <!-- Kolom Kiri: Status Peminjaman (lg:col-span-5) -->
+        <div class="lg:col-span-5 bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-2xs p-5 sm:p-6 lg:p-7 flex flex-col justify-between">
+            <div>
+                <h2 class="text-lg sm:text-xl font-black text-gray-900 tracking-tight mb-5">
+                    Status Peminjaman
+                </h2>
 
-        {{-- Grafik Tren Peminjaman --}}
-        <div class="lg:col-span-3 bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-            <h2 class="text-base font-bold text-gray-900 mb-4">Tren Peminjaman (6 Bulan Terakhir)</h2>
-            @if($grafikBulanan->count() > 0)
-            <div class="relative h-52">
-                <canvas id="grafikPeminjaman"></canvas>
-            </div>
-            @else
-            <div class="flex flex-col items-center justify-center h-52 text-gray-400">
-                <i data-lucide="bar-chart-2" class="w-12 h-12 mb-3 opacity-30"></i>
-                <p class="text-sm">Belum ada data peminjaman.</p>
-            </div>
-            @endif
-        </div>
-
-        {{-- Ulasan Terbaru --}}
-        <div class="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-base font-bold text-gray-900">Ulasan Terbaru</h2>
-                <a href="{{ route('super_admin.ulasan.index') }}" class="text-xs text-marun-700 hover:underline font-medium">Lihat semua</a>
-            </div>
-            @forelse($ulasanTerbaru as $ulasan)
-            <div class="flex items-start gap-3 py-3 border-b border-gray-50 last:border-0">
-                <div class="w-8 h-8 rounded-full bg-marun-100 text-marun-800 flex items-center justify-center text-xs font-bold shrink-0 uppercase">
-                    {{ substr($ulasan->pengguna?->nama_lengkap ?? 'U', 0, 1) }}
-                </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-semibold text-gray-800 truncate">{{ $ulasan->pengguna?->nama_lengkap ?? 'Anonim' }}</p>
-                    <div class="flex items-center gap-0.5 my-0.5">
-                        @for($i = 1; $i <= 5; $i++)
-                            <i data-lucide="star" class="w-3 h-3 {{ $i <= $ulasan->rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200 fill-gray-200' }}"></i>
-                        @endfor
+                <div class="space-y-3">
+                    <!-- 1. Pending (Kuning) -->
+                    <div class="bg-[#F8FAFC] hover:bg-gray-100/70 border border-gray-100/80 rounded-xl sm:rounded-2xl py-3 px-4 sm:px-5 flex items-center justify-between transition-colors">
+                        <div class="flex items-center gap-3">
+                            <span class="w-3.5 h-3.5 rounded-full bg-[#F59E0B] shrink-0"></span>
+                            <span class="text-sm sm:text-base font-bold text-gray-900">Pending</span>
+                        </div>
+                        <span class="text-xs sm:text-sm font-bold text-gray-500 bg-white px-2.5 py-0.5 rounded-lg border border-gray-100 shadow-2xs">
+                            {{ $statusCounts['pending'] }}
+                        </span>
                     </div>
-                    <p class="text-xs text-gray-500 truncate">{{ $ulasan->komentar ?? '-' }}</p>
+
+                    <!-- 2. Disetujui (Hijau) -->
+                    <div class="bg-[#F8FAFC] hover:bg-gray-100/70 border border-gray-100/80 rounded-xl sm:rounded-2xl py-3 px-4 sm:px-5 flex items-center justify-between transition-colors">
+                        <div class="flex items-center gap-3">
+                            <span class="w-3.5 h-3.5 rounded-full bg-[#10B981] shrink-0"></span>
+                            <span class="text-sm sm:text-base font-bold text-gray-900">Disetujui</span>
+                        </div>
+                        <span class="text-xs sm:text-sm font-bold text-gray-500 bg-white px-2.5 py-0.5 rounded-lg border border-gray-100 shadow-2xs">
+                            {{ $statusCounts['disetujui'] }}
+                        </span>
+                    </div>
+
+                    <!-- 3. Ditolak (Merah) -->
+                    <div class="bg-[#F8FAFC] hover:bg-gray-100/70 border border-gray-100/80 rounded-xl sm:rounded-2xl py-3 px-4 sm:px-5 flex items-center justify-between transition-colors">
+                        <div class="flex items-center gap-3">
+                            <span class="w-3.5 h-3.5 rounded-full bg-[#EF4444] shrink-0"></span>
+                            <span class="text-sm sm:text-base font-bold text-gray-900">Ditolak</span>
+                        </div>
+                        <span class="text-xs sm:text-sm font-bold text-gray-500 bg-white px-2.5 py-0.5 rounded-lg border border-gray-100 shadow-2xs">
+                            {{ $statusCounts['ditolak'] }}
+                        </span>
+                    </div>
+
+                    <!-- 4. Selesai (Biru) -->
+                    <div class="bg-[#F8FAFC] hover:bg-gray-100/70 border border-gray-100/80 rounded-xl sm:rounded-2xl py-3 px-4 sm:px-5 flex items-center justify-between transition-colors">
+                        <div class="flex items-center gap-3">
+                            <span class="w-3.5 h-3.5 rounded-full bg-[#2563EB] shrink-0"></span>
+                            <span class="text-sm sm:text-base font-bold text-gray-900">Selesai</span>
+                        </div>
+                        <span class="text-xs sm:text-sm font-bold text-gray-500 bg-white px-2.5 py-0.5 rounded-lg border border-gray-100 shadow-2xs">
+                            {{ $statusCounts['selesai'] }}
+                        </span>
+                    </div>
                 </div>
             </div>
-            @empty
-            <div class="flex flex-col items-center justify-center py-8 text-gray-400">
-                <i data-lucide="message-square" class="w-8 h-8 mb-2 opacity-30"></i>
-                <p class="text-sm">Belum ada ulasan.</p>
+
+            <!-- Link Cepat ke Riwayat -->
+            <div class="pt-5 mt-4 border-t border-gray-100/80">
+                <a href="{{ route('admin.riwayat.index') }}" 
+                   class="flex items-center justify-between text-xs sm:text-sm font-bold text-[#801414] hover:underline">
+                    <span>Lihat Seluruh Riwayat Peminjaman</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
             </div>
-            @endforelse
         </div>
+
+        <!-- Kolom Kanan: Aktivitas Terbaru (lg:col-span-7) -->
+        <div class="lg:col-span-7 bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-2xs p-5 sm:p-6 lg:p-7 flex flex-col justify-between">
+            <div>
+                <h2 class="text-lg sm:text-xl font-black text-gray-900 tracking-tight mb-5">
+                    Aktivitas Terbaru
+                </h2>
+
+                <div class="space-y-4">
+                    @foreach($aktivitasTerbaru as $aktivitas)
+                    <div class="flex items-center justify-between gap-3 py-2 border-b border-gray-100/70 last:border-0">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full {{ $aktivitas['bg_color'] }} flex items-center justify-center shrink-0">
+                                <i data-lucide="{{ $aktivitas['icon'] }}" class="w-4 h-4 sm:w-5 sm:h-5 {{ $aktivitas['icon_color'] }}"></i>
+                            </div>
+                            <p class="text-xs sm:text-sm font-medium text-gray-800 truncate">
+                                {{ $aktivitas['judul'] }}
+                            </p>
+                        </div>
+                        <span class="text-[11px] sm:text-xs text-gray-400 font-normal shrink-0">
+                            {{ $aktivitas['waktu'] }}
+                        </span>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+
+            <!-- Link Cepat ke Audit Log -->
+            <div class="pt-5 mt-4 border-t border-gray-100/80 flex items-center justify-between">
+                <span class="text-xs text-gray-400">Total riwayat tercatat di Audit Log</span>
+                <a href="{{ route('super_admin.log.index') }}" 
+                   class="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#801414] hover:underline">
+                    <span>Semua Log Aktivitas</span>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
+            </div>
+        </div>
+
     </div>
 
-    {{-- Aksi Cepat --}}
-    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <h2 class="text-base font-bold text-gray-900 mb-4">Manajemen Sistem</h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <a href="{{ route('super_admin.pengguna.index') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-marun-50 hover:border-marun-200 border border-gray-100 transition-all group">
-                <div class="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center group-hover:bg-marun-700 transition-colors">
-                    <i data-lucide="users" class="w-5 h-5 text-gray-600 group-hover:text-white transition-colors"></i>
+    <!-- Bagian Bawah: Ringkasan Sistem (Sesuai Mockup) -->
+    <div class="bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-2xs p-5 sm:p-6 lg:p-7">
+        <h2 class="text-lg sm:text-xl font-black text-gray-900 tracking-tight mb-5">
+            Ringkasan Sistem
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100 gap-6 md:gap-0">
+            
+            <!-- Segment 1: Admin Aktif -->
+            <div class="flex items-center gap-4 py-2 md:py-0 md:px-6 first:pl-0">
+                <div class="w-12 h-12 rounded-full bg-[#FEE2E2] flex items-center justify-center shrink-0">
+                    <i data-lucide="user" class="w-6 h-6 text-[#EF4444]"></i>
                 </div>
-                <span class="text-xs font-semibold text-gray-700 group-hover:text-marun-800 text-center">Kelola Admin</span>
-            </a>
-            <a href="{{ route('super_admin.log.index') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-marun-50 hover:border-marun-200 border border-gray-100 transition-all group">
-                <div class="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center group-hover:bg-marun-700 transition-colors">
-                    <i data-lucide="activity" class="w-5 h-5 text-gray-600 group-hover:text-white transition-colors"></i>
+                <div>
+                    <h4 class="text-base sm:text-lg font-black text-gray-900 leading-tight">
+                        {{ $ringkasanSistem['admin_aktif'] }} Admin aktif
+                    </h4>
+                    <p class="text-xs text-gray-500 font-medium mt-0.5">
+                        Dari seluruh role
+                    </p>
                 </div>
-                <span class="text-xs font-semibold text-gray-700 group-hover:text-marun-800 text-center">Log Aktivitas</span>
-            </a>
-            <a href="{{ route('super_admin.ulasan.index') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-marun-50 hover:border-marun-200 border border-gray-100 transition-all group">
-                <div class="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center group-hover:bg-marun-700 transition-colors">
-                    <i data-lucide="star" class="w-5 h-5 text-gray-600 group-hover:text-white transition-colors"></i>
+            </div>
+
+            <!-- Segment 2: Feedback -->
+            <div class="flex items-center gap-4 py-2 md:py-0 md:px-6">
+                <div class="w-12 h-12 rounded-2xl bg-[#DBEAFE] flex items-center justify-center shrink-0">
+                    <i data-lucide="message-square" class="w-6 h-6 text-[#2563EB]"></i>
                 </div>
-                <span class="text-xs font-semibold text-gray-700 group-hover:text-marun-800 text-center">Ulasan Layanan</span>
-            </a>
-            <a href="{{ route('admin.laporan.index') }}" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-gray-50 hover:bg-marun-50 hover:border-marun-200 border border-gray-100 transition-all group">
-                <div class="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center group-hover:bg-marun-700 transition-colors">
-                    <i data-lucide="file-bar-chart" class="w-5 h-5 text-gray-600 group-hover:text-white transition-colors"></i>
+                <div>
+                    <h4 class="text-base sm:text-lg font-black text-gray-900 leading-tight">
+                        {{ $ringkasanSistem['total_feedback'] }} Feedback
+                    </h4>
+                    <p class="text-xs text-gray-500 font-medium mt-0.5">
+                        Total masukan pengguna
+                    </p>
                 </div>
-                <span class="text-xs font-semibold text-gray-700 group-hover:text-marun-800 text-center">Laporan PDF</span>
-            </a>
+            </div>
+
+            <!-- Segment 3: Audit Log Terbaru -->
+            <div class="flex items-center gap-4 py-2 md:py-0 md:px-6 last:pr-0">
+                <div class="w-12 h-12 rounded-2xl bg-[#F3E8FF] flex items-center justify-center shrink-0">
+                    <i data-lucide="file-text" class="w-6 h-6 text-[#9333EA]"></i>
+                </div>
+                <div>
+                    <h4 class="text-base sm:text-lg font-black text-gray-900 leading-tight">
+                        Audit log terbaru
+                    </h4>
+                    <p class="text-xs text-gray-500 font-medium mt-0.5">
+                        {{ $ringkasanSistem['audit_log_terbaru'] }}
+                    </p>
+                </div>
+            </div>
+
         </div>
     </div>
 
 </div>
 @endsection
-
-@push('scripts')
-@if($grafikBulanan->count() > 0)
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const bulanMap = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-    const labels = @json($grafikBulanan->map(fn($d) => bulanMap[$d->bulan - 1] . ' ' . $d->tahun));
-    const data   = @json($grafikBulanan->pluck('total'));
-
-    const ctx = document.getElementById('grafikPeminjaman').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels,
-            datasets: [{
-                label: 'Jumlah Peminjaman',
-                data,
-                backgroundColor: 'rgba(128,0,0,0.15)',
-                borderColor: '#800000',
-                borderWidth: 2,
-                borderRadius: 6,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f3f4f6' } },
-                x: { grid: { display: false } }
-            }
-        }
-    });
-});
-</script>
-@endif
-@endpush

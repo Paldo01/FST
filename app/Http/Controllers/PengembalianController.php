@@ -9,19 +9,38 @@ use Illuminate\Http\Request;
 
 class PengembalianController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $peminjamanAktif = Peminjaman::where('status_pengajuan', 'disetujui')
-            ->whereDoesntHave('pengembalian')
-            ->with(['pengguna', 'fasilitas'])
-            ->latest()
-            ->get();
+        $query = Peminjaman::whereIn('status_pengajuan', ['disetujui', 'selesai'])
+            ->with(['pengguna', 'fasilitas.kategori', 'pengembalian.admin']);
 
-        $riwayatPengembalian = Pengembalian::with(['peminjaman.pengguna', 'peminjaman.fasilitas', 'admin'])
-            ->latest()
-            ->paginate(15);
+        // Filter Pencarian (nama peminjam, nomor identitas, atau nama fasilitas)
+        if ($request->filled('cari')) {
+            $cari = $request->cari;
+            $query->where(function ($q) use ($cari) {
+                $q->whereHas('pengguna', function ($qu) use ($cari) {
+                    $qu->where('nama_lengkap', 'like', "%{$cari}%")
+                       ->orWhere('nomor_identitas', 'like', "%{$cari}%");
+                })->orWhereHas('fasilitas', function ($qf) use ($cari) {
+                    $qf->where('nama_fasilitas', 'like', "%{$cari}%");
+                });
+            });
+        }
 
-        return view('admin.pengembalian.index', compact('peminjamanAktif', 'riwayatPengembalian'));
+        // Filter Tanggal
+        if ($request->filled('tanggal')) {
+            $query->whereDate('tanggal_mulai', $request->tanggal);
+        }
+
+        // Urutkan: Yang belum dikembalikan otomatis berada di posisi paling atas
+        $daftarPengembalian = $query
+            ->orderByRaw("CASE WHEN status_pengajuan = 'disetujui' AND NOT EXISTS (SELECT 1 FROM pengembalian WHERE pengembalian.peminjaman_id = peminjaman.id) THEN 0 ELSE 1 END ASC")
+            ->orderByDesc('tanggal_mulai')
+            ->orderByDesc('id')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('admin.pengembalian.index', compact('daftarPengembalian'));
     }
 
     public function store(Request $request, Peminjaman $peminjaman)

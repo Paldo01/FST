@@ -16,6 +16,7 @@ class Peminjaman extends Model
         'tanggal_mulai',
         'tanggal_selesai',
         'tujuan_peminjaman',
+        'jumlah_peserta',
         'status_pengajuan',
         'alasan_penolakan',
         'berkas_persyaratan',
