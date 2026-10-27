@@ -9,50 +9,148 @@ use Illuminate\Http\Request;
 
 class PeminjamanController extends Controller
 {
-    public function index(\Illuminate\Http\Request $request)
+    public function index(Request $request)
     {
-        $tanggal = $request->input('tanggal', now()->format('Y-m-d'));
+        return redirect()->route('peminjaman.status');
+    }
 
-        // Semua peminjaman pada tanggal yang dipilih
-        $peminjaman = Peminjaman::where('pengguna_id', auth()->id())
-            ->with(['fasilitas.kategori', 'pengembalian', 'ulasan'])
-            ->whereDate('tanggal_mulai', $tanggal)
-            ->latest('tanggal_mulai')
+    /**
+     * Menampilkan status peminjaman yang sedang aktif / dalam proses.
+     */
+    public function status(Request $request)
+    {
+        $userId = auth()->id();
+
+        // Ambil peminjaman aktif (menunggu persetujuan atau disetujui/sedang berjalan)
+        $peminjamanAktif = Peminjaman::where('pengguna_id', $userId)
+            ->with(['fasilitas.kategori', 'pengembalian'])
+            ->whereIn('status_pengajuan', ['menunggu', 'disetujui'])
+            ->latest('created_at')
             ->get();
 
-        // Statistik ringkas
-        $totalBulanIni   = $peminjaman->count();
-        $sedangBerjalan  = $peminjaman->where('status_pengajuan', 'disetujui')->count();
-        $selesai         = $peminjaman->where('status_pengajuan', 'selesai')->count();
-        $menunggu        = $peminjaman->where('status_pengajuan', 'menunggu')->count();
+        $countMenunggu = $peminjamanAktif->where('status_pengajuan', 'menunggu')->count();
+        $countDisetujui = $peminjamanAktif->where('status_pengajuan', 'disetujui')->count();
 
-        // Group by tanggal (d M Y) agar tampil seperti timeline
-        $grouped = $peminjaman->groupBy(fn($p) => $p->tanggal_mulai->format('d F Y'));
+        $countRiwayat = Peminjaman::where('pengguna_id', $userId)
+            ->whereIn('status_pengajuan', ['selesai', 'ditolak', 'dibatalkan'])
+            ->count();
 
-        return view('pengguna.peminjaman.index', compact(
-            'grouped', 'tanggal', 'totalBulanIni', 'sedangBerjalan', 'selesai', 'menunggu'
+        return view('pengguna.peminjaman.status', compact(
+            'peminjamanAktif',
+            'countMenunggu',
+            'countDisetujui',
+            'countRiwayat'
         ));
     }
 
-    public function create()
+    /**
+     * Menampilkan riwayat peminjaman yang sudah selesai atau ditolak.
+     */
+    public function riwayat(Request $request)
     {
-        $fasilitas = Fasilitas::with('kategori')
-            ->where('status', 'tersedia')
-            ->whereHas('kategori', function($q) {
-                $q->where('jenis', 'ruangan');
-            })
-            ->get();
+        $userId = auth()->id();
+        $cari = $request->input('cari');
+        $status = $request->input('status');
+        $bulan = $request->input('bulan');
 
-        return view('pengguna.peminjaman.buat', compact('fasilitas'));
+        $query = Peminjaman::where('pengguna_id', $userId)
+            ->with(['fasilitas.kategori', 'pengembalian', 'ulasan'])
+            ->whereIn('status_pengajuan', ['selesai', 'ditolak', 'dibatalkan']);
+
+        if ($cari) {
+            $query->where(function($q) use ($cari) {
+                $q->where('kode_peminjaman', 'like', "%{$cari}%")
+                  ->orWhere('tujuan_peminjaman', 'like', "%{$cari}%")
+                  ->orWhereHas('fasilitas', function($qf) use ($cari) {
+                      $qf->where('nama_fasilitas', 'like', "%{$cari}%");
+                  });
+            });
+        }
+
+        if ($status && in_array($status, ['selesai', 'ditolak', 'dibatalkan'])) {
+            $query->where('status_pengajuan', $status);
+        }
+
+        if ($bulan) {
+            $carbonBulan = \Carbon\Carbon::parse($bulan);
+            $query->whereYear('tanggal_mulai', $carbonBulan->year)
+                  ->whereMonth('tanggal_mulai', $carbonBulan->month);
+        }
+
+        $riwayatList = $query->latest('tanggal_mulai')->paginate(10)->withQueryString();
+
+        $countAktif = Peminjaman::where('pengguna_id', $userId)
+            ->whereIn('status_pengajuan', ['menunggu', 'disetujui'])
+            ->count();
+
+        $countSelesai = Peminjaman::where('pengguna_id', $userId)->where('status_pengajuan', 'selesai')->count();
+        $countDitolak = Peminjaman::where('pengguna_id', $userId)->whereIn('status_pengajuan', ['ditolak', 'dibatalkan'])->count();
+
+        return view('pengguna.peminjaman.riwayat', compact(
+            'riwayatList',
+            'countAktif',
+            'countSelesai',
+            'countDitolak',
+            'cari',
+            'status',
+            'bulan'
+        ));
+    }
+
+    /**
+     * Membatalkan pengajuan peminjaman oleh pengguna (jika masih berstatus menunggu).
+     */
+    public function batalkan(Peminjaman $peminjaman)
+    {
+        if ($peminjaman->pengguna_id !== auth()->id()) {
+            abort(403);
+        }
+
+        if ($peminjaman->status_pengajuan !== 'menunggu') {
+            return back()->withErrors(['pesan' => 'Hanya pengajuan dengan status menunggu yang dapat dibatalkan.']);
+        }
+
+        $peminjaman->status_pengajuan = 'dibatalkan';
+        $peminjaman->alasan_penolakan = 'Dibatalkan oleh peminjam';
+        $peminjaman->save();
+
+        LogAktivitas::catat('batalkan_peminjaman', 'Membatalkan pengajuan peminjaman: ' . $peminjaman->kode_peminjaman);
+
+        return redirect()->route('peminjaman.status')
+            ->with('pesan_sukses', 'Pengajuan peminjaman berhasil dibatalkan.');
+    }
+
+    public function create(Request $request)
+    {
+        $fasilitasId = $request->input('fasilitas', $request->input('fasilitas_id'));
+        if ($fasilitasId) {
+            return redirect()->route('katalog.ruang.detail', [
+                'fasilitas' => $fasilitasId,
+                'ajukan' => 1,
+            ]);
+        }
+
+        return redirect()->route('katalog.ruang')
+            ->with('info', 'Silakan pilih ruangan di Katalog Ruang untuk mengajukan peminjaman.');
     }
 
     public function store(Request $request)
     {
+        // Jika form mengirim tanggal_peminjaman, jam_mulai, dan jam_selesai terpisah
+        if ($request->filled('tanggal_peminjaman') && $request->filled('jam_mulai') && $request->filled('jam_selesai')) {
+            $tgl = $request->input('tanggal_peminjaman');
+            $request->merge([
+                'tanggal_mulai' => $tgl . ' ' . $request->input('jam_mulai') . ':00',
+                'tanggal_selesai' => $tgl . ' ' . $request->input('jam_selesai') . ':00',
+            ]);
+        }
+
         $validated = $request->validate([
             'fasilitas_id' => 'required|exists:fasilitas,id',
             'tanggal_mulai' => 'required|date|after_or_equal:today',
             'tanggal_selesai' => 'required|date|after:tanggal_mulai',
             'tujuan_peminjaman' => 'required|string|max:1000',
+            'jumlah_peserta' => 'nullable|integer|min:1',
             'berkas_persyaratan' => 'nullable|file|mimes:pdf|max:5120',
         ]);
 
@@ -101,11 +199,34 @@ class PeminjamanController extends Controller
 
     /* ---- Admin: Verifikasi ---- */
 
-    public function verifikasiIndex()
+    public function verifikasiIndex(Request $request)
     {
-        $pengajuan = Peminjaman::with(['pengguna', 'fasilitas.kategori'])
-            ->latest()
-            ->paginate(15);
+        $query = Peminjaman::with(['pengguna', 'fasilitas.kategori']);
+
+        // Filter Pencarian (nama peminjam, nomor identitas, atau nama fasilitas)
+        if ($request->filled('cari')) {
+            $cari = $request->cari;
+            $query->where(function ($q) use ($cari) {
+                $q->whereHas('pengguna', function ($qu) use ($cari) {
+                    $qu->where('nama_lengkap', 'like', "%{$cari}%")
+                       ->orWhere('nomor_identitas', 'like', "%{$cari}%");
+                })->orWhereHas('fasilitas', function ($qf) use ($cari) {
+                    $qf->where('nama_fasilitas', 'like', "%{$cari}%");
+                });
+            });
+        }
+
+        // Filter Status Pengajuan
+        if ($request->filled('status')) {
+            $query->where('status_pengajuan', $request->status);
+        }
+
+        // Filter Tanggal
+        if ($request->filled('tanggal')) {
+            $query->whereDate('tanggal_mulai', $request->tanggal);
+        }
+
+        $pengajuan = $query->latest('id')->paginate(10)->withQueryString();
 
         return view('admin.verifikasi.index', compact('pengajuan'));
     }
@@ -139,52 +260,37 @@ class PeminjamanController extends Controller
 
     public function adminRiwayat(Request $request)
     {
-        $query = Peminjaman::with(['pengguna', 'fasilitas.kategori', 'pengembalian']);
+        $query = Peminjaman::with(['pengguna', 'fasilitas.kategori', 'pengembalian.admin']);
 
-        // Filter Tanggal
-        if ($request->filled('tanggal')) {
-            $tanggal = $request->input('tanggal');
-            $query->whereDate('tanggal_mulai', $tanggal);
-        } else {
-            // Default tanggal hari ini jika tidak mencari text
-            $tanggal = null;
-        }
-
-        // Filter pencarian nama / NIM / NIP
-        $cari = $request->input('cari');
-        if ($cari) {
-            $query->whereHas('pengguna', function($q) use ($cari) {
-                $q->where('nama_lengkap', 'like', "%{$cari}%")
-                  ->orWhere('nomor_identitas', 'like', "%{$cari}%");
+        // Filter pencarian nama peminjam / NIM / fasilitas / keperluan
+        if ($request->filled('cari')) {
+            $cari = trim($request->cari);
+            $query->where(function ($q) use ($cari) {
+                $q->whereHas('pengguna', function ($qu) use ($cari) {
+                    $qu->where('nama_lengkap', 'like', "%{$cari}%")
+                       ->orWhere('nomor_identitas', 'like', "%{$cari}%");
+                })->orWhereHas('fasilitas', function ($qf) use ($cari) {
+                    $qf->where('nama_fasilitas', 'like', "%{$cari}%");
+                })->orWhere('tujuan_peminjaman', 'like', "%{$cari}%");
             });
-        } 
-
-        // Limit data agar tidak terlalu berat jika tidak ada filter sama sekali
-        if (!$cari && !$request->filled('tanggal')) {
-             $tanggal = now()->format('Y-m-d');
-             $query->whereDate('tanggal_mulai', $tanggal);
         }
 
-        // Filter opsional berdasarkan jenis (ruangan/peralatan)
-        if ($request->filled('jenis')) {
-            $query->whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', $request->jenis));
+        // Filter status
+        if ($request->filled('status')) {
+            $query->where('status_pengajuan', $request->status);
         }
 
-        $semua = $query->latest('tanggal_mulai')->get();
+        // Filter tanggal
+        if ($request->filled('tanggal')) {
+            $query->whereDate('tanggal_mulai', $request->tanggal);
+        }
 
-        // Statistik
-        $stats = [
-            'total'    => $semua->count(),
-            'berjalan' => $semua->where('status_pengajuan', 'disetujui')->count(),
-            'selesai'  => $semua->where('status_pengajuan', 'selesai')->count(),
-            'menunggu' => $semua->where('status_pengajuan', 'menunggu')->count(),
-            'ditolak'  => $semua->where('status_pengajuan', 'ditolak')->count(),
-        ];
+        $riwayat = $query->orderByDesc('tanggal_mulai')
+            ->orderByDesc('id')
+            ->paginate(10)
+            ->withQueryString();
 
-        // Group by tanggal
-        $grouped = $semua->groupBy(fn($p) => $p->tanggal_mulai->format('d F Y'));
-
-        return view('admin.riwayat.index', compact('grouped', 'cari', 'tanggal', 'stats'));
+        return view('admin.riwayat.index', compact('riwayat'));
     }
 
     /**
@@ -192,6 +298,14 @@ class PeminjamanController extends Controller
      */
     public function cekKetersediaan(Request $request)
     {
+        if ($request->filled('tanggal_peminjaman') && $request->filled('jam_mulai') && $request->filled('jam_selesai')) {
+            $tgl = $request->input('tanggal_peminjaman');
+            $request->merge([
+                'tanggal_mulai' => $tgl . ' ' . $request->input('jam_mulai') . ':00',
+                'tanggal_selesai' => $tgl . ' ' . $request->input('jam_selesai') . ':00',
+            ]);
+        }
+
         $request->validate([
             'fasilitas_id' => 'required|exists:fasilitas,id',
             'tanggal_mulai' => 'required|date',
@@ -204,8 +318,8 @@ class PeminjamanController extends Controller
         return response()->json([
             'tersedia' => $tersedia,
             'pesan' => $tersedia
-                ? 'Fasilitas tersedia pada waktu yang dipilih.'
-                : 'Fasilitas sudah dipesan pada waktu tersebut.',
+                ? 'Fasilitas masih tersedia pada tanggal dan waktu yang dipilih'
+                : 'Fasilitas sudah terpakai pada rentang tanggal dan waktu tersebut.',
         ]);
     }
 
@@ -215,9 +329,6 @@ class PeminjamanController extends Controller
     {
         $fasilitas = Fasilitas::with('kategori')
             ->where('status', 'tersedia')
-            ->whereHas('kategori', function($q) {
-                $q->where('jenis', 'peralatan');
-            })
             ->get();
             
         $pengguna = \App\Models\Pengguna::whereNotNull('jenis_pengguna')->get();
@@ -235,12 +346,6 @@ class PeminjamanController extends Controller
         ]);
 
         $fasilitas = Fasilitas::with('kategori')->findOrFail($validated['fasilitas_id']);
-
-        if ($fasilitas->kategori->jenis !== 'peralatan') {
-            return back()->withErrors([
-                'fasilitas_id' => 'Form ini khusus untuk peminjaman alat/barang.',
-            ])->withInput();
-        }
 
         // Cek apakah barang sedang dipinjam (belum dikembalikan)
         $sedangDipinjam = Peminjaman::where('fasilitas_id', $fasilitas->id)
@@ -264,5 +369,51 @@ class PeminjamanController extends Controller
 
         return redirect()->route('admin.pengembalian.index')
             ->with('pesan_sukses', 'Peminjaman berhasil diinput dan langsung disetujui (berjalan).');
+    }
+
+    /* ---- Admin: Input Jadwal Ruangan ---- */
+
+    public function adminCreateRuangan()
+    {
+        // Hanya ambil fasilitas yang jenis kategorinya 'ruangan'
+        $fasilitas = Fasilitas::with('kategori')
+            ->where('status', 'tersedia')
+            ->whereHas('kategori', function($q) {
+                $q->where('jenis', 'ruangan');
+            })
+            ->get();
+            
+        $pengguna = \App\Models\Pengguna::whereNotNull('jenis_pengguna')->get();
+
+        return view('admin.jadwal.buat', compact('fasilitas', 'pengguna'));
+    }
+
+    public function adminStoreRuangan(Request $request)
+    {
+        $validated = $request->validate([
+            'pengguna_id' => 'required|exists:pengguna,id',
+            'fasilitas_id' => 'required|exists:fasilitas,id',
+            'tanggal_mulai' => 'required|date',
+            'tanggal_selesai' => 'required|date|after:tanggal_mulai',
+            'tujuan_peminjaman' => 'required|string|max:1000',
+        ]);
+
+        $fasilitas = Fasilitas::with('kategori')->findOrFail($validated['fasilitas_id']);
+
+        // Cek konflik jadwal
+        if (!$fasilitas->tersediaPadaWaktu($validated['tanggal_mulai'], $validated['tanggal_selesai'])) {
+            return back()->withErrors([
+                'tanggal_mulai' => 'Jadwal bentrok! Ruangan ini sudah dipesan/ada jadwal pada waktu tersebut.',
+            ])->withInput();
+        }
+
+        $validated['status_pengajuan'] = 'disetujui';
+
+        $peminjaman = Peminjaman::create($validated);
+        
+        LogAktivitas::catat('ajukan_peminjaman', 'Admin menginput jadwal ruangan untuk: ' . $fasilitas->nama_fasilitas);
+
+        return redirect()->route('admin.verifikasi.index')
+            ->with('pesan_sukses', 'Jadwal ruangan berhasil diinput dan masuk ke kalender.');
     }
 }

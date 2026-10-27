@@ -16,9 +16,51 @@ class Fasilitas extends Model
         'nama_fasilitas',
         'status',
         'kondisi_awal',
+        'kapasitas',
+        'jumlah',
         'deskripsi',
         'gambar',
     ];
+
+    public function getJumlahFormattedAttribute(): string
+    {
+        if (!empty($this->jumlah)) {
+            return str_contains(strtolower($this->jumlah), 'unit') 
+                ? $this->jumlah 
+                : $this->jumlah . ' Unit';
+        }
+
+        return '1 Unit';
+    }
+
+    public function getKapasitasFormattedAttribute(): string
+    {
+        if (!empty($this->kapasitas)) {
+            return str_contains(strtolower($this->kapasitas), 'orang') 
+                ? $this->kapasitas 
+                : $this->kapasitas . ' Orang';
+        }
+
+        if (!empty($this->deskripsi) && preg_match('/(\d+)\s*(orang|kursi|unit)/i', $this->deskripsi, $matches)) {
+            return $matches[1] . ' Orang';
+        }
+
+        return '-';
+    }
+
+    public function getLokasiAttribute(): string
+    {
+        $nama = strtolower($this->nama_fasilitas);
+        if (str_contains($nama, 'aula')) {
+            return 'Gedung FST Lantai 3';
+        } elseif (str_contains($nama, 'lab') || str_contains($nama, 'komputer')) {
+            return 'Gedung FST Lantai 1';
+        } elseif (str_contains($nama, 'rapat')) {
+            return 'Gedung Dekanat Lantai 2';
+        } else {
+            return 'Gedung FST Lantai 2';
+        }
+    }
 
     public function kategori(): BelongsTo
     {

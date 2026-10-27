@@ -21,11 +21,18 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'email' => 'required',
             'kata_sandi' => 'required|min:6',
+        ], [
+            'email.required' => 'Email atau NIM wajib diisi.',
+            'kata_sandi.required' => 'Kata sandi wajib diisi.',
+            'kata_sandi.min' => 'Kata sandi minimal 6 karakter.',
         ]);
 
-        $pengguna = Pengguna::where('email', $request->email)->first();
+        $loginInput = $request->email;
+        $pengguna = Pengguna::where('email', $loginInput)
+            ->orWhere('nomor_identitas', $loginInput)
+            ->first();
 
         if ($pengguna && Hash::check($request->kata_sandi, $pengguna->kata_sandi)) {
             if ($pengguna->status_akun === 'menunggu') {
@@ -45,7 +52,7 @@ class AuthController extends Controller
         }
 
         return back()->withErrors([
-            'email' => 'Email atau kata sandi tidak sesuai.',
+            'email' => 'Email / NIM atau kata sandi tidak sesuai.',
         ])->onlyInput('email');
     }
 

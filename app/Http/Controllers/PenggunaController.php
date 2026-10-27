@@ -22,7 +22,7 @@ class PenggunaController extends Controller
                    ->orWhere('email', 'like', "%$cari%")
                    ->orWhere('nomor_identitas', 'like', "%$cari%")
             ))
-            ->latest()
+            ->orderByRaw("CASE WHEN email = 'ahmad@gmail.com' THEN 1 WHEN email = 'siti@gmail.com' THEN 2 WHEN email = 'marisa@gmail.com' THEN 3 WHEN email = 'rina@gmail.com' THEN 4 ELSE 5 END")
             ->paginate(10, ['*'], 'admin_page');
 
         $mahasiswaList = Pengguna::where('peran', 'pengguna')
@@ -57,7 +57,6 @@ class PenggunaController extends Controller
             ->latest()
             ->paginate(10, ['*'], 'dosen_menunggu_page');
 
-        // Pengguna lama yang didaftarkan sebelum kolom jenis_pengguna ada (null)
         $lainnyaList = Pengguna::where('peran', 'pengguna')
             ->whereNull('jenis_pengguna')
             ->when($cari, fn($q) => $q->where(fn($q2) =>
@@ -68,7 +67,10 @@ class PenggunaController extends Controller
             ->latest()
             ->paginate(10, ['*'], 'lainnya_page');
 
-        return view('super_admin.pengguna.index', compact('adminList', 'mahasiswaList', 'dosenList', 'dosenMenungguList', 'lainnyaList'));
+        // Admin default untuk highlight card
+        $defaultAdmin = $adminList->firstWhere('email', 'ahmad@gmail.com') ?? $adminList->first();
+
+        return view('super_admin.pengguna.index', compact('adminList', 'defaultAdmin', 'mahasiswaList', 'dosenList', 'dosenMenungguList', 'lainnyaList'));
     }
 
     public function store(Request $request)
@@ -79,9 +81,13 @@ class PenggunaController extends Controller
             'nomor_identitas' => 'required|string|unique:pengguna,nomor_identitas',
             'nomor_telepon' => 'nullable|string|max:20',
             'kata_sandi' => 'required|min:8',
+            'status_akun' => 'nullable|in:aktif,nonaktif,menunggu',
         ]);
 
         $validated['peran'] = 'admin';
+        if (empty($validated['status_akun'])) {
+            $validated['status_akun'] = 'aktif';
+        }
 
         Pengguna::create($validated);
 
@@ -98,6 +104,7 @@ class PenggunaController extends Controller
             'nomor_identitas' => 'required|string|unique:pengguna,nomor_identitas,' . $pengguna->id,
             'nomor_telepon' => 'nullable|string|max:20',
             'kata_sandi' => 'nullable|min:8',
+            'status_akun' => 'nullable|in:aktif,nonaktif,menunggu',
         ]);
 
         if (empty($validated['kata_sandi'])) {

@@ -113,9 +113,9 @@
                     Pilih Fasilitas
                 </h3>
                 <div class="bg-gray-50 p-5 rounded-xl border border-gray-100">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Alat / Barang</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Ruangan / Alat</label>
                     <select name="fasilitas_id" required class="w-full rounded-lg border-gray-300 text-sm focus:ring-mustard-400 focus:border-mustard-400 @error('fasilitas_id') border-red-500 @enderror">
-                        <option value="">-- Pilih Alat --</option>
+                        <option value="">-- Pilih Fasilitas --</option>
                         @foreach($fasilitas as $f)
                             <option value="{{ $f->id }}" {{ old('fasilitas_id') == $f->id ? 'selected' : '' }}>
                                 {{ $f->nama_fasilitas }} ({{ $f->kode_fasilitas }}) - Kategori: {{ $f->kategori->nama_kategori }}
