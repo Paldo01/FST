@@ -3,18 +3,7 @@
 @section('title', 'Beranda - SIMORA FST')
 
 @push('styles')
-<!-- FullCalendar CSS -->
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 <style>
-    /* Styling FullCalendar to match theme */
-    .fc { font-family: inherit; }
-    .fc .fc-toolbar-title { font-size: 1.25rem; font-weight: 700; color: var(--color-marun-900); }
-    .fc .fc-button-primary { background-color: var(--color-marun-800); border-color: var(--color-marun-800); }
-    .fc .fc-button-primary:hover, .fc .fc-button-primary:active, .fc .fc-button-primary:focus { background-color: var(--color-marun-700) !important; border-color: var(--color-marun-700) !important; box-shadow: none !important; }
-    .fc .fc-daygrid-day.fc-day-today { background-color: var(--color-mustard-50); }
-    .fc-event { cursor: pointer; border-radius: 4px; border: none; padding: 2px 4px; font-size: 0.75rem; }
-    .fc-h-event .fc-event-main { color: #fff; }
-
     /* Hide ugly scrollbars on mobile while keeping smooth touch scrolling */
     .no-scrollbar::-webkit-scrollbar {
         display: none !important;
@@ -183,28 +172,9 @@
                 </div>
             </div>
 
-            <!-- View Mode Switcher Sesuai Jenis Fasilitas (Responsive Segments on Mobile) -->
-            <div class="w-full lg:w-auto">
-                <!-- Mode View untuk Ruangan (Timeline vs Kalender) -->
-                <template x-if="jenis === 'ruangan'">
-                    <div class="grid grid-cols-2 lg:inline-flex bg-gray-100 p-1 rounded-xl border border-gray-200 w-full sm:w-auto">
-                        <button type="button" @click="switchView('matriks')" 
-                                class="px-3 py-2 sm:py-1.5 rounded-lg text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
-                                :class="viewMode === 'matriks' ? 'bg-marun-800 text-mustard-400 shadow-xs' : 'text-gray-600 hover:text-gray-900'">
-                            <i data-lucide="layout-grid" class="w-3.5 h-3.5 shrink-0"></i>
-                            <span>Timeline Jam</span>
-                        </button>
-                        <button type="button" @click="switchView('kalender')" 
-                                class="px-3 py-2 sm:py-1.5 rounded-lg text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
-                                :class="viewMode === 'kalender' ? 'bg-marun-800 text-mustard-400 shadow-xs' : 'text-gray-600 hover:text-gray-900'">
-                            <i data-lucide="calendar" class="w-3.5 h-3.5 shrink-0"></i>
-                            <span>Kalender Bulanan</span>
-                        </button>
-                    </div>
-                </template>
-
-                <!-- Mode View untuk Alat (Mode Kartu vs Mode Timeline Jam) -->
-                <template x-if="jenis === 'peralatan'">
+            <!-- View Mode Switcher Khusus Peralatan (Kartu Status vs Timeline Jam) -->
+            <template x-if="jenis === 'peralatan'">
+                <div class="w-full lg:w-auto">
                     <div class="grid grid-cols-2 lg:inline-flex bg-gray-100 p-1 rounded-xl border border-gray-200 w-full sm:w-auto">
                         <button type="button" @click="setSubModeAlat('kartu')" 
                                 class="px-3 py-2 sm:py-1.5 rounded-lg text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
@@ -219,8 +189,8 @@
                             <span>Timeline Jam</span>
                         </button>
                     </div>
-                </template>
-            </div>
+                </div>
+            </template>
         </div>
 
         <!-- Baris 2: Quick Search & Filter Chips (No-Scrollbar, Touch-Friendly) -->
@@ -419,9 +389,9 @@
                                             <p class="text-[10px] text-emerald-700 font-medium">Bebas &amp; siap dipinjam</p>
                                         </div>
                                     </div>
-                                    <a href="{{ route('katalog.ruang') }}" 
+                                    <a href="{{ route('katalog.alat') }}" 
                                        class="text-xs font-bold text-white bg-marun-800 hover:bg-marun-700 px-3 py-1.5 rounded-lg shadow-xs transition-colors shrink-0">
-                                        Lihat Ruang
+                                        Lihat Alat
                                     </a>
                                 </div>
                             </template>
@@ -479,7 +449,7 @@
     </div>
 
     <!-- TAMPILAN 2: MATRIKS TIMELINE GANTT BAR PER JAM (Untuk Ruangan ATAU Alat Mode Timeline) -->
-    <div x-show="jenis === 'ruangan' ? (viewMode === 'matriks') : (subModeAlat === 'timeline')" 
+    <div x-show="jenis === 'ruangan' || subModeAlat === 'timeline'" 
          x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
         
         <!-- Container Tabel Matriks Timeline (Scrollable Gantt Chart) -->
@@ -670,13 +640,7 @@
             </div>
         </div>
     </div>
-
-    <!-- TAMPILAN 3: KALENDER BULANAN (FULLCALENDAR LAMA - KHUSUS RUANGAN) -->
-    <div x-show="jenis === 'ruangan' && viewMode === 'kalender'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" style="display: none;">
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 w-full">
-            <div id="calendar" class="min-h-[600px]"></div>
-        </div>
-    </div>
+    <!-- Akhir Seksi Jadwal & Matriks -->
 </div>
 
 <!-- Modal Detail Event Peminjaman -->
@@ -956,88 +920,8 @@
                         }
                     }, 200);
                 }
-            },
-            switchView(mode) {
-                this.viewMode = mode;
-                if (mode === 'kalender') {
-                    setTimeout(() => {
-                        if (window.fullCalendarInstance) {
-                            window.fullCalendarInstance.render();
-                        }
-                    }, 100);
-                } else if (mode === 'matriks') {
-                    setTimeout(() => {
-                        if (this.isToday && this.isOperatingHours) {
-                            this.scrollToCurrentTime();
-                        }
-                    }, 200);
-                }
             }
         };
     }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
-        if (calendarEl) {
-            var currentKategori = '';
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                customButtons: {
-                    btnSemua: {
-                        text: 'Semua',
-                        click: function() {
-                            currentKategori = '';
-                            calendar.refetchEvents();
-                        }
-                    },
-                    @foreach($kategoriList as $kat)
-                    btnKat_{{ $kat->id }}: {
-                        text: '{{ $kat->nama_kategori }}',
-                        click: function() {
-                            currentKategori = '{{ $kat->nama_kategori }}';
-                            calendar.refetchEvents();
-                        }
-                    },
-                    @endforeach
-                },
-                headerToolbar: {
-                    left: 'prev,next today dayGridMonth,timeGridWeek',
-                    center: 'title',
-                    right: 'btnSemua,{!! $kategoriList->map(fn($k) => "btnKat_".$k->id)->implode(",") !!}'
-                },
-                locale: 'id',
-                slotMinTime: '07:00:00',
-                slotMaxTime: '22:00:00',
-                events: function(info, successCallback, failureCallback) {
-                    var url = '/api/fasilitas/ketersediaan?start=' + info.startStr + '&end=' + info.endStr;
-                    if (currentKategori) {
-                        url += '&kategori=' + encodeURIComponent(currentKategori);
-                    }
-                    
-                    fetch(url)
-                        .then(response => response.json())
-                        .then(data => successCallback(data))
-                        .catch(error => failureCallback(error));
-                },
-                eventClick: function(info) {
-                    window.dispatchEvent(new CustomEvent('show-event-modal', {
-                        detail: {
-                            title: info.event.title,
-                            start: info.event.startStr,
-                            end: info.event.endStr || info.event.startStr,
-                            peminjam: info.event.extendedProps.peminjam,
-                            status: info.event.extendedProps.status,
-                            tujuan: info.event.extendedProps.tujuan
-                        }
-                    }));
-                    setTimeout(() => {
-                        if (window.lucide) lucide.createIcons();
-                    }, 50);
-                }
-            });
-            window.fullCalendarInstance = calendar;
-            calendar.render();
-        }
-    });
 </script>
 @endpush
