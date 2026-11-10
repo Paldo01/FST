@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Fasilitas;
 use App\Models\LogAktivitas;
 use App\Models\Peminjaman;
+use App\Models\Pengguna;
+use App\Notifications\SystemNotification;
 use Illuminate\Http\Request;
 
 class PeminjamanController extends Controller
@@ -179,6 +181,14 @@ class PeminjamanController extends Controller
 
         $peminjaman = Peminjaman::create($validated);
 
+        $notifikasi = new SystemNotification(
+            'Pengajuan peminjaman baru',
+            auth()->user()->nama_lengkap . ' mengajukan peminjaman ' . $fasilitas->nama_fasilitas . '.',
+            route('admin.verifikasi.index', absolute: false),
+        );
+
+        Pengguna::whereIn('peran', ['admin', 'super_admin'])->get()->each->notify($notifikasi);
+
         LogAktivitas::catat('ajukan_peminjaman', 'Mengajukan peminjaman fasilitas: ' . $fasilitas->nama_fasilitas);
 
         return redirect()->route('peminjaman.index')
@@ -234,6 +244,11 @@ class PeminjamanController extends Controller
     public function setujui(Peminjaman $peminjaman)
     {
         $peminjaman->update(['status_pengajuan' => 'disetujui']);
+        $peminjaman->pengguna->notify(new SystemNotification(
+            'Peminjaman disetujui',
+            'Pengajuan peminjaman #' . $peminjaman->id . ' telah disetujui.',
+            route('peminjaman.status', absolute: false),
+        ));
 
         LogAktivitas::catat('setujui_peminjaman', 'Menyetujui peminjaman #' . $peminjaman->id . ' oleh ' . $peminjaman->pengguna->nama_lengkap);
 
@@ -250,6 +265,11 @@ class PeminjamanController extends Controller
             'status_pengajuan' => 'ditolak',
             'alasan_penolakan' => $request->alasan_penolakan,
         ]);
+        $peminjaman->pengguna->notify(new SystemNotification(
+            'Peminjaman ditolak',
+            'Pengajuan peminjaman #' . $peminjaman->id . ' ditolak. Alasan: ' . $request->alasan_penolakan,
+            route('peminjaman.status', absolute: false),
+        ));
 
         LogAktivitas::catat('tolak_peminjaman', 'Menolak peminjaman #' . $peminjaman->id . ': ' . $request->alasan_penolakan);
 

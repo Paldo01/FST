@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\LogAktivitas;
 use App\Models\Peminjaman;
 use App\Models\UlasanLayanan;
+use App\Models\Pengguna;
+use App\Notifications\SystemNotification;
 use Illuminate\Http\Request;
 
 class UlasanController extends Controller
@@ -37,12 +39,20 @@ class UlasanController extends Controller
             'komentar' => 'nullable|string|max:1000',
         ]);
 
-        UlasanLayanan::create([
+        $ulasan = UlasanLayanan::create([
             'peminjaman_id' => $peminjaman->id,
             'pengguna_id' => auth()->id(),
             'rating' => $validated['rating'],
             'komentar' => $validated['komentar'] ?? null,
         ]);
+
+        $notifikasi = new SystemNotification(
+            'Feedback baru diterima',
+            auth()->user()->nama_lengkap . ' memberikan rating ' . $ulasan->rating . '/5.',
+            route('super_admin.ulasan.index', absolute: false),
+        );
+
+        Pengguna::where('peran', 'super_admin')->get()->each->notify($notifikasi);
 
         LogAktivitas::catat('beri_ulasan', 'Memberikan ulasan untuk peminjaman #' . $peminjaman->id);
 

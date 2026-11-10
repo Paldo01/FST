@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\LogAktivitas;
 use App\Models\Peminjaman;
 use App\Models\Pengembalian;
+use App\Notifications\SystemNotification;
 use Illuminate\Http\Request;
 
 class PengembalianController extends Controller
@@ -60,6 +61,11 @@ class PengembalianController extends Controller
 
         // Update status peminjaman menjadi selesai
         $peminjaman->update(['status_pengajuan' => 'selesai']);
+        $peminjaman->pengguna->notify(new SystemNotification(
+            'Pengembalian selesai',
+            'Pengembalian peminjaman #' . $peminjaman->id . ' telah diproses. Silakan berikan feedback fasilitas.',
+            route('ulasan.pengguna', absolute: false),
+        ));
 
         // Update kondisi fasilitas jika rusak/hilang
         if ($validated['kondisi_akhir'] !== 'baik') {
