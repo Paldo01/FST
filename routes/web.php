@@ -63,9 +63,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/katalog/ruang/{fasilitas}', [BerandaController::class, 'detailRuang'])->name('katalog.ruang.detail');
         Route::get('/katalog/alat', [BerandaController::class, 'katalogAlat'])->name('katalog.alat');
         
-        Route::get('/peminjaman/{peminjaman}/ulasan', [UlasanController::class, 'create'])->name('ulasan.buat');
-        Route::post('/peminjaman/{peminjaman}/ulasan', [UlasanController::class, 'store'])->name('ulasan.simpan');
-        Route::get('/presensi-feedback', [UlasanController::class, 'indexPengguna'])->name('ulasan.pengguna');
+        Route::post('/feedback', [UlasanController::class, 'store'])->name('ulasan.simpan');
+        Route::get('/feedback', [UlasanController::class, 'indexPengguna'])->name('ulasan.pengguna');
     });
 
     // Role: Admin (Pengelola Fasilitas) & Super Admin

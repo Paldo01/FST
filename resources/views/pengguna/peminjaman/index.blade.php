@@ -128,12 +128,6 @@
 
                                 {{-- Aksi --}}
                                 <div class="flex items-center gap-2 shrink-0">
-                                    @if($p->status_pengajuan === 'selesai' && !$p->ulasan)
-                                        <a href="{{ route('ulasan.buat', $p->id) }}"
-                                           class="p-2 text-mustard-600 hover:text-mustard-700 hover:bg-mustard-50 rounded-lg transition-colors" title="Beri Ulasan">
-                                            <i data-lucide="star" class="w-4 h-4"></i>
-                                        </a>
-                                    @endif
                                     <a href="{{ route('peminjaman.show', $p->id) }}"
                                        class="p-2 text-marun-700 hover:text-marun-900 hover:bg-marun-50 rounded-lg transition-colors" title="Lihat Detail">
                                         <i data-lucide="eye" class="w-4 h-4"></i>

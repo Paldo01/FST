@@ -3,73 +3,39 @@
 namespace App\Http\Controllers;
 
 use App\Models\LogAktivitas;
-use App\Models\Peminjaman;
 use App\Models\UlasanLayanan;
 use Illuminate\Http\Request;
 
 class UlasanController extends Controller
 {
-    public function create(Peminjaman $peminjaman)
+    public function store(Request $request)
     {
-        // Hanya pemilik peminjaman & status selesai
-        if ($peminjaman->pengguna_id !== auth()->id() || $peminjaman->status_pengajuan !== 'selesai') {
-            abort(403);
-        }
-
-        // Cek apakah sudah memberi ulasan
-        if ($peminjaman->ulasan) {
-            return back()->with('pesan_error', 'Anda sudah memberikan ulasan untuk peminjaman ini.');
-        }
-
-        $peminjaman->load('fasilitas');
-
-        return view('pengguna.ulasan.buat', compact('peminjaman'));
-    }
-
-    public function store(Request $request, Peminjaman $peminjaman)
-    {
-        if ($peminjaman->pengguna_id !== auth()->id() || $peminjaman->status_pengajuan !== 'selesai') {
-            abort(403);
-        }
-
         $validated = $request->validate([
             'rating' => 'required|integer|min:1|max:5',
             'komentar' => 'nullable|string|max:1000',
         ]);
 
         UlasanLayanan::create([
-            'peminjaman_id' => $peminjaman->id,
+            'peminjaman_id' => null,
             'pengguna_id' => auth()->id(),
             'rating' => $validated['rating'],
             'komentar' => $validated['komentar'] ?? null,
         ]);
 
-        LogAktivitas::catat('beri_ulasan', 'Memberikan ulasan untuk peminjaman #' . $peminjaman->id);
+        LogAktivitas::catat('beri_feedback', 'Memberikan feedback untuk sistem');
 
-        return redirect()->route('peminjaman.index')
+        return redirect()->route('ulasan.pengguna')
             ->with('pesan_sukses', 'Terima kasih atas ulasan Anda!');
     }
 
-    /**
-     * Pengguna: Lihat daftar presensi & feedback (peminjaman selesai yang perlu diulas & riwayat ulasan).
-     */
     public function indexPengguna()
     {
-        $userId = auth()->id();
-
-        $perluDiulas = Peminjaman::where('pengguna_id', $userId)
-            ->where('status_pengajuan', 'selesai')
-            ->whereDoesntHave('ulasan')
-            ->with(['fasilitas'])
-            ->latest()
-            ->get();
-
-        $riwayatUlasan = UlasanLayanan::where('pengguna_id', $userId)
-            ->with(['peminjaman.fasilitas'])
+        $riwayatUlasan = UlasanLayanan::where('pengguna_id', auth()->id())
+            ->whereNull('peminjaman_id')
             ->latest()
             ->paginate(10);
 
-        return view('pengguna.ulasan.index', compact('perluDiulas', 'riwayatUlasan'));
+        return view('pengguna.ulasan.index', compact('riwayatUlasan'));
     }
 
     /**
@@ -81,13 +47,14 @@ class UlasanController extends Controller
         $rentangTanggal = $request->get('rentang_tanggal');
 
         // Statistik Real dari Database
-        $totalFeedback = UlasanLayanan::count();
-        $avgRating = UlasanLayanan::avg('rating');
+        $feedbackQuery = UlasanLayanan::whereNull('peminjaman_id');
+        $totalFeedback = (clone $feedbackQuery)->count();
+        $avgRating = (clone $feedbackQuery)->avg('rating');
         $rataRataRating = $totalFeedback > 0 ? number_format($avgRating, 1, ',', '.') : '0';
-        $feedbackTerbaru = UlasanLayanan::where('created_at', '>=', now()->subDays(30))->count();
+        $feedbackTerbaru = (clone $feedbackQuery)->where('created_at', '>=', now()->subDays(30))->count();
 
         // Query Feedback Riil dari Database
-        $query = UlasanLayanan::with(['pengguna', 'peminjaman.fasilitas'])->latest();
+        $query = UlasanLayanan::whereNull('peminjaman_id')->with('pengguna')->latest();
 
         if ($cari) {
             $query->where(function ($q) use ($cari) {
@@ -96,9 +63,6 @@ class UlasanController extends Controller
                       $qp->where('nama_lengkap', 'like', "%{$cari}%")
                          ->orWhere('jenis_pengguna', 'like', "%{$cari}%")
                          ->orWhere('peran', 'like', "%{$cari}%");
-                  })
-                  ->orWhereHas('peminjaman.fasilitas', function ($qf) use ($cari) {
-                      $qf->where('nama_fasilitas', 'like', "%{$cari}%");
                   });
             });
         }

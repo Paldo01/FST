@@ -11,7 +11,7 @@
             Evaluasi Feedback
         </h1>
         <p class="text-xs sm:text-sm text-gray-500 font-medium">
-            Kelola dan lihat evaluasi feedback dari pengguna setelah menggunakan fasilitas
+            Kelola feedback dan penilaian pengguna terhadap sistem peminjaman FST
         </p>
     </div>
 
@@ -69,7 +69,7 @@
             <input type="text" 
                    name="cari" 
                    value="{{ request('cari') }}" 
-                   placeholder="Cari pengguna, fasilitas, atau feedback" 
+                   placeholder="Cari pengguna atau feedback"
                    class="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-white border border-gray-200/90 rounded-xl sm:rounded-2xl text-xs sm:text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#801414]/15 focus:border-[#801414] transition-all shadow-2xs">
         </div>
 
@@ -111,7 +111,7 @@
                     <tr>
                         <th scope="col" class="px-4 py-3.5 text-center w-12">No</th>
                         <th scope="col" class="px-4 py-3.5 w-32">Pengguna</th>
-                        <th scope="col" class="px-4 py-3.5 w-36">Fasilitas</th>
+                        <th scope="col" class="px-4 py-3.5 w-36">Untuk</th>
                         <th scope="col" class="px-4 py-3.5 w-36">Rating</th>
                         <th scope="col" class="px-4 py-3.5">Feedback</th>
                         <th scope="col" class="px-4 py-3.5 w-36">Tanggal</th>
@@ -122,7 +122,7 @@
                     @forelse ($feedbacks as $index => $item)
                         @php
                             $userRole = ucfirst($item->pengguna->jenis_pengguna ?? ($item->pengguna->peran === 'super_admin' ? 'Super Admin' : 'Pengguna'));
-                            $fasilitasNama = $item->peminjaman->fasilitas->nama_fasilitas ?? 'Fasilitas';
+                            $fasilitasNama = 'Sistem';
                             $tanggalFormatted = $item->created_at ? $item->created_at->format('d/m/Y H:i') : '-';
                             $modalData = [
                                 'pengguna' => $userRole . ($item->pengguna ? ' (' . $item->pengguna->nama_lengkap . ')' : ''),
@@ -182,7 +182,7 @@
                                     @if(request('cari') || request('rentang_tanggal'))
                                         Tidak ada evaluasi feedback yang cocok dengan filter pencarian Anda.
                                     @else
-                                        Belum ada evaluasi feedback yang masuk dari pengguna. Feedback akan muncul otomatis di sini setelah peminjam menyelesaikan peminjaman dan memberikan ulasan fasilitas.
+                                        Belum ada feedback yang masuk dari pengguna untuk sistem.
                                     @endif
                                 </p>
                             </td>
@@ -268,7 +268,7 @@
                         </div>
                         <div>
                             <h3 class="text-lg font-black text-gray-900">Detail Evaluasi Feedback</h3>
-                            <p class="text-xs text-gray-500 font-medium">Ulasan kepuasan penggunaan fasilitas</p>
+                            <p class="text-xs text-gray-500 font-medium">Penilaian pengguna terhadap sistem</p>
                         </div>
                     </div>
                     <button type="button" @click="showDetailModal = false" class="p-2 text-gray-400 hover:text-gray-600 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
@@ -283,7 +283,7 @@
                             <p class="text-sm font-bold text-gray-900 mt-0.5" x-text="selectedDetail ? selectedDetail.pengguna : ''"></p>
                         </div>
                         <div>
-                            <p class="text-xs text-gray-400 font-medium">Fasilitas</p>
+                            <p class="text-xs text-gray-400 font-medium">Feedback untuk</p>
                             <p class="text-sm font-bold text-[#801414] mt-0.5" x-text="selectedDetail ? selectedDetail.fasilitas : ''"></p>
                         </div>
                         <div>

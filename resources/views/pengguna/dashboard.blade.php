@@ -133,7 +133,7 @@
             <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400 group-hover:text-[#801414] group-hover:translate-x-1 transition-all shrink-0"></i>
         </a>
 
-        <!-- Presensi & Feedback -->
+        <!-- Feedback -->
         <a href="{{ route('ulasan.pengguna') }}" 
            class="bg-white rounded-2xl sm:rounded-3xl border border-gray-200/90 shadow-2xs p-5 sm:p-6 flex items-center justify-between hover:shadow-xs hover:border-gray-300 transition-all group">
             <div class="flex items-center gap-4">
@@ -142,10 +142,10 @@
                 </div>
                 <div>
                     <h4 class="text-sm sm:text-base font-black text-gray-900 group-hover:text-[#801414] transition-colors">
-                        Presensi & Feedback
+                        Feedback
                     </h4>
                     <p class="text-xs text-gray-500 font-medium mt-0.5">
-                        Berikan presensi dan feedback setelah peminjaman
+                        Bantu kami meningkatkan sistem peminjaman
                     </p>
                 </div>
             </div>

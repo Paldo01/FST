@@ -242,32 +242,13 @@
                         </div>
                     </div>
 
-                    <!-- Footer Card: Ulasan & Tombol Detail -->
-                    <div class="px-5 py-3.5 bg-gray-50/50 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div>
-                            @if($isSelesai)
-                                @if($p->ulasan)
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-800 text-xs font-bold rounded-lg border border-amber-200">
-                                        <i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400 text-amber-500"></i>
-                                        <span>Sudah Diulas (Rating: {{ $p->ulasan->rating }}/5)</span>
-                                    </span>
-                                @else
-                                    <a href="{{ route('ulasan.buat', $p->id) }}" 
-                                       class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg shadow-2xs transition">
-                                        <i data-lucide="star" class="w-3.5 h-3.5"></i>
-                                        <span>Beri Feedback & Ulasan</span>
-                                    </a>
-                                @endif
-                            @endif
-                        </div>
-
-                        <div class="self-end sm:self-auto">
+                    <!-- Footer Card: Tombol Detail -->
+                    <div class="px-5 py-3.5 bg-gray-50/50 border-t border-gray-100 flex justify-end">
                             <a href="{{ route('peminjaman.show', $p->id) }}" 
                                class="px-4 py-2 bg-[#801414] hover:bg-[#681010] text-white text-xs font-bold rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer">
                                 <span>Detail Peminjaman</span>
                                 <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
                             </a>
-                        </div>
                     </div>
                 </div>
             @endforeach

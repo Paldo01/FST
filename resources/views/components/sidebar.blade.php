@@ -181,11 +181,11 @@
                     </div>
                 </div>
 
-                <!-- 5. Presensi dan Feedback -->
+                <!-- 5. Feedback -->
                 <a href="{{ route('ulasan.pengguna') }}" 
                    class="flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all {{ $isFeedback ? 'bg-[#801414] text-white shadow-sm' : 'bg-white text-gray-800 border border-gray-200/70 hover:border-gray-300 hover:bg-gray-50/80 shadow-2xs' }}">
                     <i data-lucide="edit-3" class="w-5 h-5 shrink-0 {{ $isFeedback ? 'text-white' : 'text-gray-700' }}"></i>
-                    <span>Presensi dan Feedback</span>
+                    <span>Feedback</span>
                 </a>
             @endif
 
