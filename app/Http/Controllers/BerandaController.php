@@ -432,8 +432,8 @@ class BerandaController extends Controller
                 $leftPercent = round(($startMin / $totalMinutes) * 100, 2);
                 $widthPercent = round(($durationMin / $totalMinutes) * 100, 2);
 
-                if ($widthPercent < 2.5) {
-                    $widthPercent = 2.5;
+                if ($widthPercent < 5.0) {
+                    $widthPercent = 5.0;
                 }
                 if ($leftPercent + $widthPercent > 100) {
                     $widthPercent = 100 - $leftPercent;

@@ -588,27 +588,49 @@
                                     <!-- Grafik Batang Peminjaman (Gantt Bar) -->
                                     <template x-for="booking in item.peminjaman_list" :key="booking.id">
                                         <div @click="openDetail(booking)"
-                                             class="absolute z-10 rounded-xl px-3 py-1 flex items-center justify-between shadow-xs hover:shadow-lg transition-all duration-150 cursor-pointer overflow-hidden group select-none hover:scale-[1.008]"
+                                             class="absolute z-10 rounded-lg sm:rounded-xl shadow-xs hover:shadow-lg transition-all duration-150 cursor-pointer overflow-hidden group select-none hover:scale-[1.008] bg-gradient-to-r from-red-600 via-rose-600 to-marun-900 text-white border border-red-500/40 shadow-red-900/10 flex items-center justify-between"
+                                             :class="booking.width_percent < 9 ? 'px-1 py-0.5' : (booking.width_percent < 20 ? 'px-2 py-0.5' : 'px-3 py-1')"
                                              :style="`left: ${booking.left_percent}%; width: ${booking.width_percent}%; top: ${booking.top_px}px; height: ${booking.height_px}px;`"
-                                             :class="'bg-gradient-to-r from-red-600 via-rose-600 to-marun-900 text-white border border-red-500/40 shadow-red-900/10'"
                                              :title="'Klik untuk rincian peminjaman:\n' + booking.peminjam + ' (' + booking.label_waktu + ')\nKeperluan: ' + booking.tujuan">
                                             
-                                            <!-- Konten Batang (Jam & Peminjam) -->
-                                            <div class="flex items-center gap-2 min-w-0 pr-1">
-                                                <span class="inline-flex items-center gap-1 text-[11px] font-black bg-black/25 px-2 py-0.5 rounded-md whitespace-nowrap shrink-0 shadow-2xs">
-                                                    <i data-lucide="clock" class="w-3 h-3 text-mustard-300"></i>
-                                                    <span x-text="booking.label_waktu"></span>
-                                                </span>
-                                                <div class="min-w-0 truncate text-xs font-bold leading-tight">
-                                                    <span x-text="booking.peminjam"></span>
-                                                    <span class="text-white/80 font-normal text-[11px] hidden md:inline" x-text="booking.tujuan ? ' — ' + booking.tujuan : ''"></span>
+                                            <!-- KONDISI 1: BOX KECIL (< 9% / durasi ~1 jam) -->
+                                            <template x-if="booking.width_percent < 9">
+                                                <div class="w-full flex items-center justify-center text-center overflow-hidden px-0.5">
+                                                    <span class="text-[9px] sm:text-[10px] font-black tracking-tight leading-none text-white whitespace-nowrap drop-shadow-xs"
+                                                          x-text="booking.jam_mulai + '-' + booking.jam_selesai"></span>
                                                 </div>
-                                            </div>
+                                            </template>
 
-                                            <!-- Badge Status -->
-                                            <span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/20 whitespace-nowrap shrink-0 hidden sm:inline-block">
-                                                Dipinjam
-                                            </span>
+                                            <!-- KONDISI 2: BOX SEDANG (9% - 22% / durasi ~1.5 - 2.5 jam) -->
+                                            <template x-if="booking.width_percent >= 9 && booking.width_percent < 22">
+                                                <div class="flex items-center gap-1.5 min-w-0 w-full overflow-hidden">
+                                                    <span class="inline-flex items-center gap-1 text-[9px] font-black bg-black/30 px-1.5 py-0.5 rounded whitespace-nowrap shrink-0 shadow-2xs">
+                                                        <span x-text="booking.label_waktu"></span>
+                                                    </span>
+                                                    <span class="truncate text-[10px] font-bold leading-tight text-white/95" 
+                                                          x-text="booking.peminjam"></span>
+                                                </div>
+                                            </template>
+
+                                            <!-- KONDISI 3: BOX PANJANG (>= 22% / durasi 3 jam ke atas) -->
+                                            <template x-if="booking.width_percent >= 22">
+                                                <div class="flex items-center justify-between w-full min-w-0 gap-2">
+                                                    <div class="flex items-center gap-2 min-w-0 pr-1">
+                                                        <span class="inline-flex items-center gap-1 text-[11px] font-black bg-black/25 px-2 py-0.5 rounded-md whitespace-nowrap shrink-0 shadow-2xs">
+                                                            <i data-lucide="clock" class="w-3 h-3 text-mustard-300"></i>
+                                                            <span x-text="booking.label_waktu"></span>
+                                                        </span>
+                                                        <div class="min-w-0 truncate text-xs font-bold leading-tight">
+                                                            <span x-text="booking.peminjam"></span>
+                                                            <span class="text-white/80 font-normal text-[11px] hidden md:inline" x-text="booking.tujuan ? ' — ' + booking.tujuan : ''"></span>
+                                                        </div>
+                                                    </div>
+
+                                                    <span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/20 whitespace-nowrap shrink-0">
+                                                        Dipinjam
+                                                    </span>
+                                                </div>
+                                            </template>
                                         </div>
                                     </template>
 
