@@ -152,18 +152,18 @@
                         <!-- Teks Tengah Total Peminjaman -->
                         <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
                             <span class="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Total</span>
-                            <span class="text-xl sm:text-2xl font-black text-gray-900 leading-none my-0.5">20</span>
+                            <span class="text-xl sm:text-2xl font-black text-gray-900 leading-none my-0.5">{{ $persentaseFasilitas['total'] }}</span>
                             <span class="text-[10px] text-gray-400 font-medium">Peminjaman</span>
                         </div>
                     </div>
 
-                    <!-- Legenda Rinci Sesuai Mockup -->
+                    <!-- Legenda Rinci (data real) -->
                     <div class="space-y-3.5 w-full">
                         <div class="flex items-start gap-2.5">
                             <span class="w-3.5 h-3.5 rounded-full bg-[#3B82F6] shrink-0 mt-0.5"></span>
                             <div>
                                 <p class="text-xs sm:text-sm font-bold text-gray-900">Ruang</p>
-                                <p class="text-xs text-gray-500 font-medium">12 Peminjaman 60%</p>
+                                <p class="text-xs text-gray-500 font-medium">{{ $persentaseFasilitas['ruang_count'] }} Peminjaman {{ $persentaseFasilitas['ruang_persen'] }}%</p>
                             </div>
                         </div>
 
@@ -171,11 +171,9 @@
                             <span class="w-3.5 h-3.5 rounded-full bg-[#10B981] shrink-0 mt-0.5"></span>
                             <div>
                                 <p class="text-xs sm:text-sm font-bold text-gray-900">Alat</p>
-                                <p class="text-xs text-gray-500 font-medium">5 Peminjaman 25%</p>
+                                <p class="text-xs text-gray-500 font-medium">{{ $persentaseFasilitas['alat_count'] }} Peminjaman {{ $persentaseFasilitas['alat_persen'] }}%</p>
                             </div>
                         </div>
-
-
                     </div>
                 </div>
             </div>
@@ -344,7 +342,7 @@ function superAdminLaporanHandler() {
     return {
         openModalPdf: false,
         showYearDropdown: false,
-        selectedYear: 2026,
+        selectedYear: {{ $tahun }},
         statusFilter: '',
         searchQuery: '',
         peminjamanList: @json($peminjamanTerbaru),
@@ -375,20 +373,8 @@ function superAdminLaporanHandler() {
         changeYear(year) {
             this.selectedYear = year;
             this.showYearDropdown = false;
-            
-            if (!this.monthlyChartInstance) return;
-
-            if (year === 2026) {
-                this.monthlyChartInstance.data.datasets[0].data = [6, 5, 8, 7, 12, 17, 20, 6, 6, 5, 9, 9];
-                this.monthlyChartInstance.data.datasets[1].data = [3, 4, 5, 3, 3, 6, 9, 9, 4, 3, 3, 2];
-            } else if (year === 2025) {
-                this.monthlyChartInstance.data.datasets[0].data = [4, 6, 7, 9, 10, 14, 15, 8, 7, 6, 8, 7];
-                this.monthlyChartInstance.data.datasets[1].data = [2, 3, 4, 4, 5, 5, 7, 6, 3, 2, 4, 3];
-            } else {
-                this.monthlyChartInstance.data.datasets[0].data = [5, 4, 6, 8, 9, 11, 13, 7, 5, 4, 6, 5];
-                this.monthlyChartInstance.data.datasets[1].data = [3, 2, 3, 4, 4, 4, 6, 5, 3, 2, 3, 2];
-            }
-            this.monthlyChartInstance.update();
+            // Reload halaman dengan parameter tahun agar data real dari DB
+            window.location.href = '{{ route('laporan.index') }}?tahun=' + year;
         },
 
         initMonthlyChart() {
@@ -483,7 +469,7 @@ function superAdminLaporanHandler() {
                     labels: ['Ruang', 'Alat'],
                     datasets: [
                         {
-                            data: [12, 5],
+                            data: [{{ $persentaseFasilitas['ruang_count'] }}, {{ $persentaseFasilitas['alat_count'] }}],
                             backgroundColor: ['#3B82F6', '#10B981'],
                             borderWidth: 0,
                             hoverOffset: 4

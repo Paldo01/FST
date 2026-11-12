@@ -6,6 +6,7 @@ use App\Models\Fasilitas;
 use App\Models\Peminjaman;
 use App\Models\Pengguna;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class LaporanController extends Controller
@@ -57,87 +58,96 @@ class LaporanController extends Controller
 
     public function superAdminIndex(Request $request)
     {
-        $totalAdmin = Pengguna::where('peran', 'admin')->count() ?: 5;
-        $totalPeminjaman = Peminjaman::count() ?: 20;
-        $ruangTerpakai = Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'ruangan'))->count() ?: 12;
-        $alatDipinjam = Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'peralatan'))->count() ?: 25;
+        $tahun = $request->get('tahun', now()->year);
 
-        // 4 Kartu Statistik Sesuai Mockup Super Admin
+        // ── Kartu Statistik (data real) ──────────────────────────────────────
+        $totalAdmin       = Pengguna::where('peran', 'admin')->count();
+        $totalPeminjaman  = Peminjaman::count();
+        $ruangTerpakai    = Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'ruangan'))->count();
+        $alatDipinjam     = Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'peralatan'))->count();
+
         $statistik = [
-            'total_admin' => $totalAdmin,
+            'total_admin'      => $totalAdmin,
             'total_peminjaman' => $totalPeminjaman,
-            'ruang_terpakai' => $ruangTerpakai,
-            'alat_dipinjam' => $alatDipinjam,
+            'ruang_terpakai'   => $ruangTerpakai,
+            'alat_dipinjam'    => $alatDipinjam,
         ];
 
-        // Grafik Peminjaman Per Bulan (12 Bulan Sesuai Mockup)
+        // ── Grafik Peminjaman Per Bulan (data real per tahun) ─────────────────
+        $bulanLabels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+
+        // Query ruang per bulan
+        $ruangPerBulan = Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'ruangan'))
+            ->whereYear('tanggal_mulai', $tahun)
+            ->select(DB::raw('MONTH(tanggal_mulai) as bulan'), DB::raw('COUNT(*) as total'))
+            ->groupBy('bulan')
+            ->pluck('total', 'bulan')
+            ->toArray();
+
+        // Query alat per bulan
+        $alatPerBulan = Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'peralatan'))
+            ->whereYear('tanggal_mulai', $tahun)
+            ->select(DB::raw('MONTH(tanggal_mulai) as bulan'), DB::raw('COUNT(*) as total'))
+            ->groupBy('bulan')
+            ->pluck('total', 'bulan')
+            ->toArray();
+
+        // Isi 12 bulan, bulan tanpa data = 0
+        $ruangBulanan = [];
+        $alatBulanan  = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $ruangBulanan[] = $ruangPerBulan[$m] ?? 0;
+            $alatBulanan[]  = $alatPerBulan[$m] ?? 0;
+        }
+
         $chartBulanan = [
-            'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
-            'ruang' => [6, 5, 8, 7, 12, 17, 20, 6, 6, 5, 9, 9],
-            'alat' => [3, 4, 5, 3, 3, 6, 9, 9, 4, 3, 3, 2],
+            'labels' => $bulanLabels,
+            'ruang'  => $ruangBulanan,
+            'alat'   => $alatBulanan,
         ];
 
-        // Persentase Penggunaan Fasilitas (Donut Sesuai Mockup)
+        // ── Donut Chart Persentase Fasilitas (data real) ──────────────────────
+        $totalDonut  = $ruangTerpakai + $alatDipinjam;
+        $ruangPersen = $totalDonut > 0 ? round(($ruangTerpakai / $totalDonut) * 100) : 0;
+        $alatPersen  = $totalDonut > 0 ? (100 - $ruangPersen) : 0;
+
         $persentaseFasilitas = [
-            'ruang_count' => 12,
-            'ruang_persen' => 60,
-            'alat_count' => 5,
-            'alat_persen' => 25,
-            'lainnya_count' => 3,
-            'lainnya_persen' => 15,
-            'total' => 20,
+            'ruang_count'  => $ruangTerpakai,
+            'ruang_persen' => $ruangPersen,
+            'alat_count'   => $alatDipinjam,
+            'alat_persen'  => $alatPersen,
+            'total'        => $totalDonut,
         ];
 
-        // Data Peminjaman Terbaru (Tabel Bawah Sesuai Mockup)
-        $peminjamanTerbaru = [
-            [
-                'no' => 1,
-                'nama' => 'Budi (Mahasiswa)',
-                'fasilitas' => 'Infocus',
-                'tanggal' => '20 September 2026',
-                'keperluan' => 'Seminar Sistem Informasi',
-                'status' => 'Pending',
-                'status_color' => 'bg-amber-100 text-amber-700',
-            ],
-            [
-                'no' => 2,
-                'nama' => 'Dr ahmad (Dosen)',
-                'fasilitas' => 'Ruang Rapat FST',
-                'tanggal' => '19 September 2026',
-                'keperluan' => 'Rapat Fakultas',
-                'status' => 'Disetujui',
-                'status_color' => 'bg-emerald-100 text-emerald-700',
-            ],
-            [
-                'no' => 3,
-                'nama' => 'Siti (Mahasiswa)',
-                'fasilitas' => 'Microphone',
-                'tanggal' => '18 September 2026',
-                'keperluan' => 'Kegiatan HMPS',
-                'status' => 'Selesai',
-                'status_color' => 'bg-blue-100 text-blue-700',
-            ],
-            [
-                'no' => 4,
-                'nama' => 'Rina (Dosen)',
-                'fasilitas' => 'Aula FST',
-                'tanggal' => '17 September 2026',
-                'keperluan' => 'Workshop',
-                'status' => 'Ditolak',
-                'status_color' => 'bg-rose-100 text-rose-700',
-            ],
-            [
-                'no' => 5,
-                'nama' => 'Andi (Mahasiswa)',
-                'fasilitas' => 'Infocus',
-                'tanggal' => '16 September 2026',
-                'keperluan' => 'Presentasi Tugas',
-                'status' => 'Disetujui',
-                'status_color' => 'bg-emerald-100 text-emerald-700',
-            ],
-        ];
+        // ── Tabel Data Peminjaman Terbaru (data real) ─────────────────────────
+        $peminjamanTerbaru = Peminjaman::with(['pengguna', 'fasilitas.kategori'])
+            ->latest()
+            ->take(5)
+            ->get()
+            ->map(function ($p, $index) {
+                $statusMap = [
+                    'menunggu'  => ['label' => 'Pending',   'color' => 'bg-amber-100 text-amber-700'],
+                    'disetujui' => ['label' => 'Disetujui', 'color' => 'bg-emerald-100 text-emerald-700'],
+                    'ditolak'   => ['label' => 'Ditolak',   'color' => 'bg-rose-100 text-rose-700'],
+                    'selesai'   => ['label' => 'Selesai',   'color' => 'bg-blue-100 text-blue-700'],
+                ];
+                $s = $statusMap[$p->status_pengajuan] ?? ['label' => ucfirst($p->status_pengajuan), 'color' => 'bg-gray-100 text-gray-700'];
 
-        return view('super_admin.laporan.index', compact('statistik', 'chartBulanan', 'persentaseFasilitas', 'peminjamanTerbaru'));
+                return [
+                    'no'           => $index + 1,
+                    'nama'         => optional($p->pengguna)->nama_lengkap ?? '-',
+                    'fasilitas'    => optional($p->fasilitas)->nama_fasilitas ?? '-',
+                    'tanggal'      => $p->tanggal_mulai ? $p->tanggal_mulai->format('d F Y') : '-',
+                    'keperluan'    => $p->tujuan_peminjaman ?? '-',
+                    'status'       => $s['label'],
+                    'status_color' => $s['color'],
+                ];
+            })
+            ->toArray();
+
+        return view('super_admin.laporan.index', compact(
+            'statistik', 'chartBulanan', 'persentaseFasilitas', 'peminjamanTerbaru', 'tahun'
+        ));
     }
 
     public function generate(Request $request)
