@@ -408,7 +408,10 @@
                                                  class="bg-white p-2 sm:p-2.5 rounded-lg border border-red-100 shadow-2xs hover:bg-red-50/60 active:scale-[0.98] cursor-pointer transition-all flex items-center justify-between text-xs"
                                                  :title="'Klik untuk rincian peminjaman ' + b.peminjam">
                                                 <div class="min-w-0 pr-2">
-                                                    <p class="font-bold text-gray-900 truncate" x-text="b.peminjam"></p>
+                                                    <p class="font-bold text-gray-900 truncate">
+                                                        <span x-text="b.peminjam"></span>
+                                                        <span class="text-[10px] font-normal text-gray-500" x-text="b.jenis_pengguna ? ' (' + b.jenis_pengguna + ')' : ''"></span>
+                                                    </p>
                                                     <p class="text-[10px] text-gray-500 truncate" x-text="b.tujuan"></p>
                                                 </div>
                                                 <div class="flex items-center gap-1 shrink-0">
@@ -679,9 +682,19 @@
                 <div class="mt-2 space-y-3.5 text-sm">
                     <div class="flex items-start gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
                         <i data-lucide="user" class="w-4 h-4 text-marun-700 mt-0.5"></i>
-                        <div>
-                            <p class="text-gray-500 text-xs">Peminjam</p>
-                            <p class="font-bold text-gray-900" x-text="event.peminjam"></p>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-2">
+                                <p class="text-gray-500 text-xs">Peminjam</p>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full capitalize"
+                                      :class="event.jenis_pengguna && event.jenis_pengguna.toLowerCase() === 'dosen' 
+                                            ? 'bg-blue-100 text-blue-800 border border-blue-200' 
+                                            : 'bg-emerald-100 text-emerald-800 border border-emerald-200'"
+                                      x-text="event.jenis_pengguna || 'Mahasiswa'"></span>
+                            </div>
+                            <p class="font-bold text-gray-900 mt-0.5">
+                                <span x-text="event.peminjam"></span>
+                                <span class="text-xs font-semibold text-gray-500" x-text="event.jenis_pengguna ? '(' + event.jenis_pengguna + ')' : ''"></span>
+                            </p>
                         </div>
                     </div>
                     <div class="flex items-start gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
@@ -917,6 +930,7 @@
                         start: slot.start_str,
                         end: slot.end_str,
                         peminjam: slot.peminjam,
+                        jenis_pengguna: slot.jenis_pengguna,
                         status: slot.status,
                         tujuan: slot.tujuan
                     }

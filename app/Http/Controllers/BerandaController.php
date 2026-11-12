@@ -330,6 +330,7 @@ class BerandaController extends Controller
                 'extendedProps' => [
                     'status' => $p->status_pengajuan,
                     'peminjam' => $p->pengguna->nama_lengkap,
+                    'jenis_pengguna' => $p->pengguna ? ucfirst($p->pengguna->jenis_pengguna ?? ($p->pengguna->peran === 'pengguna' ? 'Mahasiswa' : $p->pengguna->peran)) : 'Mahasiswa',
                     'tujuan' => $p->tujuan_peminjaman,
                     'fasilitas' => $p->fasilitas->nama_fasilitas,
                 ],
@@ -464,6 +465,7 @@ class BerandaController extends Controller
                 $peminjamanList[] = [
                     'id' => $p->id,
                     'peminjam' => $p->pengguna->nama_lengkap ?? 'Anonim',
+                    'jenis_pengguna' => $p->pengguna ? ucfirst($p->pengguna->jenis_pengguna ?? ($p->pengguna->peran === 'pengguna' ? 'Mahasiswa' : $p->pengguna->peran)) : 'Mahasiswa',
                     'nomor_identitas' => $p->pengguna->nomor_identitas ?? '-',
                     'tujuan' => $p->tujuan_peminjaman,
                     'status' => $p->status_pengajuan,
