@@ -147,13 +147,38 @@ class PenggunaController extends Controller
      */
     public function logAktivitas(Request $request)
     {
-        $logs = LogAktivitas::with('pengguna')
-            ->when($request->cari, function ($q) use ($request) {
-                $q->where('tindakan', 'like', "%{$request->cari}%")
-                    ->orWhere('detail_kegiatan', 'like', "%{$request->cari}%");
-            })
-            ->latest('created_at')
-            ->paginate(20);
+        $cari = $request->get('cari');
+        $rentangTanggal = $request->get('rentang_tanggal') ?? $request->get('tanggal');
+
+        $query = LogAktivitas::with('pengguna')->latest('created_at');
+
+        if ($cari) {
+            $query->where(function ($q) use ($cari) {
+                $q->where('tindakan', 'like', "%{$cari}%")
+                    ->orWhere('detail_kegiatan', 'like', "%{$cari}%")
+                    ->orWhereHas('pengguna', function ($qp) use ($cari) {
+                        $qp->where('nama_lengkap', 'like', "%{$cari}%")
+                           ->orWhere('email', 'like', "%{$cari}%")
+                           ->orWhere('peran', 'like', "%{$cari}%");
+                    });
+            });
+        }
+
+        if ($rentangTanggal) {
+            if (str_contains($rentangTanggal, ' to ')) {
+                [$start, $end] = explode(' to ', $rentangTanggal, 2);
+                $query->whereDate('created_at', '>=', trim($start))
+                      ->whereDate('created_at', '<=', trim($end));
+            } elseif (str_contains($rentangTanggal, ' - ')) {
+                [$start, $end] = explode(' - ', $rentangTanggal, 2);
+                $query->whereDate('created_at', '>=', trim($start))
+                      ->whereDate('created_at', '<=', trim($end));
+            } else {
+                $query->whereDate('created_at', $rentangTanggal);
+            }
+        }
+
+        $logs = $query->paginate(8)->withQueryString();
 
         return view('super_admin.log.index', compact('logs'));
     }
