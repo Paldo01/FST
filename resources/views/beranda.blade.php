@@ -40,9 +40,9 @@
                     .then(data => { this.results = data; this.show = true; });
             }}" class="relative max-w-xl mx-auto">
                 <div class="relative flex items-center">
-                    <i data-lucide="search" class="absolute left-4 w-5 h-5 text-gray-400"></i>
+                    <i data-lucide="search" class="absolute left-4 w-5 h-5 text-white/80"></i>
                     <input type="text" x-model="query" @input.debounce.300ms="search" @click.away="show = false" @focus="search"
-                        class="w-full pl-12 pr-4 py-4 rounded-full text-gray-900 focus:outline-none focus:ring-4 focus:ring-mustard-500/50 shadow-lg text-lg"
+                        class="w-full pl-12 pr-4 py-4 rounded-full text-white placeholder-white/70 focus:outline-none focus:ring-4 focus:ring-mustard-500/50 shadow-lg text-lg bg-transparent"
                         placeholder="Cari ruang atau alat...">
                     <button class="absolute right-2 px-6 py-2 bg-mustard-500 hover:bg-mustard-400 text-marun-950 font-bold rounded-full transition-colors">
                         Cari
