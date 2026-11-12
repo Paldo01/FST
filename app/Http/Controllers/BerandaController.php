@@ -302,7 +302,7 @@ class BerandaController extends Controller
     public function ketersediaan(Request $request)
     {
         $peminjaman = Peminjaman::with(['fasilitas.kategori', 'pengguna'])
-            ->whereIn('status_pengajuan', ['disetujui', 'menunggu'])
+            ->where('status_pengajuan', 'disetujui')
             ->when($request->start, fn($q) => $q->where('tanggal_selesai', '>=', $request->start))
             ->when($request->end, fn($q) => $q->where('tanggal_mulai', '<=', $request->end))
             ->when($request->fasilitas_id, fn($q) => $q->where('fasilitas_id', $request->fasilitas_id))
@@ -391,7 +391,7 @@ class BerandaController extends Controller
         $akhirHari = $tanggal . ' 23:59:59';
 
         $semuaPeminjaman = Peminjaman::with(['pengguna', 'fasilitas'])
-            ->whereIn('status_pengajuan', ['disetujui', 'menunggu'])
+            ->where('status_pengajuan', 'disetujui')
             ->where('tanggal_mulai', '<=', $akhirHari)
             ->where('tanggal_selesai', '>=', $awalHari)
             ->get();

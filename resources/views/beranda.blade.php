@@ -294,12 +294,6 @@
                 <span class="w-3 h-2.5 rounded bg-gradient-to-r from-red-600 to-marun-900 shadow-2xs"></span>
                 <span>Dipinjam</span>
             </div>
-            <template x-if="jenis === 'ruangan'">
-                <div class="flex items-center gap-1.5">
-                    <span class="w-3 h-2.5 rounded bg-gradient-to-r from-amber-500 to-amber-600 shadow-2xs"></span>
-                    <span>Menunggu</span>
-                </div>
-            </template>
         </div>
     </div>
 
@@ -596,9 +590,7 @@
                                         <div @click="openDetail(booking)"
                                              class="absolute z-10 rounded-xl px-3 py-1 flex items-center justify-between shadow-xs hover:shadow-lg transition-all duration-150 cursor-pointer overflow-hidden group select-none hover:scale-[1.008]"
                                              :style="`left: ${booking.left_percent}%; width: ${booking.width_percent}%; top: ${booking.top_px}px; height: ${booking.height_px}px;`"
-                                             :class="booking.status === 'disetujui' 
-                                                ? 'bg-gradient-to-r from-red-600 via-rose-600 to-marun-900 text-white border border-red-500/40 shadow-red-900/10' 
-                                                : 'bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white border border-amber-400/40 shadow-amber-900/10'"
+                                             :class="'bg-gradient-to-r from-red-600 via-rose-600 to-marun-900 text-white border border-red-500/40 shadow-red-900/10'"
                                              :title="'Klik untuk rincian peminjaman:\n' + booking.peminjam + ' (' + booking.label_waktu + ')\nKeperluan: ' + booking.tujuan">
                                             
                                             <!-- Konten Batang (Jam & Peminjam) -->
@@ -614,8 +606,9 @@
                                             </div>
 
                                             <!-- Badge Status -->
-                                            <span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/20 whitespace-nowrap shrink-0"
-                                                  x-text="booking.status === 'disetujui' ? 'Dipinjam' : 'Menunggu'"></span>
+                                            <span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/20 whitespace-nowrap shrink-0 hidden sm:inline-block">
+                                                Dipinjam
+                                            </span>
                                         </div>
                                     </template>
 
@@ -684,9 +677,9 @@
                         <i data-lucide="info" class="w-4 h-4 text-marun-700 mt-0.5"></i>
                         <div>
                             <p class="text-gray-500 text-xs">Status Verifikasi</p>
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold capitalize border mt-1"
-                                  :class="event.status === 'disetujui' ? 'bg-red-100 text-red-800 border-red-200' : 'bg-amber-100 text-amber-800 border-amber-200'" 
-                                  x-text="event.status ? event.status.replace('_', ' ') : '-'"></span>
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold capitalize border mt-1 bg-red-100 text-red-800 border-red-200">
+                                Disetujui
+                            </span>
                         </div>
                     </div>
                     <div class="flex items-start gap-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
