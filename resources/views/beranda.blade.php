@@ -1,6 +1,7 @@
 @extends('layouts.guest')
 
 @section('title', 'Beranda - SIMORA FST')
+@section('main_class', 'w-full flex-1')
 
 @push('styles')
 <style>
@@ -83,7 +84,7 @@
 </div>
 
 <!-- Stats Summary -->
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
+<div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
     <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 grid grid-cols-2 md:grid-cols-4 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-gray-100">
         <div class="pt-2 md:pt-0">
             <p class="text-3xl font-black text-marun-900">{{ $totalRuangan }}</p>
@@ -105,7 +106,7 @@
 </div>
 
 <!-- Jadwal & Kalender Section -->
-<div id="kalender" x-data="jadwalSection()" x-init="init()" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
+<div id="kalender" x-data="jadwalSection()" x-init="init()" class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <!-- Header & Switcher Jenis Fasilitas -->
     <div class="mb-8 flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
         <div>
