@@ -68,17 +68,28 @@ class BerandaController extends Controller
             ->orderBy('nama_kategori')
             ->pluck('nama_kategori');
         
-        // Peminjaman aktif pada tanggal yang dipilih (jika ada) atau hari ini
+        // Peminjaman yang sedang berlangsung saat ini (realtime jam sekarang)
+        $sedangDipakaiSekarangIds = Peminjaman::where('status_pengajuan', 'disetujui')
+            ->where('tanggal_mulai', '<=', now())
+            ->where('tanggal_selesai', '>=', now())
+            ->pluck('fasilitas_id')
+            ->toArray();
+
+        // Peminjaman terjadwal pada tanggal yang dipilih (jika ada) atau hari ini
         $cekTanggal = $tanggal ? Carbon::parse($tanggal) : now();
-        $dipinjamIds = Peminjaman::where('status_pengajuan', 'disetujui')
+        $adaJadwalTanggalIds = Peminjaman::whereIn('status_pengajuan', ['disetujui', 'menunggu'])
             ->whereDate('tanggal_mulai', '<=', $cekTanggal)
             ->whereDate('tanggal_selesai', '>=', $cekTanggal)
             ->pluck('fasilitas_id')
             ->toArray();
 
+        $dipinjamIds = $adaJadwalTanggalIds;
+
         return view('pengguna.katalog.ruang', compact(
             'fasilitas', 
             'dipinjamIds', 
+            'sedangDipakaiSekarangIds',
+            'adaJadwalTanggalIds',
             'kategoriList', 
             'kategoriAktif',
             'cari',

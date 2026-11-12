@@ -27,6 +27,7 @@
          checkingAvailability: false,
          availabilityStatus: null,
          availabilityMessage: '',
+         bookedSchedules: [],
          tutupModalBooking() {
              const urlParams = new URLSearchParams(window.location.search);
              if (urlParams.has('ajukan')) {
@@ -71,6 +72,7 @@
              .then(res => res.json())
              .then(data => {
                  this.checkingAvailability = false;
+                 this.bookedSchedules = data.jadwal_hari_ini || [];
                  if (data.tersedia) {
                      this.availabilityStatus = 'available';
                      this.availabilityMessage = data.pesan || 'Fasilitas masih tersedia pada tanggal dan waktu yang dipilih';
@@ -537,12 +539,28 @@
 
                                     <!-- Status Box Sesuai Mockup -->
                                     <!-- 1. Jadwal Tersedia (Green) -->
-                                    <div x-show="!checkingAvailability && (availabilityStatus === 'available' || availabilityStatus === null)" 
-                                         class="bg-[#E6F4EA] border border-emerald-300/80 rounded-xl p-3 flex items-start gap-2.5">
-                                        <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
-                                        <div>
+                                    <div x-show="!checkingAvailability && availabilityStatus === 'available'" 
+                                         class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-start gap-2.5">
+                                        <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
+                                        <div class="space-y-1 w-full">
                                             <p class="text-xs font-bold text-emerald-950">Jadwal tersedia</p>
-                                            <p class="text-[11px] text-emerald-800 font-medium leading-snug">Fasilitas masih tersedia pada tanggal dan waktu yang dipilih</p>
+                                            <p class="text-[11px] text-emerald-700 font-medium leading-snug" x-text="availabilityMessage">Fasilitas masih tersedia pada tanggal dan waktu yang dipilih</p>
+                                            <template x-if="bookedSchedules && bookedSchedules.length > 0">
+                                                <div class="pt-2 mt-2 border-t border-emerald-200/80">
+                                                    <p class="text-[10px] font-bold text-emerald-900 uppercase tracking-wider">Jadwal lain yang sudah terisi di tanggal ini:</p>
+                                                    <div class="mt-1 space-y-1 max-h-24 overflow-y-auto pr-1">
+                                                        <template x-for="(item, idx) in bookedSchedules" :key="idx">
+                                                            <div class="text-[11px] text-emerald-800 flex items-center justify-between bg-emerald-100/60 px-2 py-1 rounded-lg font-medium">
+                                                                <span class="font-bold flex items-center gap-1.5">
+                                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                                                    <span x-text="item.jam + ' WIB'"></span>
+                                                                </span>
+                                                                <span class="text-emerald-700 truncate max-w-[150px]" x-text="item.keperluan ? item.keperluan : 'Dipinjam'"></span>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
+                                            </template>
                                         </div>
                                     </div>
 
@@ -550,9 +568,25 @@
                                     <div x-show="!checkingAvailability && availabilityStatus === 'unavailable'" 
                                          class="bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-2.5">
                                         <i data-lucide="alert-circle" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
-                                        <div>
-                                            <p class="text-xs font-bold text-red-950">Jadwal tidak tersedia</p>
+                                        <div class="space-y-1 w-full">
+                                            <p class="text-xs font-bold text-red-950">Jadwal tidak tersedia (Sedang Dipinjam)</p>
                                             <p class="text-[11px] text-red-700 font-medium leading-snug" x-text="availabilityMessage">Fasilitas sudah terpakai pada rentang tanggal dan waktu tersebut</p>
+                                            <template x-if="bookedSchedules && bookedSchedules.length > 0">
+                                                <div class="pt-2 mt-2 border-t border-red-200/80">
+                                                    <p class="text-[10px] font-bold text-red-900 uppercase tracking-wider">Jadwal terpakai pada tanggal ini:</p>
+                                                    <div class="mt-1 space-y-1 max-h-28 overflow-y-auto pr-1">
+                                                        <template x-for="(item, idx) in bookedSchedules" :key="idx">
+                                                            <div class="text-[11px] text-red-800 flex items-center justify-between bg-red-100/60 px-2 py-1 rounded-lg font-medium">
+                                                                <span class="font-bold flex items-center gap-1.5">
+                                                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                                                    <span x-text="item.jam + ' WIB'"></span>
+                                                                </span>
+                                                                <span class="text-red-700 truncate max-w-[150px]" x-text="item.keperluan ? item.keperluan : 'Dipinjam'"></span>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
+                                            </template>
                                         </div>
                                     </div>
 

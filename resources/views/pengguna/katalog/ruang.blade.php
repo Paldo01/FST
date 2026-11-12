@@ -25,12 +25,14 @@
          checkingAvailability: false,
          availabilityStatus: null,
          availabilityMessage: '',
+         bookedSchedules: [],
          bukaModalBooking(room) {
              this.currentRoom = room;
              this.selectedRoomId = room.id;
              this.showBookingModal = true;
              this.fileName = '';
              this.availabilityStatus = null;
+             this.bookedSchedules = [];
              this.checkAvailability();
              this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
          },
@@ -66,6 +68,7 @@
              .then(res => res.json())
              .then(data => {
                  this.checkingAvailability = false;
+                 this.bookedSchedules = data.jadwal_hari_ini || [];
                  if (data.tersedia) {
                      this.availabilityStatus = 'available';
                      this.availabilityMessage = data.pesan || 'Fasilitas masih tersedia pada tanggal dan waktu yang dipilih';
@@ -216,7 +219,9 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
             @foreach($fasilitas as $f)
                 @php
-                    $isBorrowed = in_array($f->id, $dipinjamIds);
+                    $isSedangDipakai = in_array($f->id, $sedangDipakaiSekarangIds ?? []);
+                    $adaJadwal = in_array($f->id, $adaJadwalTanggalIds ?? ($dipinjamIds ?? []));
+                    $isBorrowed = $isSedangDipakai || $adaJadwal;
                     
                     // Deteksi gambar representatif
                     $imgUrl = null;
@@ -257,8 +262,8 @@
                         'fasilitas' => $fasilitasStr,
                         'lokasi' => $f->lokasi,
                         'gambar' => $imgUrl,
-                        'status' => $isBorrowed ? 'Sedang Dipinjam' : ($f->status === 'tersedia' ? 'Tersedia' : 'Tidak Tersedia'),
-                        'is_available' => !$isBorrowed && $f->status === 'tersedia',
+                        'status' => $f->status === 'tersedia' ? ($isSedangDipakai ? 'Sedang Dipakai' : ($adaJadwal ? 'Ada Jadwal' : 'Tersedia')) : 'Tidak Tersedia',
+                        'is_available' => $f->status === 'tersedia',
                         'peminjaman_url' => route('peminjaman.create') . '?fasilitas=' . $f->id,
                     ];
                 @endphp
@@ -274,20 +279,25 @@
                             
                             <!-- Status Badge Floating -->
                             <div class="absolute top-3 right-3">
-                                @if($isBorrowed)
-                                    <span class="px-2.5 py-1 bg-white/95 backdrop-blur-xs text-amber-700 text-[11px] font-bold rounded-full shadow-sm flex items-center gap-1.5 border border-amber-200">
-                                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                                        <span>Dipinjam</span>
-                                    </span>
-                                @elseif($f->status === 'tersedia')
-                                    <span class="px-2.5 py-1 bg-white/95 backdrop-blur-xs text-emerald-700 text-[11px] font-bold rounded-full shadow-sm flex items-center gap-1.5 border border-emerald-200">
-                                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                                        <span>Tersedia</span>
-                                    </span>
-                                @else
+                                @if($f->status !== 'tersedia')
                                     <span class="px-2.5 py-1 bg-white/95 backdrop-blur-xs text-rose-700 text-[11px] font-bold rounded-full shadow-sm flex items-center gap-1.5 border border-rose-200">
                                         <span class="w-2 h-2 rounded-full bg-rose-500"></span>
                                         <span>Tidak Tersedia</span>
+                                    </span>
+                                @elseif($isSedangDipakai)
+                                    <span class="px-2.5 py-1 bg-white/95 backdrop-blur-xs text-amber-700 text-[11px] font-bold rounded-full shadow-sm flex items-center gap-1.5 border border-amber-200" title="Ruangan sedang dipakai saat ini, tetap bisa diajukan untuk jam atau hari lain">
+                                        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                                        <span>Sedang Dipakai</span>
+                                    </span>
+                                @elseif($adaJadwal)
+                                    <span class="px-2.5 py-1 bg-white/95 backdrop-blur-xs text-blue-700 text-[11px] font-bold rounded-full shadow-sm flex items-center gap-1.5 border border-blue-200" title="Ada jadwal terisi di tanggal ini, dapat dipinjam pada jam lain yang kosong">
+                                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                        <span>Ada Jadwal</span>
+                                    </span>
+                                @else
+                                    <span class="px-2.5 py-1 bg-white/95 backdrop-blur-xs text-emerald-700 text-[11px] font-bold rounded-full shadow-sm flex items-center gap-1.5 border border-emerald-200">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                        <span>Tersedia</span>
                                     </span>
                                 @endif
                             </div>
@@ -328,7 +338,7 @@
                             <span>Detail</span>
                             <span>→</span>
                         </a>
-                        @if($f->status === 'tersedia' && !$isBorrowed)
+                        @if($f->status === 'tersedia')
                             <button type="button"
                                     @click="bukaModalBooking({{ json_encode($modalPayload) }})" 
                                     class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-[#801414] hover:bg-[#681010] active:scale-[0.98] text-white text-xs font-bold rounded-xl shadow-2xs transition-colors cursor-pointer">
@@ -585,9 +595,25 @@
                                     <div x-show="!checkingAvailability && availabilityStatus === 'available'" 
                                          class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-start gap-2.5">
                                         <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
-                                        <div>
+                                        <div class="space-y-1 w-full">
                                             <p class="text-xs font-bold text-emerald-950">Jadwal tersedia</p>
                                             <p class="text-[11px] text-emerald-700 font-medium leading-snug" x-text="availabilityMessage">Fasilitas masih tersedia pada tanggal dan waktu yang dipilih</p>
+                                            <template x-if="bookedSchedules && bookedSchedules.length > 0">
+                                                <div class="pt-2 mt-2 border-t border-emerald-200/80">
+                                                    <p class="text-[10px] font-bold text-emerald-900 uppercase tracking-wider">Jadwal lain yang sudah terisi di tanggal ini:</p>
+                                                    <div class="mt-1 space-y-1 max-h-24 overflow-y-auto pr-1">
+                                                        <template x-for="(item, idx) in bookedSchedules" :key="idx">
+                                                            <div class="text-[11px] text-emerald-800 flex items-center justify-between bg-emerald-100/60 px-2 py-1 rounded-lg font-medium">
+                                                                <span class="font-bold flex items-center gap-1.5">
+                                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                                                    <span x-text="item.jam + ' WIB'"></span>
+                                                                </span>
+                                                                <span class="text-emerald-700 truncate max-w-[150px]" x-text="item.keperluan ? item.keperluan : 'Dipinjam'"></span>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
+                                            </template>
                                         </div>
                                     </div>
 
@@ -595,9 +621,25 @@
                                     <div x-show="!checkingAvailability && availabilityStatus === 'unavailable'" 
                                          class="bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-2.5">
                                         <i data-lucide="alert-circle" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
-                                        <div>
-                                            <p class="text-xs font-bold text-red-950">Jadwal tidak tersedia</p>
+                                        <div class="space-y-1 w-full">
+                                            <p class="text-xs font-bold text-red-950">Jadwal tidak tersedia (Sedang Dipinjam)</p>
                                             <p class="text-[11px] text-red-700 font-medium leading-snug" x-text="availabilityMessage">Fasilitas sudah terpakai pada rentang tanggal dan waktu tersebut</p>
+                                            <template x-if="bookedSchedules && bookedSchedules.length > 0">
+                                                <div class="pt-2 mt-2 border-t border-red-200/80">
+                                                    <p class="text-[10px] font-bold text-red-900 uppercase tracking-wider">Jadwal terpakai pada tanggal ini:</p>
+                                                    <div class="mt-1 space-y-1 max-h-28 overflow-y-auto pr-1">
+                                                        <template x-for="(item, idx) in bookedSchedules" :key="idx">
+                                                            <div class="text-[11px] text-red-800 flex items-center justify-between bg-red-100/60 px-2 py-1 rounded-lg font-medium">
+                                                                <span class="font-bold flex items-center gap-1.5">
+                                                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                                                                    <span x-text="item.jam + ' WIB'"></span>
+                                                                </span>
+                                                                <span class="text-red-700 truncate max-w-[150px]" x-text="item.keperluan ? item.keperluan : 'Dipinjam'"></span>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
+                                            </template>
                                         </div>
                                     </div>
 

@@ -166,8 +166,20 @@ class PeminjamanController extends Controller
         }
 
         if (!$fasilitas->tersediaPadaWaktu($validated['tanggal_mulai'], $validated['tanggal_selesai'])) {
+            $konflik = Peminjaman::where('fasilitas_id', $fasilitas->id)
+                ->whereIn('status_pengajuan', ['menunggu', 'disetujui'])
+                ->where(function ($q) use ($validated) {
+                    $q->where('tanggal_mulai', '<', $validated['tanggal_selesai'])
+                      ->where('tanggal_selesai', '>', $validated['tanggal_mulai']);
+                })
+                ->first();
+
+            $detailKonflik = $konflik 
+                ? " (Sedang dipinjam pukul {$konflik->tanggal_mulai->format('H.i')} - {$konflik->tanggal_selesai->format('H.i')} WIB untuk '{$konflik->tujuan_peminjaman}')"
+                : '';
+
             return back()->withErrors([
-                'fasilitas_id' => 'Fasilitas ini sudah dipesan pada rentang waktu yang dipilih. Silakan pilih waktu lain.',
+                'fasilitas_id' => 'Fasilitas ini sudah dipesan pada rentang waktu yang dipilih' . $detailKonflik . '. Silakan pilih waktu lain yang berbeda.',
             ])->withInput();
         }
 
@@ -333,13 +345,52 @@ class PeminjamanController extends Controller
         ]);
 
         $fasilitas = Fasilitas::findOrFail($request->fasilitas_id);
-        $tersedia = $fasilitas->tersediaPadaWaktu($request->tanggal_mulai, $request->tanggal_selesai);
+        
+        // Cari peminjaman yang bentrok secara spesifik
+        $konflik = Peminjaman::where('fasilitas_id', $fasilitas->id)
+            ->whereIn('status_pengajuan', ['menunggu', 'disetujui'])
+            ->where(function ($q) use ($request) {
+                $q->where('tanggal_mulai', '<', $request->tanggal_selesai)
+                  ->where('tanggal_selesai', '>', $request->tanggal_mulai);
+            })
+            ->first();
+
+        $tersedia = is_null($konflik);
+
+        // Ambil semua jadwal peminjaman pada tanggal tersebut agar user tahu jam berapa saja yang sudah terisi
+        $tglPilihan = $request->input('tanggal_peminjaman') ?? substr($request->tanggal_mulai, 0, 10);
+        $jadwalHariIni = Peminjaman::where('fasilitas_id', $fasilitas->id)
+            ->whereIn('status_pengajuan', ['menunggu', 'disetujui'])
+            ->whereDate('tanggal_mulai', '<=', $tglPilihan)
+            ->whereDate('tanggal_selesai', '>=', $tglPilihan)
+            ->orderBy('tanggal_mulai', 'asc')
+            ->get()
+            ->map(function ($p) {
+                return [
+                    'jam' => $p->tanggal_mulai->format('H.i') . ' - ' . $p->tanggal_selesai->format('H.i'),
+                    'keperluan' => $p->tujuan_peminjaman,
+                    'status' => $p->status_pengajuan === 'disetujui' ? 'Disetujui' : 'Menunggu Konfirmasi',
+                ];
+            });
+
+        if ($tersedia) {
+            $pesan = 'Fasilitas masih tersedia pada tanggal dan jam yang Anda pilih.';
+        } else {
+            $jamMulaiK = $konflik->tanggal_mulai->format('H.i');
+            $jamSelesaiK = $konflik->tanggal_selesai->format('H.i');
+            $tujuanK = $konflik->tujuan_peminjaman;
+            $pesan = "Ruangan ini sedang dipinjam pada pukul {$jamMulaiK} - {$jamSelesaiK} WIB (" . ($tujuanK ? "Keperluan: {$tujuanK}" : "Sudah terisi") . "). Silakan pilih jam lain yang berbeda.";
+        }
 
         return response()->json([
             'tersedia' => $tersedia,
-            'pesan' => $tersedia
-                ? 'Fasilitas masih tersedia pada tanggal dan waktu yang dipilih'
-                : 'Fasilitas sudah terpakai pada rentang tanggal dan waktu tersebut.',
+            'pesan' => $pesan,
+            'konflik' => $konflik ? [
+                'jam_mulai' => $konflik->tanggal_mulai->format('H.i'),
+                'jam_selesai' => $konflik->tanggal_selesai->format('H.i'),
+                'keperluan' => $konflik->tujuan_peminjaman,
+            ] : null,
+            'jadwal_hari_ini' => $jadwalHariIni,
         ]);
     }
 
