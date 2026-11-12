@@ -175,13 +175,7 @@
                             </div>
                         </div>
 
-                        <div class="flex items-start gap-2.5">
-                            <span class="w-3.5 h-3.5 rounded-full bg-[#F59E0B] shrink-0 mt-0.5"></span>
-                            <div>
-                                <p class="text-xs sm:text-sm font-bold text-gray-900">Lainnya</p>
-                                <p class="text-xs text-gray-500 font-medium">3 Peminjaman 15%</p>
-                            </div>
-                        </div>
+
                     </div>
                 </div>
             </div>
@@ -486,11 +480,11 @@ function superAdminLaporanHandler() {
             this.donutChartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Ruang (60%)', 'Alat (25%)', 'Lainnya (15%)'],
+                    labels: ['Ruang', 'Alat'],
                     datasets: [
                         {
-                            data: [12, 5, 3],
-                            backgroundColor: ['#3B82F6', '#10B981', '#F59E0B'],
+                            data: [12, 5],
+                            backgroundColor: ['#3B82F6', '#10B981'],
                             borderWidth: 0,
                             hoverOffset: 4
                         }
