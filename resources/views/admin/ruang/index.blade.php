@@ -95,7 +95,21 @@
                             
                             <!-- Nama Ruang -->
                             <td class="py-3.5 px-5 font-bold text-gray-900 border-r border-gray-200 whitespace-nowrap">
-                                {{ $r->nama_fasilitas }}
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 overflow-hidden shrink-0 flex items-center justify-center">
+                                        @if($r->gambar && file_exists(public_path($r->gambar)))
+                                            <img src="{{ asset($r->gambar) }}" alt="{{ $r->nama_fasilitas }}" class="w-full h-full object-cover">
+                                        @elseif($r->gambar && file_exists(public_path('storage/' . $r->gambar)))
+                                            <img src="{{ asset('storage/' . $r->gambar) }}" alt="{{ $r->nama_fasilitas }}" class="w-full h-full object-cover">
+                                        @else
+                                            <i data-lucide="door-open" class="w-5 h-5 text-gray-400"></i>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-gray-900 leading-snug">{{ $r->nama_fasilitas }}</p>
+                                        <p class="text-[11px] font-mono text-gray-400 font-normal">{{ $r->kode_fasilitas }}</p>
+                                    </div>
+                                </div>
                             </td>
 
                             <!-- Jenis -->
@@ -128,8 +142,19 @@
                             <!-- Aksi (Tombol Edit dan Hapus Sesuai Mockup) -->
                             <td class="py-3.5 px-5 text-center whitespace-nowrap">
                                 <div class="inline-flex items-center justify-center gap-2">
+                                    @php
+                                        $gambarUrl = null;
+                                        if ($r->gambar && file_exists(public_path($r->gambar))) {
+                                            $gambarUrl = asset($r->gambar);
+                                        } elseif ($r->gambar && file_exists(public_path('storage/' . $r->gambar))) {
+                                            $gambarUrl = asset('storage/' . $r->gambar);
+                                        }
+                                        $roomPayload = array_merge($r->toArray(), [
+                                            'gambar_url' => $gambarUrl,
+                                        ]);
+                                    @endphp
                                     <!-- Tombol Edit (Outlined Red) -->
-                                    <button type="button" @click="openEditModal({{ json_encode($r) }})"
+                                    <button type="button" @click="openEditModal({{ json_encode($roomPayload) }})"
                                             class="px-3 py-1.5 rounded-lg border border-rose-300 text-[#801414] hover:bg-rose-50 active:scale-95 text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer">
                                         <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                         <span>Edit</span>
@@ -271,11 +296,37 @@
                 <!-- Deskripsi / Fasilitas Tambahan -->
                 <div>
                     <label class="block text-xs font-semibold text-gray-700 mb-1.5">
-                        Deskripsi / Fasilitas Tambahan
+                        Deskripsi / Fasilitas Ruangan
                     </label>
                     <textarea name="deskripsi" x-model="formData.deskripsi" rows="2"
-                              placeholder="Contoh: Dilengkapi AC sentral, sound system, proyektor, dan 100 kursi."
+                              placeholder="Contoh: AC sentral, sound system, proyektor, dan 100 kursi."
                               class="w-full p-3 border border-gray-300 rounded-xl text-xs sm:text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#801414]/15 focus:border-[#801414] transition-all"></textarea>
+                    <p class="text-[11px] text-gray-400 mt-1">Fasilitas ini akan tampil di katalog dan halaman detail ruangan pengguna.</p>
+                </div>
+
+                <!-- Input Foto Ruangan & Preview -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1.5">
+                        Foto Ruangan (Opsional)
+                    </label>
+                    <div class="flex items-center gap-3">
+                        <!-- Preview Box -->
+                        <div class="w-16 h-16 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden shrink-0">
+                            <template x-if="imagePreview">
+                                <img :src="imagePreview" alt="Preview Foto Ruang" class="w-full h-full object-cover">
+                            </template>
+                            <template x-if="!imagePreview">
+                                <i data-lucide="image" class="w-6 h-6 text-gray-400"></i>
+                            </template>
+                        </div>
+
+                        <!-- File Input -->
+                        <div class="flex-1">
+                            <input type="file" name="gambar" accept="image/*" @change="handleImageChange($event)"
+                                   class="w-full text-xs text-gray-600 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#801414]/10 file:text-[#801414] hover:file:bg-[#801414]/20 cursor-pointer">
+                            <p class="text-[11px] text-gray-400 mt-1">Format: JPG, PNG, WEBP (Maksimal 2MB). Foto akan selaras dengan kartu katalog dan detail ruangan.</p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Tombol Aksi Modal -->
@@ -300,6 +351,7 @@
         return {
             isModalOpen: false,
             modalMode: 'add',
+            imagePreview: null,
             formData: {
                 id: null,
                 nama_fasilitas: '',
@@ -309,8 +361,17 @@
                 kode_fasilitas: '',
                 deskripsi: ''
             },
+            handleImageChange(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.imagePreview = URL.createObjectURL(file);
+                } else {
+                    this.imagePreview = null;
+                }
+            },
             openAddModal() {
                 this.modalMode = 'add';
+                this.imagePreview = null;
                 this.formData = {
                     id: null,
                     nama_fasilitas: '',
@@ -321,9 +382,11 @@
                     deskripsi: ''
                 };
                 this.isModalOpen = true;
+                this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
             },
             openEditModal(room) {
                 this.modalMode = 'edit';
+                this.imagePreview = room.gambar_url || null;
                 this.formData = {
                     id: room.id,
                     nama_fasilitas: room.nama_fasilitas,
@@ -334,6 +397,7 @@
                     deskripsi: room.deskripsi || ''
                 };
                 this.isModalOpen = true;
+                this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
             }
         };
     }

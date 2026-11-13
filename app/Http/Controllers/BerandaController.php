@@ -136,9 +136,22 @@ class BerandaController extends Controller
             ];
         }
 
-        // Foto & Gallery Thumbnails
+        // Foto & Gallery Thumbnails (Gunakan gambar database jika diupload, atau fallback representatif)
         $namaLower = strtolower($fasilitas->nama_fasilitas);
-        if (str_contains($namaLower, 'aula')) {
+        $fotoUtama = null;
+        if ($fasilitas->gambar && file_exists(public_path($fasilitas->gambar))) {
+            $fotoUtama = asset($fasilitas->gambar);
+        } elseif ($fasilitas->gambar && file_exists(public_path('storage/' . $fasilitas->gambar))) {
+            $fotoUtama = asset('storage/' . $fasilitas->gambar);
+        }
+
+        if ($fotoUtama) {
+            $gallery = [
+                $fotoUtama,
+                $fotoUtama,
+                $fotoUtama,
+            ];
+        } elseif (str_contains($namaLower, 'aula')) {
             $gallery = [
                 asset('images/aula-fst.jpg'),
                 asset('images/aula-fst-2.jpg'),
@@ -163,13 +176,20 @@ class BerandaController extends Controller
             ->where('status', 'tersedia')
             ->get()
             ->map(function($r) {
-                $namaLower = strtolower($r->nama_fasilitas);
-                if (str_contains($namaLower, 'aula')) {
-                    $img = asset('images/aula-fst.jpg');
-                } elseif (str_contains($namaLower, 'lab') || str_contains($namaLower, 'komputer')) {
-                    $img = asset('images/lab-komputer.jpg');
+                $img = null;
+                if ($r->gambar && file_exists(public_path($r->gambar))) {
+                    $img = asset($r->gambar);
+                } elseif ($r->gambar && file_exists(public_path('storage/' . $r->gambar))) {
+                    $img = asset('storage/' . $r->gambar);
                 } else {
-                    $img = asset('images/ruang-kelas.jpg');
+                    $namaLower = strtolower($r->nama_fasilitas);
+                    if (str_contains($namaLower, 'aula')) {
+                        $img = asset('images/aula-fst.jpg');
+                    } elseif (str_contains($namaLower, 'lab') || str_contains($namaLower, 'komputer')) {
+                        $img = asset('images/lab-komputer.jpg');
+                    } else {
+                        $img = asset('images/ruang-kelas.jpg');
+                    }
                 }
                 return [
                     'id' => $r->id,
