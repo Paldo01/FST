@@ -29,12 +29,7 @@
          availabilityMessage: '',
          bookedSchedules: [],
          tutupModalBooking() {
-             const urlParams = new URLSearchParams(window.location.search);
-             if (urlParams.has('ajukan')) {
-                 window.location.href = '{{ route("katalog.ruang") }}';
-             } else {
-                 this.showBookingModal = false;
-             }
+             this.showBookingModal = false;
          },
          onRoomChange() {
              const found = this.semuaRuangan.find(r => r.id == this.selectedRoomId);

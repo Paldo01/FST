@@ -331,24 +331,23 @@
                         </div>
                     </div>
 
-                    <!-- Tombol Aksi: Lihat Detail & Ajukan Pinjam -->
-                    <div class="pt-4 mt-2 flex items-center justify-between gap-2">
-                        <a href="{{ route('katalog.ruang.detail', $f->id) }}" 
-                           class="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-gray-100 hover:bg-gray-200 active:scale-[0.98] text-gray-700 text-xs font-bold rounded-xl transition-colors cursor-pointer">
-                            <span>Detail</span>
-                            <span>→</span>
-                        </a>
+                    <!-- Tombol Aksi: Detail & Ajukan Pinjam (Opsi 1: Satu Tombol Utama) -->
+                    <div class="pt-4 mt-2">
                         @if($f->status === 'tersedia')
-                            <button type="button"
-                                    @click="bukaModalBooking({{ json_encode($modalPayload) }})" 
-                                    class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-[#801414] hover:bg-[#681010] active:scale-[0.98] text-white text-xs font-bold rounded-xl shadow-2xs transition-colors cursor-pointer">
-                                <i data-lucide="calendar-plus" class="w-3.5 h-3.5"></i>
-                                <span>Ajukan Pinjam</span>
-                            </button>
+                            <a href="{{ route('katalog.ruang.detail', $f->id) }}" 
+                               class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#801414] hover:bg-[#681010] active:scale-[0.98] text-white text-xs sm:text-sm font-bold rounded-xl shadow-2xs transition-all cursor-pointer">
+                                <span>Detail &amp; Ajukan Pinjam</span>
+                                <span>→</span>
+                            </a>
                         @else
-                            <span class="inline-flex items-center px-2.5 py-2 bg-gray-100 text-gray-400 text-xs font-bold rounded-xl cursor-not-allowed">
-                                Tidak Tersedia
-                            </span>
+                            <a href="{{ route('katalog.ruang.detail', $f->id) }}" 
+                               class="w-full inline-flex items-center justify-between px-3.5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-bold rounded-xl transition-colors cursor-pointer">
+                                <span class="text-gray-400 font-semibold">Tidak Tersedia</span>
+                                <span class="inline-flex items-center gap-1 text-gray-700">
+                                    <span>Lihat Detail</span>
+                                    <span>→</span>
+                                </span>
+                            </a>
                         @endif
                     </div>
                 </div>
