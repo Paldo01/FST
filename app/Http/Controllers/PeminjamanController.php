@@ -376,9 +376,7 @@ class PeminjamanController extends Controller
         if ($tersedia) {
             $pesan = 'Fasilitas masih tersedia pada tanggal dan jam yang Anda pilih.';
         } else {
-            $jamMulaiK = $konflik->tanggal_mulai->format('H.i');
-            $jamSelesaiK = $konflik->tanggal_selesai->format('H.i');
-            $pesan = "Silakan pilih jam yang lain, karena ruangan ini sedang dipinjam pada pukul {$jamMulaiK} - {$jamSelesaiK} WIB. Cek daftar jadwal terpakai di bawah.";
+            $pesan = 'Sesuaikan waktu peminjaman dengan pemakaian ruangan. Silakan cek daftar jadwal terpakai di bawah dan pilih jam yang lain.';
         }
 
         return response()->json([
