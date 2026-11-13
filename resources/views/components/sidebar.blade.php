@@ -95,19 +95,19 @@
                     <span>Laporan & Statistik</span>
                 </a>
 
-                <!-- Menu Tambahan Khusus Admin -->
+                <!-- Menu Tambahan Khusus Admin: Aksi Cepat -->
                 <div class="pt-3 pb-1">
                     <p class="px-2 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Aksi Cepat</p>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <a href="{{ route('admin.peminjaman.buat') }}" 
-                       class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-gray-200/80 text-[11px] font-bold text-gray-700 hover:bg-gray-50 hover:text-[#801414] transition-colors text-center" title="Input Peminjaman Langsung">
-                        <i data-lucide="plus-square" class="w-4 h-4 mb-1 text-[#801414]"></i>
-                        <span>Input Alat</span>
+                       class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-gray-200/80 text-[11px] font-bold text-gray-700 hover:bg-gray-50 hover:text-[#801414] transition-colors text-center" title="Catat Peminjaman Alat">
+                        <i data-lucide="calendar-plus" class="w-4 h-4 mb-1 text-[#801414]"></i>
+                        <span>Catat Peminjaman</span>
                     </a>
                     <a href="{{ route('admin.jadwal.buat') }}" 
                        class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-gray-200/80 text-[11px] font-bold text-gray-700 hover:bg-gray-50 hover:text-[#801414] transition-colors text-center" title="Input Jadwal Ruangan">
-                        <i data-lucide="calendar-plus" class="w-4 h-4 mb-1 text-[#801414]"></i>
+                        <i data-lucide="calendar" class="w-4 h-4 mb-1 text-[#801414]"></i>
                         <span>Input Jadwal</span>
                     </a>
                 </div>

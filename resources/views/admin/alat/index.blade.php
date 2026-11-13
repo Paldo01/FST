@@ -51,21 +51,12 @@
             @endif
         </form>
 
-        <!-- Tombol Aksi: Catat Peminjaman & Tambah Alat -->
-        <div class="flex items-center gap-2.5 shrink-0">
-            <a href="{{ route('admin.peminjaman.buat') }}"
-               class="px-4 py-2.5 rounded-xl sm:rounded-2xl bg-white border border-[#801414] hover:bg-marun-50 active:scale-[0.99] text-[#801414] font-bold text-xs sm:text-sm shadow-2xs transition-all flex items-center justify-center gap-2 cursor-pointer select-none">
-                <i data-lucide="calendar-plus" class="w-4 h-4 text-[#801414]"></i>
-                <span>Catat Peminjaman</span>
-            </a>
-
-            <!-- Tombol Tambah Alat (Sesuai Mockup: Solid Maroon + Icon) -->
-            <button type="button" @click="openAddModal()"
-                    class="px-5 py-2.5 rounded-xl sm:rounded-2xl bg-[#801414] hover:bg-[#681010] active:scale-[0.99] text-white font-bold text-xs sm:text-sm shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer select-none">
-                <i data-lucide="plus" class="w-4 h-4"></i>
-                <span>Tambah Alat</span>
-            </button>
-        </div>
+        <!-- Tombol Tambah Alat (Sesuai Mockup: Solid Maroon + Icon) -->
+        <button type="button" @click="openAddModal()"
+                class="px-5 py-2.5 rounded-xl sm:rounded-2xl bg-[#801414] hover:bg-[#681010] active:scale-[0.99] text-white font-bold text-xs sm:text-sm shadow-xs transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer select-none">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Tambah Alat</span>
+        </button>
     </div>
 
     <!-- Card Tabel Daftar Alat (Sesuai Mockup) -->
