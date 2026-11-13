@@ -102,9 +102,9 @@ class BerandaController extends Controller
     {
         $fasilitas->load('kategori');
 
-        // Tanggal jadwal yang dipilih
+        // Tanggal jadwal yang dipilih (default hari ini / realtime)
         $tanggalInput = $request->input('tanggal');
-        $selectedDate = $tanggalInput ? Carbon::parse($tanggalInput) : Carbon::create(2026, 9, 30);
+        $selectedDate = $tanggalInput ? Carbon::parse($tanggalInput) : Carbon::today();
         $tanggalFormatted = $selectedDate->translatedFormat('d F Y');
 
         // Peminjaman real dari database pada tanggal tersebut
@@ -112,63 +112,26 @@ class BerandaController extends Controller
             ->whereIn('status_pengajuan', ['disetujui', 'selesai', 'menunggu'])
             ->whereDate('tanggal_mulai', '<=', $selectedDate)
             ->whereDate('tanggal_selesai', '>=', $selectedDate)
+            ->orderBy('tanggal_mulai', 'asc')
             ->get();
 
-        // Siapkan slot waktu (Pagi: 08.00 - 12.00, Siang: 13.00 - 16.00)
         $jadwalSlots = [];
-        
-        // Cek peminjaman pagi
-        $pagiBooking = $peminjamanHariIni->first(function($p) {
-            $jamMulai = (int) $p->tanggal_mulai->format('H');
-            return $jamMulai < 13;
-        });
 
-        // Cek peminjaman siang
-        $siangBooking = $peminjamanHariIni->first(function($p) {
-            $jamMulai = (int) $p->tanggal_mulai->format('H');
-            return $jamMulai >= 12;
-        });
-
-        // Slot 1: 08.00 - 12.00
-        if ($pagiBooking) {
-            $jadwalSlots[] = [
-                'tanggal' => $tanggalFormatted,
-                'waktu' => '08.00 - 12.00',
-                'keperluan' => $pagiBooking->tujuan_peminjaman,
-                'status' => 'Terpakai',
-            ];
-        } else {
-            // Default demo jika Aula dan tanggal default 30 Sept 2026
-            if (str_contains(strtolower($fasilitas->nama_fasilitas), 'aula') && $selectedDate->format('Y-m-d') === '2026-09-30') {
-                $jadwalSlots[] = [
-                    'tanggal' => '30 September 2026',
-                    'waktu' => '08.00 - 12.00',
-                    'keperluan' => 'Seminar Sistem Informasi',
-                    'status' => 'Terpakai',
-                ];
-            } else {
+        if ($peminjamanHariIni->isNotEmpty()) {
+            foreach ($peminjamanHariIni as $p) {
                 $jadwalSlots[] = [
                     'tanggal' => $tanggalFormatted,
-                    'waktu' => '08.00 - 12.00',
-                    'keperluan' => '-',
-                    'status' => 'Tersedia',
+                    'waktu' => $p->tanggal_mulai->format('H.i') . ' - ' . $p->tanggal_selesai->format('H.i'),
+                    'keperluan' => $p->tujuan_peminjaman ?: '-',
+                    'status' => 'Terpakai',
                 ];
             }
-        }
-
-        // Slot 2: 13.00 - 16.00
-        if ($siangBooking) {
-            $jadwalSlots[] = [
-                'tanggal' => $tanggalFormatted,
-                'waktu' => '13.00 - 16.00',
-                'keperluan' => $siangBooking->tujuan_peminjaman,
-                'status' => 'Terpakai',
-            ];
         } else {
+            // Jika belum ada peminjaman sama sekali di tanggal ini
             $jadwalSlots[] = [
                 'tanggal' => $tanggalFormatted,
-                'waktu' => '13.00 - 16.00',
-                'keperluan' => '-',
+                'waktu' => '07.00 - 21.00',
+                'keperluan' => 'Belum ada peminjaman (Tersedia)',
                 'status' => 'Tersedia',
             ];
         }
