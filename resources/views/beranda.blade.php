@@ -693,7 +693,7 @@
                             </div>
                             <p class="font-bold text-gray-900 mt-0.5">
                                 <span x-text="event.peminjam"></span>
-                                <span class="text-xs font-semibold text-gray-500" x-text="event.jenis_pengguna ? '(' + event.jenis_pengguna + ')' : ''"></span>
+
                             </p>
                         </div>
                     </div>
