@@ -173,25 +173,7 @@
                 </div>
             </div>
 
-            <!-- View Mode Switcher Khusus Peralatan (Kartu Status vs Timeline Jam) -->
-            <template x-if="jenis === 'peralatan'">
-                <div class="w-full lg:w-auto">
-                    <div class="grid grid-cols-2 lg:inline-flex bg-gray-100 p-1 rounded-xl border border-gray-200 w-full sm:w-auto">
-                        <button type="button" @click="setSubModeAlat('kartu')" 
-                                class="px-3 py-2 sm:py-1.5 rounded-lg text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
-                                :class="subModeAlat === 'kartu' ? 'bg-marun-800 text-mustard-400 shadow-xs' : 'text-gray-600 hover:text-gray-900'">
-                            <i data-lucide="grid-2x2" class="w-3.5 h-3.5 shrink-0"></i>
-                            <span>Kartu Status</span>
-                        </button>
-                        <button type="button" @click="setSubModeAlat('timeline')" 
-                                class="px-3 py-2 sm:py-1.5 rounded-lg text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
-                                :class="subModeAlat === 'timeline' ? 'bg-marun-800 text-mustard-400 shadow-xs' : 'text-gray-600 hover:text-gray-900'">
-                            <i data-lucide="clock" class="w-3.5 h-3.5 shrink-0"></i>
-                            <span>Timeline Jam</span>
-                        </button>
-                    </div>
-                </div>
-            </template>
+
         </div>
 
         <!-- Baris 2: Quick Search & Filter Chips (No-Scrollbar, Touch-Friendly) -->
@@ -297,8 +279,8 @@
         </div>
     </div>
 
-    <!-- TAMPILAN 1: JIKA PERALATAN & SUB-MODE KARTU STATUS (GRID CARD VIEW - DEFAULT UNTUK ALAT) -->
-    <div x-show="jenis === 'peralatan' && subModeAlat === 'kartu'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+    <!-- TAMPILAN 1: JIKA PERALATAN (GRID CARD VIEW - KARTU STATUS ALAT) -->
+    <div x-show="jenis === 'peralatan'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
         
         <!-- Loading State -->
         <div x-show="loading" class="py-16 text-center text-gray-500 bg-white rounded-2xl border border-gray-100 shadow-sm">
@@ -446,8 +428,8 @@
         </div>
     </div>
 
-    <!-- TAMPILAN 2: MATRIKS TIMELINE GANTT BAR PER JAM (Untuk Ruangan ATAU Alat Mode Timeline) -->
-    <div x-show="jenis === 'ruangan' || subModeAlat === 'timeline'" 
+    <!-- TAMPILAN 2: MATRIKS TIMELINE GANTT BAR PER JAM (Khusus Ruangan) -->
+    <div x-show="jenis === 'ruangan'" 
          x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
         
         <!-- Container Tabel Matriks Timeline (Scrollable Gantt Chart) -->
@@ -711,7 +693,6 @@
         return {
             jenis: 'ruangan',
             viewMode: 'matriks',
-            subModeAlat: 'kartu',
             filterStatus: 'semua',
             searchKeyword: '',
             tanggal: '{{ date('Y-m-d') }}',
@@ -880,7 +861,7 @@
                 this.filterStatus = 'semua';
                 this.searchKeyword = '';
                 this.fetchMatriks();
-                if (j === 'ruangan' || this.subModeAlat === 'timeline') {
+                if (j === 'ruangan') {
                     setTimeout(() => {
                         if (this.isToday && this.isOperatingHours) {
                             this.scrollToCurrentTime();
@@ -908,16 +889,6 @@
                         lucide.createIcons();
                     }
                 }, 50);
-            },
-            setSubModeAlat(mode) {
-                this.subModeAlat = mode;
-                if (mode === 'timeline') {
-                    setTimeout(() => {
-                        if (this.isToday && this.isOperatingHours) {
-                            this.scrollToCurrentTime();
-                        }
-                    }, 200);
-                }
             }
         };
     }
