@@ -160,8 +160,19 @@
                             <!-- Aksi (Tombol Edit dan Hapus Sesuai Mockup) -->
                             <td class="py-3.5 px-5 text-center whitespace-nowrap">
                                 <div class="inline-flex items-center justify-center gap-2">
+                                    @php
+                                        $gambarUrl = null;
+                                        if ($a->gambar && file_exists(public_path($a->gambar))) {
+                                            $gambarUrl = asset($a->gambar);
+                                        } elseif ($a->gambar && file_exists(public_path('storage/' . $a->gambar))) {
+                                            $gambarUrl = asset('storage/' . $a->gambar);
+                                        }
+                                        $toolPayload = array_merge($a->toArray(), [
+                                            'gambar_url' => $gambarUrl,
+                                        ]);
+                                    @endphp
                                     <!-- Tombol Edit (Outlined Red) -->
-                                    <button type="button" @click="openEditModal({{ json_encode($a) }})"
+                                    <button type="button" @click="openEditModal({{ json_encode($toolPayload) }})"
                                             class="px-3 py-1.5 rounded-lg border border-rose-300 text-[#801414] hover:bg-rose-50 active:scale-95 text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer">
                                         <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
                                         <span>Edit</span>
@@ -303,7 +314,7 @@
                     </div>
                 </div>
 
-                <!-- Kode Alat & Foto Gambar (Grid 2 Kolom) -->
+                <!-- Kode Alat & Foto Alat (Grid 2 Kolom) -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div>
                         <label class="block text-xs font-semibold text-gray-700 mb-1.5">
@@ -314,12 +325,28 @@
                                class="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-xs sm:text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#801414]/15 focus:border-[#801414] transition-all">
                     </div>
 
+                    <!-- Input Foto Alat & Preview -->
                     <div>
                         <label class="block text-xs font-semibold text-gray-700 mb-1.5">
-                            Upload Foto Alat (Opsional)
+                            Foto Alat (Opsional)
                         </label>
-                        <input type="file" name="gambar" accept="image/*"
-                               class="w-full px-3 py-2 border border-gray-300 rounded-xl text-xs text-gray-600 focus:outline-none focus:ring-2 focus:ring-[#801414]/15 focus:border-[#801414] transition-all bg-white file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
+                        <div class="flex items-center gap-2.5">
+                            <!-- Preview Box -->
+                            <div class="w-12 h-12 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden shrink-0 p-1">
+                                <template x-if="imagePreview">
+                                    <img :src="imagePreview" alt="Preview Foto Alat" class="w-full h-full object-contain">
+                                </template>
+                                <template x-if="!imagePreview">
+                                    <i data-lucide="image" class="w-5 h-5 text-gray-400"></i>
+                                </template>
+                            </div>
+
+                            <!-- File Input -->
+                            <div class="flex-1 min-w-0">
+                                <input type="file" name="gambar" accept="image/*" @change="handleImageChange($event)"
+                                       class="w-full text-xs text-gray-600 file:mr-2 file:py-1.5 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-[#801414]/10 file:text-[#801414] hover:file:bg-[#801414]/20 cursor-pointer">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -355,6 +382,7 @@
         return {
             isModalOpen: false,
             modalMode: 'add',
+            imagePreview: null,
             formData: {
                 id: null,
                 nama_fasilitas: '',
@@ -365,8 +393,17 @@
                 kode_fasilitas: '',
                 deskripsi: ''
             },
+            handleImageChange(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.imagePreview = URL.createObjectURL(file);
+                } else {
+                    this.imagePreview = null;
+                }
+            },
             openAddModal() {
                 this.modalMode = 'add';
+                this.imagePreview = null;
                 this.formData = {
                     id: null,
                     nama_fasilitas: '',
@@ -378,9 +415,11 @@
                     deskripsi: ''
                 };
                 this.isModalOpen = true;
+                this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
             },
             openEditModal(tool) {
                 this.modalMode = 'edit';
+                this.imagePreview = tool.gambar_url || null;
                 this.formData = {
                     id: tool.id,
                     nama_fasilitas: tool.nama_fasilitas,
@@ -392,6 +431,7 @@
                     deskripsi: tool.deskripsi || ''
                 };
                 this.isModalOpen = true;
+                this.$nextTick(() => { if (window.lucide) window.lucide.createIcons(); });
             }
         };
     }
