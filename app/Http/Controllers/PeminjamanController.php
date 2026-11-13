@@ -393,15 +393,31 @@ class PeminjamanController extends Controller
 
     /* ---- Admin: Input Peminjaman Langsung ---- */
 
-    public function adminCreate()
+    public function adminCreate(Request $request)
     {
-        $fasilitas = Fasilitas::with('kategori')
-            ->where('status', 'tersedia')
-            ->get();
-            
-        $pengguna = \App\Models\Pengguna::whereNotNull('jenis_pengguna')->get();
+        // Hanya ambil fasilitas yang jenis kategorinya 'peralatan'
+        $fasilitasQuery = Fasilitas::with('kategori')
+            ->whereHas('kategori', function($q) {
+                $q->where('jenis', 'peralatan');
+            });
 
-        return view('admin.peminjaman.buat', compact('fasilitas', 'pengguna'));
+        $fasilitas = $fasilitasQuery->get();
+
+        // Peminjaman peralatan yang sedang berjalan (status disetujui & belum dikembalikan)
+        $sedangDipinjamIds = Peminjaman::whereIn('status_pengajuan', ['disetujui'])
+            ->whereDate('tanggal_mulai', '<=', now())
+            ->whereDate('tanggal_selesai', '>=', now())
+            ->pluck('fasilitas_id')
+            ->toArray();
+            
+        $pengguna = \App\Models\Pengguna::whereNotNull('jenis_pengguna')
+            ->where('status_akun', 'aktif')
+            ->orderBy('nama_lengkap', 'asc')
+            ->get();
+
+        $selectedAlatId = $request->input('alat_id');
+
+        return view('admin.peminjaman.buat', compact('fasilitas', 'pengguna', 'sedangDipinjamIds', 'selectedAlatId'));
     }
 
     public function adminStore(Request $request)

@@ -21,14 +21,19 @@
         <!-- Header Container: Judul Section & Filter Bar Sejajar (Sesuai Mockup) -->
         <div class="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4 pb-1">
             
-            <!-- Judul & Badge Counter -->
-            <div class="flex items-center gap-2.5 shrink-0">
+            <!-- Judul & Badge Counter & Tombol Catat Peminjaman -->
+            <div class="flex items-center gap-2.5 shrink-0 flex-wrap">
                 <h2 class="text-lg sm:text-xl font-bold text-gray-900">
                     Daftar Pengembalian
                 </h2>
                 <span class="bg-gray-100 text-gray-700 text-xs px-2.5 py-0.5 rounded-full font-bold border border-gray-200/60">
                     {{ $daftarPengembalian->total() }} Pengembalian
                 </span>
+                <a href="{{ route('admin.peminjaman.buat') }}" 
+                   class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#801414] hover:bg-[#681010] active:scale-95 text-white text-xs font-bold rounded-xl shadow-2xs transition-all">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                    <span>Catat Peminjaman Baru</span>
+                </a>
             </div>
 
             <!-- Filter Bar (Pencarian, Tanggal, & Tombol Cari Sesuai Mockup) -->
