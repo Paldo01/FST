@@ -100,22 +100,27 @@
                 <div class="pt-3 pb-1">
                     <p class="px-2 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Aksi Cepat</p>
                 </div>
-                <div class="grid grid-cols-3 gap-2">
+                <div class="space-y-2">
+                    <!-- Tombol Utama Menonjol: Input Alat (Warna Merah Marun) -->
                     <a href="{{ route('admin.peminjaman.buat') }}" 
-                       class="flex flex-col items-center justify-center p-2 rounded-xl border border-gray-200/80 text-[10px] font-bold text-gray-700 hover:bg-gray-50 hover:text-[#801414] transition-colors text-center" title="Catat Peminjaman Alat">
-                        <i data-lucide="calendar-plus" class="w-4 h-4 mb-1 text-[#801414]"></i>
-                        <span class="leading-tight">Catat Pinjam</span>
+                       class="flex items-center justify-center gap-2.5 p-2.5 rounded-xl bg-[#801414] hover:bg-[#681010] active:scale-[0.98] text-white text-xs font-bold shadow-xs transition-all text-center group" title="Input Peminjaman Alat Langsung">
+                        <i data-lucide="package-plus" class="w-4 h-4 text-mustard-300 group-hover:scale-110 transition-transform"></i>
+                        <span>Input Peminjaman Alat</span>
                     </a>
-                    <a href="{{ route('admin.jadwal.buat') }}" 
-                       class="flex flex-col items-center justify-center p-2 rounded-xl border border-gray-200/80 text-[10px] font-bold text-gray-700 hover:bg-gray-50 hover:text-[#801414] transition-colors text-center" title="Input Jadwal Ruangan">
-                        <i data-lucide="calendar" class="w-4 h-4 mb-1 text-[#801414]"></i>
-                        <span class="leading-tight">Input Jadwal</span>
-                    </a>
-                    <a href="{{ route('admin.kategori.index') }}" 
-                       class="flex flex-col items-center justify-center p-2 rounded-xl border border-gray-200/80 text-[10px] font-bold text-gray-700 hover:bg-gray-50 hover:text-[#801414] transition-colors text-center" title="Kelola Kategori Fasilitas">
-                        <i data-lucide="tags" class="w-4 h-4 mb-1 text-[#801414]"></i>
-                        <span class="leading-tight">Kategori</span>
-                    </a>
+
+                    <!-- Sub Aksi: Input Jadwal & Kategori (Grid 2 Kolom di bawahnya) -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <a href="{{ route('admin.jadwal.buat') }}" 
+                           class="flex flex-col items-center justify-center p-2 rounded-xl border border-gray-200/80 bg-white text-[11px] font-bold text-gray-700 hover:bg-gray-50 hover:text-[#801414] transition-colors text-center shadow-2xs" title="Input Jadwal Ruangan">
+                            <i data-lucide="calendar" class="w-4 h-4 mb-1 text-[#801414]"></i>
+                            <span class="leading-tight">Input Jadwal</span>
+                        </a>
+                        <a href="{{ route('admin.kategori.index') }}" 
+                           class="flex flex-col items-center justify-center p-2 rounded-xl border border-gray-200/80 bg-white text-[11px] font-bold text-gray-700 hover:bg-gray-50 hover:text-[#801414] transition-colors text-center shadow-2xs" title="Kelola Kategori Fasilitas">
+                            <i data-lucide="tags" class="w-4 h-4 mb-1 text-[#801414]"></i>
+                            <span class="leading-tight">Kategori</span>
+                        </a>
+                    </div>
                 </div>
             @endif
 
