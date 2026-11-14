@@ -68,14 +68,7 @@
                     <span>Kelola Alat</span>
                 </a>
 
-                <!-- 4. Kategori Fasilitas -->
-                <a href="{{ route('admin.kategori.index') }}" 
-                   class="flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all {{ $isKategori ? 'bg-[#801414] text-white shadow-sm' : 'bg-white text-gray-800 border border-gray-200/70 hover:border-gray-300 hover:bg-gray-50/80 shadow-2xs' }}">
-                    <i data-lucide="tags" class="w-5 h-5 shrink-0 {{ $isKategori ? 'text-white' : 'text-gray-700' }}"></i>
-                    <span>Kategori Fasilitas</span>
-                </a>
-
-                <!-- 5. Pengajuan Peminjaman -->
+                <!-- 4. Pengajuan Peminjaman -->
                 <a href="{{ route('admin.verifikasi.index') }}" 
                    class="flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all {{ $isPengajuan ? 'bg-[#801414] text-white shadow-sm' : 'bg-white text-gray-800 border border-gray-200/70 hover:border-gray-300 hover:bg-gray-50/80 shadow-2xs' }}">
                     <i data-lucide="file-text" class="w-5 h-5 shrink-0 {{ $isPengajuan ? 'text-white' : 'text-gray-700' }}"></i>
@@ -107,16 +100,21 @@
                 <div class="pt-3 pb-1">
                     <p class="px-2 text-[11px] font-bold text-gray-400 uppercase tracking-wider">Aksi Cepat</p>
                 </div>
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-3 gap-2">
                     <a href="{{ route('admin.peminjaman.buat') }}" 
-                       class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-gray-200/80 text-[11px] font-bold text-gray-700 hover:bg-gray-50 hover:text-[#801414] transition-colors text-center" title="Catat Peminjaman Alat">
+                       class="flex flex-col items-center justify-center p-2 rounded-xl border border-gray-200/80 text-[10px] font-bold text-gray-700 hover:bg-gray-50 hover:text-[#801414] transition-colors text-center" title="Catat Peminjaman Alat">
                         <i data-lucide="calendar-plus" class="w-4 h-4 mb-1 text-[#801414]"></i>
-                        <span>Catat Peminjaman</span>
+                        <span class="leading-tight">Catat Pinjam</span>
                     </a>
                     <a href="{{ route('admin.jadwal.buat') }}" 
-                       class="flex flex-col items-center justify-center p-2.5 rounded-xl border border-gray-200/80 text-[11px] font-bold text-gray-700 hover:bg-gray-50 hover:text-[#801414] transition-colors text-center" title="Input Jadwal Ruangan">
+                       class="flex flex-col items-center justify-center p-2 rounded-xl border border-gray-200/80 text-[10px] font-bold text-gray-700 hover:bg-gray-50 hover:text-[#801414] transition-colors text-center" title="Input Jadwal Ruangan">
                         <i data-lucide="calendar" class="w-4 h-4 mb-1 text-[#801414]"></i>
-                        <span>Input Jadwal</span>
+                        <span class="leading-tight">Input Jadwal</span>
+                    </a>
+                    <a href="{{ route('admin.kategori.index') }}" 
+                       class="flex flex-col items-center justify-center p-2 rounded-xl border border-gray-200/80 text-[10px] font-bold text-gray-700 hover:bg-gray-50 hover:text-[#801414] transition-colors text-center" title="Kelola Kategori Fasilitas">
+                        <i data-lucide="tags" class="w-4 h-4 mb-1 text-[#801414]"></i>
+                        <span class="leading-tight">Kategori</span>
                     </a>
                 </div>
             @endif

@@ -51,21 +51,12 @@
             @endif
         </form>
 
-        <!-- Tombol Aksi: Kelola Kategori & Tambah Ruang -->
-        <div class="flex items-center gap-2.5 shrink-0">
-            <a href="{{ route('admin.kategori.index') }}" 
-               class="px-4 py-2.5 rounded-xl sm:rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 active:scale-[0.99] text-gray-700 font-bold text-xs sm:text-sm shadow-2xs transition-all flex items-center justify-center gap-2 cursor-pointer select-none">
-                <i data-lucide="tags" class="w-4 h-4 text-marun-800"></i>
-                <span>Kelola Kategori</span>
-            </a>
-
-            <!-- Tombol Tambah Ruang (Sesuai Mockup: Solid Maroon + Icon) -->
-            <button type="button" @click="openAddModal()"
-                    class="px-5 py-2.5 rounded-xl sm:rounded-2xl bg-[#801414] hover:bg-[#681010] active:scale-[0.99] text-white font-bold text-xs sm:text-sm shadow-xs transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer select-none">
-                <i data-lucide="plus" class="w-4 h-4"></i>
-                <span>Tambah Ruang</span>
-            </button>
-        </div>
+        <!-- Tombol Tambah Ruang (Sesuai Mockup: Solid Maroon + Icon) -->
+        <button type="button" @click="openAddModal()"
+                class="px-5 py-2.5 rounded-xl sm:rounded-2xl bg-[#801414] hover:bg-[#681010] active:scale-[0.99] text-white font-bold text-xs sm:text-sm shadow-xs transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer select-none">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Tambah Ruang</span>
+        </button>
     </div>
 
     <!-- Card Tabel Daftar Ruang (Sesuai Mockup) -->
