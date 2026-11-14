@@ -20,6 +20,11 @@ class Fasilitas extends Model
         'jumlah',
         'deskripsi',
         'gambar',
+        'galeri',
+    ];
+
+    protected $casts = [
+        'galeri' => 'array',
     ];
 
     public function getJumlahFormattedAttribute(): string

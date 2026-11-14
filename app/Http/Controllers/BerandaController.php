@@ -136,7 +136,7 @@ class BerandaController extends Controller
             ];
         }
 
-        // Foto & Gallery Thumbnails (Gunakan gambar database jika diupload, atau fallback representatif)
+        // Foto & Gallery Thumbnails (Mendukung hingga 3 foto: jika hanya 1 maka tampilkan foto yang sama)
         $namaLower = strtolower($fasilitas->nama_fasilitas);
         $fotoUtama = null;
         if ($fasilitas->gambar && file_exists(public_path($fasilitas->gambar))) {
@@ -145,11 +145,23 @@ class BerandaController extends Controller
             $fotoUtama = asset('storage/' . $fasilitas->gambar);
         }
 
+        $resolveImg = function($path) {
+            if (!$path) return null;
+            if (file_exists(public_path($path))) return asset($path);
+            if (file_exists(public_path('storage/' . $path))) return asset('storage/' . $path);
+            return null;
+        };
+
         if ($fotoUtama) {
+            $rawGaleri = is_array($fasilitas->galeri) ? $fasilitas->galeri : [];
+            $foto2 = isset($rawGaleri[1]) ? $resolveImg($rawGaleri[1]) : null;
+            $foto3 = isset($rawGaleri[2]) ? $resolveImg($rawGaleri[2]) : null;
+
+            // Jika hanya 1 foto dimasukkan admin, tampilkan foto yang sama untuk ketiga thumbnail
             $gallery = [
                 $fotoUtama,
-                $fotoUtama,
-                $fotoUtama,
+                $foto2 ?: $fotoUtama,
+                $foto3 ?: ($foto2 ?: $fotoUtama),
             ];
         } elseif (str_contains($namaLower, 'aula')) {
             $gallery = [

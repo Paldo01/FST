@@ -149,8 +149,21 @@
                                         } elseif ($r->gambar && file_exists(public_path('storage/' . $r->gambar))) {
                                             $gambarUrl = asset('storage/' . $r->gambar);
                                         }
+
+                                        $galeriUrls = [];
+                                        if (is_array($r->galeri)) {
+                                            foreach ($r->galeri as $idx => $gPath) {
+                                                if ($gPath && file_exists(public_path($gPath))) {
+                                                    $galeriUrls[$idx] = asset($gPath);
+                                                } elseif ($gPath && file_exists(public_path('storage/' . $gPath))) {
+                                                    $galeriUrls[$idx] = asset('storage/' . $gPath);
+                                                }
+                                            }
+                                        }
+
                                         $roomPayload = array_merge($r->toArray(), [
                                             'gambar_url' => $gambarUrl,
+                                            'galeri_urls' => $galeriUrls,
                                         ]);
                                     @endphp
                                     <!-- Tombol Edit (Outlined Red) -->
@@ -323,27 +336,59 @@
                     <p class="text-[11px] text-gray-400 mt-1">Fasilitas ini akan tampil di katalog dan halaman detail ruangan pengguna.</p>
                 </div>
 
-                <!-- Input Foto Ruangan & Preview -->
+                <!-- Input Foto Galeri Ruangan (Hingga 3 Foto) -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1.5">
-                        Foto Ruangan (Opsional)
-                    </label>
-                    <div class="flex items-center gap-3">
-                        <!-- Preview Box -->
-                        <div class="w-16 h-16 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden shrink-0">
-                            <template x-if="imagePreview">
-                                <img :src="imagePreview" alt="Preview Foto Ruang" class="w-full h-full object-cover">
-                            </template>
-                            <template x-if="!imagePreview">
-                                <i data-lucide="image" class="w-6 h-6 text-gray-400"></i>
-                            </template>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block text-xs font-semibold text-gray-700">
+                            Foto Galeri Ruangan (Maksimal 3 Foto)
+                        </label>
+                        <span class="text-[10px] text-gray-400">Jika hanya isi 1 foto, sistem otomatis menampilkan foto yang sama</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <!-- Foto 1 (Utama) -->
+                        <div class="p-2.5 rounded-xl border border-gray-200 bg-gray-50/60 flex flex-col justify-between">
+                            <span class="text-[11px] font-bold text-gray-700 mb-1.5 block">Foto 1 (Utama)</span>
+                            <div class="aspect-video w-full rounded-lg border border-gray-200 bg-white flex items-center justify-center overflow-hidden mb-2">
+                                <template x-if="imagePreview1">
+                                    <img :src="imagePreview1" alt="Foto 1" class="w-full h-full object-cover">
+                                </template>
+                                <template x-if="!imagePreview1">
+                                    <i data-lucide="image" class="w-5 h-5 text-gray-300"></i>
+                                </template>
+                            </div>
+                            <input type="file" name="gambar" accept="image/*" @change="handleImageChange($event, 1)"
+                                   class="w-full text-[11px] text-gray-600 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-bold file:bg-[#801414]/10 file:text-[#801414] hover:file:bg-[#801414]/20 cursor-pointer">
                         </div>
 
-                        <!-- File Input -->
-                        <div class="flex-1">
-                            <input type="file" name="gambar" accept="image/*" @change="handleImageChange($event)"
-                                   class="w-full text-xs text-gray-600 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#801414]/10 file:text-[#801414] hover:file:bg-[#801414]/20 cursor-pointer">
-                            <p class="text-[11px] text-gray-400 mt-1">Format: JPG, PNG, WEBP (Maksimal 2MB). Foto akan selaras dengan kartu katalog dan detail ruangan.</p>
+                        <!-- Foto 2 -->
+                        <div class="p-2.5 rounded-xl border border-gray-200 bg-gray-50/60 flex flex-col justify-between">
+                            <span class="text-[11px] font-bold text-gray-700 mb-1.5 block">Foto 2 (Opsional)</span>
+                            <div class="aspect-video w-full rounded-lg border border-gray-200 bg-white flex items-center justify-center overflow-hidden mb-2">
+                                <template x-if="imagePreview2">
+                                    <img :src="imagePreview2" alt="Foto 2" class="w-full h-full object-cover">
+                                </template>
+                                <template x-if="!imagePreview2">
+                                    <i data-lucide="image" class="w-5 h-5 text-gray-300"></i>
+                                </template>
+                            </div>
+                            <input type="file" name="gambar_2" accept="image/*" @change="handleImageChange($event, 2)"
+                                   class="w-full text-[11px] text-gray-600 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-bold file:bg-[#801414]/10 file:text-[#801414] hover:file:bg-[#801414]/20 cursor-pointer">
+                        </div>
+
+                        <!-- Foto 3 -->
+                        <div class="p-2.5 rounded-xl border border-gray-200 bg-gray-50/60 flex flex-col justify-between">
+                            <span class="text-[11px] font-bold text-gray-700 mb-1.5 block">Foto 3 (Opsional)</span>
+                            <div class="aspect-video w-full rounded-lg border border-gray-200 bg-white flex items-center justify-center overflow-hidden mb-2">
+                                <template x-if="imagePreview3">
+                                    <img :src="imagePreview3" alt="Foto 3" class="w-full h-full object-cover">
+                                </template>
+                                <template x-if="!imagePreview3">
+                                    <i data-lucide="image" class="w-5 h-5 text-gray-300"></i>
+                                </template>
+                            </div>
+                            <input type="file" name="gambar_3" accept="image/*" @change="handleImageChange($event, 3)"
+                                   class="w-full text-[11px] text-gray-600 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-bold file:bg-[#801414]/10 file:text-[#801414] hover:file:bg-[#801414]/20 cursor-pointer">
                         </div>
                     </div>
                 </div>
@@ -370,7 +415,9 @@
         return {
             isModalOpen: false,
             modalMode: 'add',
-            imagePreview: null,
+            imagePreview1: null,
+            imagePreview2: null,
+            imagePreview3: null,
             formData: {
                 id: null,
                 nama_fasilitas: '',
@@ -381,17 +428,24 @@
                 kode_fasilitas: '',
                 deskripsi: ''
             },
-            handleImageChange(event) {
+            handleImageChange(event, index) {
                 const file = event.target.files[0];
                 if (file) {
-                    this.imagePreview = URL.createObjectURL(file);
+                    const url = URL.createObjectURL(file);
+                    if (index === 1) this.imagePreview1 = url;
+                    if (index === 2) this.imagePreview2 = url;
+                    if (index === 3) this.imagePreview3 = url;
                 } else {
-                    this.imagePreview = null;
+                    if (index === 1) this.imagePreview1 = null;
+                    if (index === 2) this.imagePreview2 = null;
+                    if (index === 3) this.imagePreview3 = null;
                 }
             },
             openAddModal() {
                 this.modalMode = 'add';
-                this.imagePreview = null;
+                this.imagePreview1 = null;
+                this.imagePreview2 = null;
+                this.imagePreview3 = null;
                 this.formData = {
                     id: null,
                     nama_fasilitas: '',
@@ -407,7 +461,9 @@
             },
             openEditModal(room) {
                 this.modalMode = 'edit';
-                this.imagePreview = room.gambar_url || null;
+                this.imagePreview1 = room.gambar_url || null;
+                this.imagePreview2 = room.galeri_urls && room.galeri_urls[1] ? room.galeri_urls[1] : null;
+                this.imagePreview3 = room.galeri_urls && room.galeri_urls[2] ? room.galeri_urls[2] : null;
                 this.formData = {
                     id: room.id,
                     nama_fasilitas: room.nama_fasilitas,

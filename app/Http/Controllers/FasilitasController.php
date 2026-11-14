@@ -117,6 +117,8 @@ class FasilitasController extends Controller
             'jumlah' => 'nullable|string|max:100',
             'deskripsi' => 'nullable|string',
             'gambar' => 'nullable|image|max:2048',
+            'gambar_2' => 'nullable|image|max:2048',
+            'gambar_3' => 'nullable|image|max:2048',
         ]);
 
         if (empty($validated['kode_fasilitas'])) {
@@ -131,6 +133,24 @@ class FasilitasController extends Controller
 
         if ($request->hasFile('gambar')) {
             $validated['gambar'] = $request->file('gambar')->store('fasilitas', 'public');
+        }
+
+        // Simpan galeri (foto 1, foto 2, foto 3)
+        $galeri = [];
+        if (!empty($validated['gambar'])) {
+            $galeri[0] = $validated['gambar'];
+        }
+
+        if ($request->hasFile('gambar_2')) {
+            $galeri[1] = $request->file('gambar_2')->store('fasilitas', 'public');
+        }
+
+        if ($request->hasFile('gambar_3')) {
+            $galeri[2] = $request->file('gambar_3')->store('fasilitas', 'public');
+        }
+
+        if (!empty($galeri)) {
+            $validated['galeri'] = $galeri;
         }
 
         $fasilitas = Fasilitas::create($validated);
@@ -180,17 +200,42 @@ class FasilitasController extends Controller
             'jumlah' => 'nullable|string|max:100',
             'deskripsi' => 'nullable|string',
             'gambar' => 'nullable|image|max:2048',
+            'gambar_2' => 'nullable|image|max:2048',
+            'gambar_3' => 'nullable|image|max:2048',
         ]);
 
         if (empty($validated['kondisi_awal'])) {
             $validated['kondisi_awal'] = $fasilita->kondisi_awal ?? 'baik';
         }
 
+        $galeri = is_array($fasilita->galeri) ? $fasilita->galeri : [];
+
         if ($request->hasFile('gambar')) {
             if ($fasilita->gambar) {
                 Storage::disk('public')->delete($fasilita->gambar);
             }
             $validated['gambar'] = $request->file('gambar')->store('fasilitas', 'public');
+            $galeri[0] = $validated['gambar'];
+        } elseif (!empty($fasilita->gambar)) {
+            $galeri[0] = $fasilita->gambar;
+        }
+
+        if ($request->hasFile('gambar_2')) {
+            if (!empty($galeri[1])) {
+                Storage::disk('public')->delete($galeri[1]);
+            }
+            $galeri[1] = $request->file('gambar_2')->store('fasilitas', 'public');
+        }
+
+        if ($request->hasFile('gambar_3')) {
+            if (!empty($galeri[2])) {
+                Storage::disk('public')->delete($galeri[2]);
+            }
+            $galeri[2] = $request->file('gambar_3')->store('fasilitas', 'public');
+        }
+
+        if (!empty($galeri)) {
+            $validated['galeri'] = $galeri;
         }
 
         $fasilita->update($validated);
