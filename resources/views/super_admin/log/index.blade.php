@@ -79,8 +79,24 @@
             </div>
         </form>
 
-        <!-- Tabel Audit Log -->
-        <div class="overflow-x-auto rounded-xl border border-gray-200/80">
+        <!-- Tabel Audit Log (Dukungan Transisi Smooth) -->
+        <div id="audit-table-area" 
+             class="overflow-x-auto rounded-xl border border-gray-200/80 transition-opacity duration-200 relative"
+             :class="loadingPage ? 'opacity-40 pointer-events-none' : 'opacity-100'">
+            
+            <!-- Loading Indicator Overlay -->
+            <div x-show="loadingPage" 
+                 x-cloak
+                 class="absolute inset-0 bg-white/50 backdrop-blur-2xs flex items-center justify-center z-10 transition-opacity">
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full shadow-md border border-gray-200 text-xs font-bold text-gray-700">
+                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-[#801414]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Memuat data...
+                </div>
+            </div>
+
             <table class="w-full text-xs sm:text-sm text-left">
                 <!-- Header Tabel Sesuai Mockup -->
                 <thead class="text-sm font-bold text-gray-800 bg-[#F1F5F9]/80 border-b border-gray-200/80">
@@ -155,7 +171,7 @@
         </div>
 
         <!-- Footer: Info Jumlah Data & Tombol Navigasi Pagination Sesuai Screenshot -->
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
+        <div id="audit-pagination-area" class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
             <!-- Informasi Data -->
             <div class="text-sm text-slate-500 font-normal">
                 @if($logs->total() > 0)
@@ -174,7 +190,9 @@
                             <i data-lucide="chevron-left" class="w-4 h-4"></i>
                         </span>
                     @else
-                        <a href="{{ $logs->previousPageUrl() }}" class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 shadow-2xs transition-colors">
+                        <a href="{{ $logs->previousPageUrl() }}" 
+                           @click.prevent="navigatePage('{{ $logs->previousPageUrl() }}')"
+                           class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700 hover:border-[#801414] hover:text-[#801414] hover:bg-red-50/30 hover:scale-105 active:scale-95 shadow-2xs transition-all duration-200 cursor-pointer">
                             <i data-lucide="chevron-left" class="w-4 h-4"></i>
                         </a>
                     @endif
@@ -191,11 +209,13 @@
 
                     @for ($p = $startPage; $p <= $endPage; $p++)
                         @if ($p == $currentPage)
-                            <span class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl bg-[#B91C1C] text-white font-bold text-xs sm:text-sm shadow-2xs">
+                            <span class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl bg-[#B91C1C] text-white font-bold text-xs sm:text-sm shadow-xs ring-2 ring-[#B91C1C]/20 select-none">
                                 {{ $p }}
                             </span>
                         @else
-                            <a href="{{ $logs->url($p) }}" class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 font-medium text-xs sm:text-sm shadow-2xs transition-colors">
+                            <a href="{{ $logs->url($p) }}" 
+                               @click.prevent="navigatePage('{{ $logs->url($p) }}')"
+                               class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700 hover:border-[#801414] hover:text-[#801414] hover:bg-red-50/30 hover:scale-105 active:scale-95 font-medium text-xs sm:text-sm shadow-2xs transition-all duration-200 cursor-pointer">
                                 {{ $p }}
                             </a>
                         @endif
@@ -203,7 +223,9 @@
 
                     {{-- Next Page Link [>] --}}
                     @if ($logs->hasMorePages())
-                        <a href="{{ $logs->nextPageUrl() }}" class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 shadow-2xs transition-colors">
+                        <a href="{{ $logs->nextPageUrl() }}" 
+                           @click.prevent="navigatePage('{{ $logs->nextPageUrl() }}')"
+                           class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700 hover:border-[#801414] hover:text-[#801414] hover:bg-red-50/30 hover:scale-105 active:scale-95 shadow-2xs transition-all duration-200 cursor-pointer">
                             <i data-lucide="chevron-right" class="w-4 h-4"></i>
                         </a>
                     @else
@@ -369,6 +391,59 @@
             showDetailModal: false,
             selectedLog: null,
             logsList: @json($logsPayload),
+            loadingPage: false,
+
+            navigatePage(url) {
+                if (!url || this.loadingPage) return;
+                this.loadingPage = true;
+                
+                fetch(url, { 
+                    headers: { 
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'text/html'
+                    } 
+                })
+                .then(res => res.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newTable = doc.querySelector('#audit-table-area');
+                    const newPagination = doc.querySelector('#audit-pagination-area');
+                    
+                    // Parse logsList payload baru dari script HTML yang diambil
+                    const scripts = doc.querySelectorAll('script');
+                    for (let s of scripts) {
+                        if (s.textContent.includes('logsList:')) {
+                            const match = s.textContent.match(/logsList:\s*(\[[\s\S]*?\]),\s*loadingPage/);
+                            if (match) {
+                                try {
+                                    this.logsList = JSON.parse(match[1]);
+                                } catch (e) {}
+                            }
+                        }
+                    }
+
+                    if (newTable && newPagination) {
+                        document.querySelector('#audit-table-area').innerHTML = newTable.innerHTML;
+                        document.querySelector('#audit-pagination-area').innerHTML = newPagination.innerHTML;
+                        window.history.pushState(null, '', url);
+                        
+                        this.$nextTick(() => {
+                            if (window.lucide) {
+                                lucide.createIcons();
+                            }
+                        });
+                    } else {
+                        window.location.href = url;
+                    }
+                })
+                .catch(() => {
+                    window.location.href = url;
+                })
+                .finally(() => {
+                    this.loadingPage = false;
+                });
+            },
 
             openDetail(id) {
                 const found = this.logsList.find(item => item.id === id);

@@ -206,11 +206,11 @@
                 <div class="flex items-center gap-1.5 self-center sm:self-auto">
                     {{-- Previous Page Link --}}
                     @if ($feedbacks->onFirstPage())
-                        <span class="w-8 h-8 rounded-lg border border-gray-200 text-gray-300 flex items-center justify-center text-xs font-bold cursor-not-allowed">
+                        <span class="w-8 h-8 rounded-xl border border-gray-200 text-gray-300 flex items-center justify-center text-xs font-bold cursor-not-allowed shadow-2xs">
                             <i data-lucide="chevron-left" class="w-4 h-4"></i>
                         </span>
                     @else
-                        <a href="{{ $feedbacks->previousPageUrl() }}" class="w-8 h-8 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 flex items-center justify-center text-xs font-bold transition-colors">
+                        <a href="{{ $feedbacks->previousPageUrl() }}" class="w-8 h-8 rounded-xl border border-gray-200 text-gray-700 hover:border-[#801414] hover:text-[#801414] hover:bg-red-50/30 hover:scale-105 active:scale-95 flex items-center justify-center text-xs font-bold shadow-2xs transition-all duration-200 cursor-pointer">
                             <i data-lucide="chevron-left" class="w-4 h-4"></i>
                         </a>
                     @endif
@@ -218,11 +218,11 @@
                     {{-- Pagination Elements --}}
                     @foreach ($feedbacks->getUrlRange(1, $feedbacks->lastPage()) as $page => $url)
                         @if ($page == $feedbacks->currentPage())
-                            <span class="w-8 h-8 rounded-lg bg-[#801414] text-white flex items-center justify-center text-xs font-bold shadow-2xs">
+                            <span class="w-8 h-8 rounded-xl bg-[#801414] text-white flex items-center justify-center text-xs font-bold shadow-xs ring-2 ring-[#801414]/20 select-none">
                                 {{ $page }}
                             </span>
                         @else
-                            <a href="{{ $url }}" class="w-8 h-8 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 flex items-center justify-center text-xs font-bold transition-colors">
+                            <a href="{{ $url }}" class="w-8 h-8 rounded-xl border border-gray-200 text-gray-700 hover:border-[#801414] hover:text-[#801414] hover:bg-red-50/30 hover:scale-105 active:scale-95 flex items-center justify-center text-xs font-bold shadow-2xs transition-all duration-200 cursor-pointer">
                                 {{ $page }}
                             </a>
                         @endif
@@ -230,11 +230,11 @@
 
                     {{-- Next Page Link --}}
                     @if ($feedbacks->hasMorePages())
-                        <a href="{{ $feedbacks->nextPageUrl() }}" class="w-8 h-8 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50 flex items-center justify-center text-xs font-bold transition-colors">
+                        <a href="{{ $feedbacks->nextPageUrl() }}" class="w-8 h-8 rounded-xl border border-gray-200 text-gray-700 hover:border-[#801414] hover:text-[#801414] hover:bg-red-50/30 hover:scale-105 active:scale-95 flex items-center justify-center text-xs font-bold shadow-2xs transition-all duration-200 cursor-pointer">
                             <i data-lucide="chevron-right" class="w-4 h-4"></i>
                         </a>
                     @else
-                        <span class="w-8 h-8 rounded-lg border border-gray-200 text-gray-300 flex items-center justify-center text-xs font-bold cursor-not-allowed">
+                        <span class="w-8 h-8 rounded-xl border border-gray-200 text-gray-300 flex items-center justify-center text-xs font-bold cursor-not-allowed shadow-2xs">
                             <i data-lucide="chevron-right" class="w-4 h-4"></i>
                         </span>
                     @endif

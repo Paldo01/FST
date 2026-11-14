@@ -16,6 +16,7 @@
 
     <!-- Sidebar Menu (Sesuai Mockup Desain FST) -->
     <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+           style="will-change: transform; backface-visibility: hidden;"
            class="fixed inset-y-0 left-0 z-50 w-64 lg:w-72 bg-white text-gray-800 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col border-r border-gray-100 shadow-sm">
         
         <!-- Branding Logo & Nama Website Dinamis (Tersinkronisasi Pengaturan) -->

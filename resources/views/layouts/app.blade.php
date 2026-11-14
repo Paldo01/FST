@@ -29,7 +29,7 @@
             <div class="max-w-7xl mx-auto">
                 <!-- Page Header -->
                 @hasSection('header')
-                    <div class="mb-6 flex justify-between items-end animate-fade-in-up">
+                    <div class="mb-6 flex justify-between items-end animate-fade-in">
                         <div>
                             <h1 class="text-2xl font-bold text-marun-900">@yield('header')</h1>
                             <p class="text-sm text-gray-500 mt-1">@yield('description', 'Sistem Manajemen Peminjaman Ruang dan Alat')</p>
@@ -42,7 +42,7 @@
                 <x-toast />
 
                 <!-- Main Content -->
-                <div class="animate-fade-in-up" style="animation-delay: 0.1s;">
+                <div class="animate-fade-in">
                     @yield('content')
                 </div>
             </div>
