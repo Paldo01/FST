@@ -40,6 +40,7 @@
                     $isDashboard = request()->routeIs('dashboard');
                     $isKelolaRuang = request()->routeIs('admin.ruang.*') || (request()->routeIs('admin.fasilitas.*') && request('jenis') === 'ruangan');
                     $isKelolaAlat = request()->routeIs('admin.alat.*') || (request()->routeIs('admin.fasilitas.*') && request('jenis') === 'peralatan');
+                    $isKategori = request()->routeIs('admin.kategori.*');
                     $isPengajuan = request()->routeIs('admin.verifikasi.*');
                     $isPengembalian = request()->routeIs('admin.pengembalian.*');
                     $isRiwayat = request()->routeIs('admin.riwayat.*');
@@ -67,7 +68,14 @@
                     <span>Kelola Alat</span>
                 </a>
 
-                <!-- 4. Pengajuan Peminjaman -->
+                <!-- 4. Kategori Fasilitas -->
+                <a href="{{ route('admin.kategori.index') }}" 
+                   class="flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all {{ $isKategori ? 'bg-[#801414] text-white shadow-sm' : 'bg-white text-gray-800 border border-gray-200/70 hover:border-gray-300 hover:bg-gray-50/80 shadow-2xs' }}">
+                    <i data-lucide="tags" class="w-5 h-5 shrink-0 {{ $isKategori ? 'text-white' : 'text-gray-700' }}"></i>
+                    <span>Kategori Fasilitas</span>
+                </a>
+
+                <!-- 5. Pengajuan Peminjaman -->
                 <a href="{{ route('admin.verifikasi.index') }}" 
                    class="flex items-center gap-3.5 px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold transition-all {{ $isPengajuan ? 'bg-[#801414] text-white shadow-sm' : 'bg-white text-gray-800 border border-gray-200/70 hover:border-gray-300 hover:bg-gray-50/80 shadow-2xs' }}">
                     <i data-lucide="file-text" class="w-5 h-5 shrink-0 {{ $isPengajuan ? 'text-white' : 'text-gray-700' }}"></i>

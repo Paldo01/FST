@@ -51,12 +51,21 @@
             @endif
         </form>
 
-        <!-- Tombol Tambah Ruang (Sesuai Mockup: Solid Maroon + Icon) -->
-        <button type="button" @click="openAddModal()"
-                class="px-5 py-2.5 rounded-xl sm:rounded-2xl bg-[#801414] hover:bg-[#681010] active:scale-[0.99] text-white font-bold text-xs sm:text-sm shadow-xs transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer select-none">
-            <i data-lucide="plus" class="w-4 h-4"></i>
-            <span>Tambah Ruang</span>
-        </button>
+        <!-- Tombol Aksi: Kelola Kategori & Tambah Ruang -->
+        <div class="flex items-center gap-2.5 shrink-0">
+            <a href="{{ route('admin.kategori.index') }}" 
+               class="px-4 py-2.5 rounded-xl sm:rounded-2xl bg-white border border-gray-200 hover:bg-gray-50 active:scale-[0.99] text-gray-700 font-bold text-xs sm:text-sm shadow-2xs transition-all flex items-center justify-center gap-2 cursor-pointer select-none">
+                <i data-lucide="tags" class="w-4 h-4 text-marun-800"></i>
+                <span>Kelola Kategori</span>
+            </a>
+
+            <!-- Tombol Tambah Ruang (Sesuai Mockup: Solid Maroon + Icon) -->
+            <button type="button" @click="openAddModal()"
+                    class="px-5 py-2.5 rounded-xl sm:rounded-2xl bg-[#801414] hover:bg-[#681010] active:scale-[0.99] text-white font-bold text-xs sm:text-sm shadow-xs transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer select-none">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Tambah Ruang</span>
+            </button>
+        </div>
     </div>
 
     <!-- Card Tabel Daftar Ruang (Sesuai Mockup) -->
@@ -247,16 +256,35 @@
                 <!-- Jenis Ruangan & Kapasitas (Grid 2 Kolom) -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div>
-                        <label class="block text-xs font-semibold text-gray-700 mb-1.5">
-                            Jenis Ruang <span class="text-rose-500">*</span>
-                        </label>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-xs font-semibold text-gray-700">
+                                Jenis / Kategori Ruang <span class="text-rose-500">*</span>
+                            </label>
+                            <button type="button" @click="formData.kategori_id = 'new'" x-show="formData.kategori_id !== 'new'"
+                                    class="text-[11px] font-bold text-[#801414] hover:underline cursor-pointer">
+                                + Kategori Baru
+                            </button>
+                        </div>
                         <select name="kategori_id" x-model="formData.kategori_id" required
                                 class="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-xs sm:text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#801414]/15 focus:border-[#801414] transition-all bg-white">
-                            <option value="">Pilih Jenis</option>
+                            <option value="">Pilih Jenis Ruang</option>
                             @foreach($kategoriList as $k)
                                 <option value="{{ $k->id }}">{{ $k->nama_kategori }}</option>
                             @endforeach
+                            <option value="new" class="font-bold text-[#801414]">+ Tambah Kategori Baru...</option>
                         </select>
+
+                        <!-- Input Kategori Baru (Muncul jika pilih Tambah Kategori Baru) -->
+                        <div x-show="formData.kategori_id === 'new'" x-transition class="mt-2 p-2.5 bg-marun-50/70 border border-marun-200 rounded-xl space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <label class="text-[11px] font-bold text-marun-950">Nama Kategori Ruangan Baru:</label>
+                                <button type="button" @click="formData.kategori_id = '{{ $kategoriList->first()->id ?? '' }}'" class="text-[10px] text-gray-500 hover:text-gray-700">Batal</button>
+                            </div>
+                            <input type="text" name="nama_kategori_baru" x-model="formData.nama_kategori_baru" 
+                                   :required="formData.kategori_id === 'new'"
+                                   placeholder="Contoh: Ruang Sidang, Auditorium..."
+                                   class="w-full px-3 py-1.5 bg-white border border-marun-300 rounded-lg text-xs font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#801414]/20 focus:border-[#801414]">
+                        </div>
                     </div>
 
                     <div>
@@ -356,6 +384,7 @@
                 id: null,
                 nama_fasilitas: '',
                 kategori_id: '',
+                nama_kategori_baru: '',
                 kapasitas: '',
                 status: 'tersedia',
                 kode_fasilitas: '',
@@ -376,6 +405,7 @@
                     id: null,
                     nama_fasilitas: '',
                     kategori_id: '{{ $kategoriList->first()->id ?? '' }}',
+                    nama_kategori_baru: '',
                     kapasitas: '',
                     status: 'tersedia',
                     kode_fasilitas: '',
@@ -391,6 +421,7 @@
                     id: room.id,
                     nama_fasilitas: room.nama_fasilitas,
                     kategori_id: room.kategori_id,
+                    nama_kategori_baru: '',
                     kapasitas: room.kapasitas || '',
                     status: room.status,
                     kode_fasilitas: room.kode_fasilitas,

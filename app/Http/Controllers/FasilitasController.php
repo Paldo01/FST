@@ -97,6 +97,16 @@ class FasilitasController extends Controller
 
     public function store(Request $request)
     {
+        // Support pembuatan kategori baru secara instan dari modal tambah
+        if ($request->input('kategori_id') === 'new' && $request->filled('nama_kategori_baru')) {
+            $jenisKategori = $request->filled('from_ruang') ? 'ruangan' : ($request->filled('from_alat') ? 'peralatan' : 'ruangan');
+            $kategoriBaru = KategoriFasilitas::firstOrCreate(
+                ['nama_kategori' => trim($request->input('nama_kategori_baru')), 'jenis' => $jenisKategori],
+                ['deskripsi' => 'Kategori ' . $jenisKategori . ' ditambahkan dari form fasilitas']
+            );
+            $request->merge(['kategori_id' => $kategoriBaru->id]);
+        }
+
         $validated = $request->validate([
             'kategori_id' => 'required|exists:kategori_fasilitas,id',
             'kode_fasilitas' => 'nullable|string|unique:fasilitas,kode_fasilitas',
@@ -150,6 +160,16 @@ class FasilitasController extends Controller
 
     public function update(Request $request, Fasilitas $fasilita)
     {
+        // Support pembuatan kategori baru secara instan saat edit
+        if ($request->input('kategori_id') === 'new' && $request->filled('nama_kategori_baru')) {
+            $jenisKategori = $request->filled('from_ruang') ? 'ruangan' : ($request->filled('from_alat') ? 'peralatan' : 'ruangan');
+            $kategoriBaru = KategoriFasilitas::firstOrCreate(
+                ['nama_kategori' => trim($request->input('nama_kategori_baru')), 'jenis' => $jenisKategori],
+                ['deskripsi' => 'Kategori ' . $jenisKategori . ' ditambahkan dari form fasilitas']
+            );
+            $request->merge(['kategori_id' => $kategoriBaru->id]);
+        }
+
         $validated = $request->validate([
             'kategori_id' => 'required|exists:kategori_fasilitas,id',
             'kode_fasilitas' => 'required|string|unique:fasilitas,kode_fasilitas,' . $fasilita->id,
