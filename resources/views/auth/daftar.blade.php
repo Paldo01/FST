@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', 'Sistem Peminjaman FST - Daftar Akun')
+@section('title', ($appNamaWebsite ?? 'Sistem Peminjaman FST') . ' - Daftar Akun')
 
 @section('no_nav', true)
 @section('no_footer', true)
@@ -21,18 +21,19 @@
 <!-- Kartu Pendaftaran Mengambang (Floating Card) -->
 <div class="w-full max-w-[480px] bg-white rounded-3xl sm:rounded-[32px] shadow-2xl p-7 sm:p-9 border border-gray-100/80 relative z-30 transition-all my-6">
     
-    <!-- Header: Logo FST 3D Cube & Judul -->
+    <!-- Header: Logo Dinamis & Judul -->
     <div class="text-center mb-6">
         <div class="flex justify-center mb-3.5">
-            <img src="{{ asset('images/logo-fst.png') }}" 
-                 alt="Logo FST" 
-                 class="w-14 sm:w-16 h-auto object-contain drop-shadow-xs select-none">
+            <img src="{{ $appLogo ?? asset('images/logo-fst.png') }}" 
+                 alt="{{ $appNamaWebsite ?? 'Logo' }}" 
+                 class="w-14 sm:w-16 h-auto max-h-16 object-contain drop-shadow-xs select-none">
         </div>
-        <h1 class="text-xl sm:text-2xl font-black text-[#801414] tracking-tight leading-snug">
-            Daftar Akun
+        <h1 class="text-xl sm:text-2xl font-black tracking-tight leading-snug"
+            style="color: {{ $appWarnaNamaWebsite ?? '#801414' }};">
+            Daftar Akun Baru
         </h1>
         <p class="text-xs sm:text-sm text-gray-500 font-medium mt-1">
-            Kelola peminjaman ruang dan alat
+            {{ $appNamaWebsite ?? 'Sistem Peminjaman FST' }}
         </p>
     </div>
 

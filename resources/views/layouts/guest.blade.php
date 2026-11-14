@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'SIMORA FST UINIB')</title>
+    <title>@yield('title', $appNamaWebsite ?? 'SIMORA FST UINIB')</title>
+    <link rel="icon" type="image/png" href="{{ $appFavicon ?? asset('images/logo-fst.png') }}">
+    <meta name="description" content="{{ $appDeskripsi ?? 'Sistem Manajemen Peminjaman Ruang dan Alat' }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -19,22 +21,11 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <a href="{{ route('beranda') }}" class="flex items-center gap-2 group">
-                        @php
-                            $webLogo = \App\Models\Pengaturan::where('key', 'logo')->first();
-                            $namaWeb = \App\Models\Pengaturan::where('key', 'nama_website')->first()->value ?? 'SIMORA FST';
-                            $warnaNamaWeb = \App\Models\Pengaturan::where('key', 'warna_nama_website')->first()->value ?? '';
-                        @endphp
-                        @if($webLogo && $webLogo->value)
-                            <div class="w-10 h-10 rounded overflow-hidden flex items-center justify-center">
-                                <img src="{{ Storage::url($webLogo->value) }}" alt="Logo" class="max-w-full max-h-full object-contain">
-                            </div>
-                        @else
-                            <div class="w-10 h-10 bg-marun-800 rounded-lg flex items-center justify-center text-mustard-400 group-hover:bg-mustard-500 group-hover:text-marun-900 transition-colors">
-                                <i data-lucide="building-2" class="w-6 h-6"></i>
-                            </div>
-                        @endif
-                        <span class="font-bold text-xl tracking-tight text-marun-900" {!! $warnaNamaWeb ? 'style="color: ' . $warnaNamaWeb . ';"' : '' !!}>{{ $namaWeb }}</span>
+                    <a href="{{ route('beranda') }}" class="flex items-center gap-2.5 group">
+                        <div class="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center">
+                            <img src="{{ $appLogo ?? asset('images/logo-fst.png') }}" alt="{{ $appNamaWebsite ?? 'Logo' }}" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <span class="font-bold text-xl tracking-tight" style="color: {{ $appWarnaNamaWebsite ?? '#801414' }};">{{ $appNamaWebsite ?? 'SIMORA FST' }}</span>
                     </a>
                 </div>
                 

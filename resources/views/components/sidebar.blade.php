@@ -18,15 +18,18 @@
     <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
            class="fixed inset-y-0 left-0 z-50 w-64 lg:w-72 bg-white text-gray-800 transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 flex flex-col border-r border-gray-100 shadow-sm">
         
-        <!-- Branding Logo & Nama Website -->
+        <!-- Branding Logo & Nama Website Dinamis (Tersinkronisasi Pengaturan) -->
         <div class="h-20 flex items-center px-6 border-b border-gray-100/80">
             <a href="{{ route('dashboard') }}" class="flex items-center gap-3 group">
-                <img src="{{ asset('images/logo-fst.png') }}" 
-                     alt="Logo FST" 
+                <img src="{{ $appLogo ?? asset('images/logo-fst.png') }}" 
+                     alt="{{ $appNamaWebsite ?? 'Logo FST' }}" 
                      class="w-10 h-10 object-contain drop-shadow-2xs select-none">
                 <div class="flex flex-col">
-                    <span class="text-xs font-semibold text-gray-700 leading-tight">Sistem</span>
-                    <span class="text-sm sm:text-base font-black text-[#801414] leading-tight tracking-tight">Peminjaman FST</span>
+                    <span class="text-xs font-semibold text-gray-700 leading-tight">{{ $appSubNamaWebsite ?? 'Sistem' }}</span>
+                    <span class="text-sm sm:text-base font-black leading-tight tracking-tight"
+                          style="color: {{ $appWarnaNamaWebsite ?? '#801414' }};">
+                        {{ $appNamaWebsite ?? 'Peminjaman FST' }}
+                    </span>
                 </div>
             </a>
         </div>
