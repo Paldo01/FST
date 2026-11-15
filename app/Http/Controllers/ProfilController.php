@@ -59,12 +59,19 @@ class ProfilController extends Controller
         session(['profil_otp_sent' => true]);
         session()->forget('profil_otp_verified');
 
-        return back()->with('success', 'Kode OTP telah dikirim ke email Anda. Silakan cek email Anda.')->with('active_tab', 'lupa_sandi');
+        $pesanSukses = 'Kode OTP telah dikirim ke email Anda. Silakan cek email Anda.';
+        if (app()->isLocal() || config('app.debug')) {
+            $pesanSukses .= ' (Mode Dev: Kode Anda adalah ' . $otp . ')';
+        }
+
+        return back()->with('success', $pesanSukses)->with('active_tab', 'lupa_sandi');
     }
 
     public function verifikasiOtpProfile(Request $request)
     {
-        $request->validate(['otp' => 'required']);
+        $request->validate(['otp' => 'required'], [
+            'otp.required' => 'Kode OTP wajib diisi.',
+        ]);
 
         $user = auth()->user();
         
@@ -96,8 +103,9 @@ class ProfilController extends Controller
         $request->validate([
             'sandi_baru' => 'required|min:8|confirmed',
         ], [
+            'sandi_baru.required'  => 'Kata sandi baru wajib diisi.',
             'sandi_baru.confirmed' => 'Konfirmasi kata sandi baru tidak cocok.',
-            'sandi_baru.min' => 'Kata sandi baru minimal 8 karakter.'
+            'sandi_baru.min'       => 'Kata sandi baru minimal 8 karakter.'
         ]);
 
         $user = auth()->user();
@@ -108,10 +116,15 @@ class ProfilController extends Controller
         \Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $user->email)->delete();
         session()->forget(['profil_otp_sent', 'profil_otp_verified']);
 
-        LogAktivitas::create([
-            'pengguna_id' => $user->id,
-            'aktivitas' => 'Reset kata sandi via OTP di profil'
-        ]);
+        try {
+            LogAktivitas::create([
+                'pengguna_id'     => $user->id,
+                'tindakan'        => 'reset_sandi',
+                'detail_kegiatan' => 'Reset kata sandi via OTP di profil',
+                'alamat_ip'       => $request->ip(),
+                'created_at'      => now(),
+            ]);
+        } catch (\Throwable $e) {}
 
         return back()->with('success', 'Kata sandi berhasil direset.');
     }

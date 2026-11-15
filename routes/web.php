@@ -35,6 +35,7 @@ Route::middleware('guest')->group(function () {
 // Lupa Sandi (Bisa diakses Guest maupun Auth)
 Route::get('/lupa-sandi', [\App\Http\Controllers\LupaSandiController::class, 'showLupaSandi'])->name('lupa_sandi');
 Route::post('/lupa-sandi', [\App\Http\Controllers\LupaSandiController::class, 'kirimOtp'])->name('lupa_sandi.kirim');
+Route::post('/lupa-sandi/kirim-ulang', [\App\Http\Controllers\LupaSandiController::class, 'kirimUlangOtp'])->name('lupa_sandi.kirim_ulang');
 Route::get('/verifikasi-otp', [\App\Http\Controllers\LupaSandiController::class, 'showVerifikasiOtp'])->name('lupa_sandi.verifikasi');
 Route::post('/verifikasi-otp', [\App\Http\Controllers\LupaSandiController::class, 'verifikasiOtp'])->name('lupa_sandi.verifikasi.submit');
 Route::get('/reset-sandi', [\App\Http\Controllers\LupaSandiController::class, 'showResetSandi'])->name('lupa_sandi.reset');

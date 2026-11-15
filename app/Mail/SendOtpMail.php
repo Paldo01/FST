@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\Pengaturan;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -29,8 +30,9 @@ class SendOtpMail extends Mailable
      */
     public function envelope(): Envelope
     {
+        $appName = Pengaturan::get('nama_website', 'SIMORA FST');
         return new Envelope(
-            subject: 'Kode Verifikasi OTP - SIMORA FST',
+            subject: 'Kode Verifikasi OTP - ' . $appName,
         );
     }
 
