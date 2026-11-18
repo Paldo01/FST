@@ -147,11 +147,20 @@ class LupaSandiController extends Controller
     public function resetSandi(Request $request)
     {
         $request->validate([
-            'kata_sandi' => 'required|min:8|confirmed',
+            'kata_sandi' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/[a-zA-Z]/',
+                'regex:/[0-9]/',
+                'regex:/[^a-zA-Z0-9]/',
+            ],
         ], [
             'kata_sandi.required'  => 'Kata sandi baru wajib diisi.',
             'kata_sandi.min'       => 'Kata sandi minimal 8 karakter.',
             'kata_sandi.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
+            'kata_sandi.regex'     => 'Kata sandi baru harus merupakan kombinasi tulisan/huruf, angka, dan karakter/simbol khusus (contoh: Rahasia_2026 atau Akun123!).',
         ]);
 
         $email = session('email_reset');

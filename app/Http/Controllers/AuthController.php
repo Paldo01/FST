@@ -94,15 +94,27 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'nama_lengkap'   => 'required|string|max:255',
-            'jenis_pengguna' => 'required|in:mahasiswa,dosen',
-            'email'          => 'required|email|unique:pengguna,email',
-            'nomor_identitas'=> 'required|string|unique:pengguna,nomor_identitas',
-            'nomor_telepon'  => 'nullable|string|max:20',
-            'kata_sandi'     => 'required|min:8|confirmed',
+            'nama_lengkap'    => 'required|string|max:255',
+            'jenis_pengguna'  => 'required|in:mahasiswa,dosen',
+            'email'           => 'required|email|unique:pengguna,email',
+            'nomor_identitas' => 'required|string|unique:pengguna,nomor_identitas',
+            'nomor_telepon'   => 'nullable|string|max:20',
+            'kata_sandi'      => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/[a-zA-Z]/',
+                'regex:/[0-9]/',
+                'regex:/[^a-zA-Z0-9]/',
+            ],
         ], [
             'nomor_identitas.unique' => 'Akun dengan NIM ataupun NIP ini sudah terdaftar.',
             'email.unique'           => 'Akun dengan email ini sudah terdaftar.',
+            'kata_sandi.required'    => 'Kata sandi wajib diisi.',
+            'kata_sandi.min'         => 'Kata sandi minimal 8 karakter.',
+            'kata_sandi.confirmed'   => 'Konfirmasi kata sandi tidak cocok.',
+            'kata_sandi.regex'       => 'Kata sandi harus merupakan kombinasi tulisan/huruf, angka, dan karakter/simbol khusus (contoh: Rahasia_2026 atau Akun123!).',
         ]);
 
         $status_akun = ($request->jenis_pengguna === 'dosen') ? 'menunggu' : 'aktif';

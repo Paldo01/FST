@@ -18,10 +18,20 @@ class ProfilController extends Controller
     {
         $request->validate([
             'sandi_lama' => 'required',
-            'sandi_baru' => 'required|min:8|confirmed',
+            'sandi_baru' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/[a-zA-Z]/',
+                'regex:/[0-9]/',
+                'regex:/[^a-zA-Z0-9]/',
+            ],
         ], [
+            'sandi_baru.required'  => 'Kata sandi baru wajib diisi.',
             'sandi_baru.confirmed' => 'Konfirmasi kata sandi baru tidak cocok.',
-            'sandi_baru.min' => 'Kata sandi baru minimal 8 karakter.'
+            'sandi_baru.min'       => 'Kata sandi baru minimal 8 karakter.',
+            'sandi_baru.regex'     => 'Kata sandi baru harus merupakan kombinasi tulisan/huruf, angka, dan karakter/simbol khusus (contoh: Rahasia_2026 atau Akun123!).',
         ]);
 
         $user = auth()->user();
@@ -33,10 +43,15 @@ class ProfilController extends Controller
         $user->kata_sandi = Hash::make($request->sandi_baru);
         $user->save();
 
-        LogAktivitas::create([
-            'pengguna_id' => $user->id,
-            'aktivitas' => 'Memperbarui kata sandi'
-        ]);
+        try {
+            LogAktivitas::create([
+                'pengguna_id'     => $user->id,
+                'tindakan'        => 'ubah_kata_sandi',
+                'detail_kegiatan' => 'Memperbarui kata sandi akun',
+                'alamat_ip'       => $request->ip(),
+                'created_at'      => now(),
+            ]);
+        } catch (\Throwable $e) {}
 
         return back()->with('success', 'Kata sandi berhasil diperbarui.');
     }
@@ -98,11 +113,20 @@ class ProfilController extends Controller
         }
 
         $request->validate([
-            'sandi_baru' => 'required|min:8|confirmed',
+            'sandi_baru' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+                'regex:/[a-zA-Z]/',
+                'regex:/[0-9]/',
+                'regex:/[^a-zA-Z0-9]/',
+            ],
         ], [
             'sandi_baru.required'  => 'Kata sandi baru wajib diisi.',
             'sandi_baru.confirmed' => 'Konfirmasi kata sandi baru tidak cocok.',
-            'sandi_baru.min'       => 'Kata sandi baru minimal 8 karakter.'
+            'sandi_baru.min'       => 'Kata sandi baru minimal 8 karakter.',
+            'sandi_baru.regex'     => 'Kata sandi baru harus merupakan kombinasi tulisan/huruf, angka, dan karakter/simbol khusus (contoh: Rahasia_2026 atau Akun123!).',
         ]);
 
         $user = auth()->user();

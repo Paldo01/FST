@@ -147,6 +147,16 @@
                     </button>
                 </div>
             </div>
+
+            <!-- Petunjuk Password Gabungan Huruf, Angka, dan Karakter -->
+            <div class="sm:col-span-2 bg-gray-50 border border-gray-200/80 rounded-xl p-2.5 text-[11px] text-gray-600 space-y-1">
+                <span class="font-bold text-[#801414] flex items-center gap-1">
+                    <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> Syarat Keamanan Kata Sandi:
+                </span>
+                <p class="leading-relaxed">
+                    Minimal 8 karakter berupa gabungan <strong>tulisan/huruf</strong> (a-z), <strong>angka</strong> (0-9), dan <strong>karakter/simbol unik</strong> (contoh: <code>@</code>, <code>#</code>, <code>_</code>, <code>!</code>).
+                </p>
+            </div>
         </div>
 
         <!-- Field 5: Jenis Pengguna (Dosen / Mahasiswa Radio Sesuai Mockup) -->

@@ -76,6 +76,9 @@
             @error('kata_sandi')
                 <p class="text-red-600 text-[11px] sm:text-xs mt-1 font-medium">{{ $message }}</p>
             @enderror
+            <p class="text-[11px] text-gray-500 mt-1.5 text-center leading-tight">
+                Wajib gabungan <strong>tulisan/huruf</strong>, <strong>angka</strong>, & <strong>simbol/karakter</strong> (min. 8 karakter).
+            </p>
         </div>
 
         <!-- Field 2: Ulangi Kata Sandi Baru -->

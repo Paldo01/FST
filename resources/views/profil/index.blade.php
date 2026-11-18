@@ -99,6 +99,9 @@
                             <input type="password" name="sandi_baru_confirmation" id="sandi_baru_confirmation" required
                                 class="w-full rounded-lg border-gray-300 focus:border-mustard-500 focus:ring-mustard-500 text-sm">
                         </div>
+                        <div class="sm:col-span-2 text-xs text-gray-500 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                            Wajib minimal 8 karakter gabungan <strong>tulisan/huruf</strong>, <strong>angka</strong>, dan <strong>simbol/karakter</strong> (misal: @, #, _, !).
+                        </div>
                     </div>
 
                     <div class="flex items-center justify-between pt-4">
@@ -186,6 +189,9 @@
                                 <label for="sandi_baru_otp_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Sandi Baru</label>
                                 <input type="password" name="sandi_baru_confirmation" id="sandi_baru_otp_confirmation" required
                                     class="w-full rounded-lg border-gray-300 focus:border-mustard-500 focus:ring-mustard-500 text-sm">
+                            </div>
+                            <div class="sm:col-span-2 text-xs text-gray-500 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                                Wajib minimal 8 karakter gabungan <strong>tulisan/huruf</strong>, <strong>angka</strong>, dan <strong>simbol/karakter</strong> (misal: @, #, _, !).
                             </div>
                         </div>
 
