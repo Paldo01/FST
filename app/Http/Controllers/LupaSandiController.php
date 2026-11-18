@@ -125,10 +125,10 @@ class LupaSandiController extends Controller
             return back()->with('pesan_error', 'Kode OTP yang Anda masukkan salah. Silakan periksa kembali.');
         }
 
-        // Cek kedaluwarsa (15 menit)
-        if (Carbon::parse($tokenRecord->created_at)->addMinutes(15)->isPast()) {
+        // Cek kedaluwarsa (5 menit)
+        if (Carbon::parse($tokenRecord->created_at)->addMinutes(5)->isPast()) {
             DB::table('password_reset_tokens')->where('email', $email)->delete();
-            return back()->with('pesan_error', 'Kode OTP telah kedaluwarsa (lebih dari 15 menit). Silakan klik Kirim Ulang OTP.');
+            return back()->with('pesan_error', 'Kode OTP telah kedaluwarsa (lebih dari 5 menit). Silakan klik Kirim Ulang OTP.');
         }
 
         session(['otp_verified' => true]);

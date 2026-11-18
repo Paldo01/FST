@@ -123,7 +123,7 @@
             </div>
             
             <div class="warning-box">
-                <strong>Perhatian:</strong> Kode ini berlaku selama <strong>15 menit</strong>. Jangan pernah memberikan atau membagikan kode OTP ini kepada siapapun demi keamanan akun Anda.
+                <strong>Perhatian:</strong> Kode ini berlaku selama <strong>5 menit</strong>. Jangan pernah memberikan atau membagikan kode OTP ini kepada siapapun demi keamanan akun Anda.
             </div>
 
             <p style="font-size: 12px; color: #64748b; margin: 0;">

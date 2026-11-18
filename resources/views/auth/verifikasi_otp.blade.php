@@ -87,6 +87,11 @@
             @error('otp')
                 <p class="text-red-600 text-[11px] sm:text-xs mt-2 text-center font-medium">{{ $message }}</p>
             @enderror
+
+            <p class="text-[11px] sm:text-xs text-gray-500 text-center mt-2.5 flex items-center justify-center gap-1">
+                <i data-lucide="clock" class="w-3.5 h-3.5 text-gray-400"></i>
+                <span>Kode OTP berlaku selama <strong>5 menit</strong>.</span>
+            </p>
         </div>
 
         <!-- Tombol Verifikasi OTP -->
@@ -97,11 +102,11 @@
         </button>
     </form>
 
-    <!-- Bagian Kirim Ulang OTP dengan Countdown Timer 60 Detik -->
+    <!-- Bagian Kirim Ulang OTP dengan Countdown Timer 5 Menit (300 Detik) -->
     @php
         $sentAt = session('otp_sent_at', now()->timestamp);
         $elapsed = max(0, now()->timestamp - $sentAt);
-        $initialTimer = max(0, 60 - $elapsed);
+        $initialTimer = max(0, 300 - $elapsed);
     @endphp
 
     <div class="mt-6 text-center space-y-3 pt-4 border-t border-gray-100"

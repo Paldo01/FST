@@ -81,10 +81,10 @@ class ProfilController extends Controller
             return back()->withErrors(['otp' => 'Kode OTP tidak valid atau salah.'])->with('active_tab', 'lupa_sandi');
         }
 
-        // Check expiration (e.g. 15 minutes)
-        if (\Carbon\Carbon::parse($tokenData->created_at)->addMinutes(15)->isPast()) {
+        // Check expiration (5 minutes)
+        if (\Carbon\Carbon::parse($tokenData->created_at)->addMinutes(5)->isPast()) {
             \Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $user->email)->delete();
-            return back()->withErrors(['otp' => 'Kode OTP telah kedaluwarsa. Silakan kirim ulang.'])->with('active_tab', 'lupa_sandi');
+            return back()->withErrors(['otp' => 'Kode OTP telah kedaluwarsa (lebih dari 5 menit). Silakan kirim ulang.'])->with('active_tab', 'lupa_sandi');
         }
 
         session(['profil_otp_verified' => true]);
