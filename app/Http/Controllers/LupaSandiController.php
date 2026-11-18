@@ -58,9 +58,6 @@ class LupaSandiController extends Controller
         ]);
 
         $pesanSukses = 'Kode OTP 6 digit telah dikirimkan ke email Anda.';
-        if (app()->isLocal() || config('app.debug')) {
-            $pesanSukses .= ' (Mode Dev: Kode Anda adalah ' . $otp . ')';
-        }
 
         return redirect()->route('lupa_sandi.verifikasi')->with('pesan_sukses', $pesanSukses);
     }
@@ -97,9 +94,6 @@ class LupaSandiController extends Controller
         session(['otp_sent_at' => now()->timestamp]);
 
         $pesanSukses = 'Kode OTP baru telah berhasil dikirim ulang ke email Anda.';
-        if (app()->isLocal() || config('app.debug')) {
-            $pesanSukses .= ' (Mode Dev: Kode Baru adalah ' . $otp . ')';
-        }
 
         return back()->with('pesan_sukses', $pesanSukses);
     }

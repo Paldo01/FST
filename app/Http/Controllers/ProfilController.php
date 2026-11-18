@@ -60,9 +60,6 @@ class ProfilController extends Controller
         session()->forget('profil_otp_verified');
 
         $pesanSukses = 'Kode OTP telah dikirim ke email Anda. Silakan cek email Anda.';
-        if (app()->isLocal() || config('app.debug')) {
-            $pesanSukses .= ' (Mode Dev: Kode Anda adalah ' . $otp . ')';
-        }
 
         return back()->with('success', $pesanSukses)->with('active_tab', 'lupa_sandi');
     }
