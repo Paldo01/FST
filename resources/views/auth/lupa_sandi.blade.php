@@ -65,7 +65,7 @@
             </label>
             <input type="email" name="email" id="email" value="{{ old('email') }}" required autofocus
                 class="block w-full px-4 py-2.5 sm:py-3 border border-gray-300 rounded-xl sm:rounded-2xl focus:ring-2 focus:ring-[#801414]/20 focus:border-[#801414] text-xs sm:text-sm text-gray-800 text-center placeholder:text-center placeholder-gray-400 transition-all outline-none @error('email') border-red-500 @enderror"
-                placeholder="nama@fst-uinib.ac.id">
+                placeholder="Masukkan email">
             @error('email')
                 <p class="text-red-600 text-[11px] sm:text-xs mt-1 font-medium">{{ $message }}</p>
             @enderror
