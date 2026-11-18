@@ -29,6 +29,9 @@ Route::middleware('guest')->group(function () {
     
     Route::get('/daftar', [AuthController::class, 'showRegister'])->name('daftar');
     Route::post('/daftar', [AuthController::class, 'register'])->name('register');
+    Route::get('/verifikasi-pendaftaran', [AuthController::class, 'showVerifikasiPendaftaran'])->name('daftar.verifikasi');
+    Route::post('/verifikasi-pendaftaran', [AuthController::class, 'verifikasiPendaftaran'])->name('daftar.verifikasi.submit');
+    Route::post('/verifikasi-pendaftaran/kirim-ulang', [AuthController::class, 'kirimUlangOtpPendaftaran'])->name('daftar.verifikasi.kirim_ulang');
 
 });
 

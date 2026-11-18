@@ -16,6 +16,7 @@ class Pengguna extends Authenticatable
     protected $fillable = [
         'nama_lengkap',
         'email',
+        'email_verified_at',
         'nomor_identitas',
         'nomor_telepon',
         'kata_sandi',
@@ -40,8 +41,14 @@ class Pengguna extends Authenticatable
     protected function casts(): array
     {
         return [
-            'kata_sandi' => 'hashed',
+            'kata_sandi'        => 'hashed',
+            'email_verified_at' => 'datetime',
         ];
+    }
+
+    public function isEmailVerified(): bool
+    {
+        return !is_null($this->email_verified_at);
     }
 
     /* ---- Role Helpers ---- */
