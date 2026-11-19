@@ -17,40 +17,64 @@ class LaporanController extends Controller
             return $this->superAdminIndex($request);
         }
 
-        $bulanIni = now()->month;
-        $tahunIni = now()->year;
-
-        // Query riil database
-        $totalPeminjaman = Peminjaman::count();
-        $ruangTerpakai = Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'ruangan'))->count();
-        $alatDipinjam = Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'peralatan'))->count();
-        $totalPengguna = Pengguna::count();
-
-        // Statistik Cards (Diselaraskan dengan data visual mockup 20, 12, 8, 56 jika data demo/awal)
+        // ── Statistik Cards (Real DB) ─────────────────────────────────────────
         $statistik = [
-            'total_peminjaman' => $totalPeminjaman > 0 ? ($totalPeminjaman < 20 ? 20 : $totalPeminjaman) : 20,
-            'ruang_terpakai' => $ruangTerpakai > 0 ? ($ruangTerpakai < 12 ? 12 : $ruangTerpakai) : 12,
-            'alat_dipinjam' => $alatDipinjam > 0 ? ($alatDipinjam < 8 ? 8 : $alatDipinjam) : 8,
-            'total_pengguna' => $totalPengguna > 0 ? ($totalPengguna < 56 ? 56 : $totalPengguna) : 56,
+            'total_peminjaman' => Peminjaman::count(),
+            'ruang_terpakai'   => Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'ruangan'))->count(),
+            'alat_dipinjam'    => Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'peralatan'))->count(),
+            'total_pengguna'   => Pengguna::whereIn('peran', ['mahasiswa', 'dosen'])->count(),
         ];
 
-        // Data Grafik Sesuai Mockup Desain FST
+        // ── Grafik: Jumlah Peminjaman per Fasilitas (Real DB) ─────────────────
+        // Ambil fasilitas ruang yang paling sering dipinjam (top 5)
+        $ruangPopuler = Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'ruangan'))
+            ->select('fasilitas_id', DB::raw('COUNT(*) as total'))
+            ->groupBy('fasilitas_id')
+            ->orderByDesc('total')
+            ->limit(5)
+            ->with('fasilitas')
+            ->get();
+
+        // Ambil fasilitas alat yang paling sering dipinjam (top 5)
+        $alatPopuler = Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'peralatan'))
+            ->select('fasilitas_id', DB::raw('COUNT(*) as total'))
+            ->groupBy('fasilitas_id')
+            ->orderByDesc('total')
+            ->limit(5)
+            ->with('fasilitas')
+            ->get();
+
+        // Gabungkan label unik dari ruang + alat populer
+        $labelsRuang = $ruangPopuler->pluck('fasilitas.nama_fasilitas')->toArray();
+        $labelsAlat  = $alatPopuler->pluck('fasilitas.nama_fasilitas')->toArray();
+        $allLabels   = array_values(array_unique(array_merge($labelsRuang, $labelsAlat)));
+
+        if (empty($allLabels)) {
+            // Fallback: ambil nama fasilitas dari tabel fasilitas
+            $allLabels = Fasilitas::limit(4)->pluck('nama_fasilitas')->toArray();
+        }
+
+        // Mapping label ke total peminjaman per jenis
+        $ruangMap = $ruangPopuler->mapWithKeys(fn($p) => [$p->fasilitas->nama_fasilitas => $p->total])->toArray();
+        $alatMap  = $alatPopuler->mapWithKeys(fn($p) => [$p->fasilitas->nama_fasilitas => $p->total])->toArray();
+
         $chartData = [
-            'labels' => ['Aula FST', 'Ruang Rapat', 'Infocus', 'Sound system'],
-            'ruang' => [18, 12, 2, 1],
-            'alat' => [2, 3, 15, 10],
+            'labels' => $allLabels,
+            'ruang'  => array_map(fn($l) => $ruangMap[$l] ?? 0, $allLabels),
+            'alat'   => array_map(fn($l) => $alatMap[$l]  ?? 0, $allLabels),
         ];
 
-        // Ringkasan Fasilitas Sesuai Mockup
+        // ── Ringkasan Fasilitas (Real DB) ─────────────────────────────────────
+        $ruangList = Fasilitas::whereHas('kategori', fn($q) => $q->where('jenis', 'ruangan'))
+            ->select('nama_fasilitas as nama')
+            ->get()->toArray();
+        $alatList  = Fasilitas::whereHas('kategori', fn($q) => $q->where('jenis', 'peralatan'))
+            ->select('nama_fasilitas as nama')
+            ->get()->toArray();
+
         $ringkasanFasilitas = [
-            'ruang' => [
-                ['nama' => 'Aula FST'],
-                ['nama' => 'Ruang Rapat'],
-            ],
-            'alat' => [
-                ['nama' => 'Infocus'],
-                ['nama' => 'Sound System'],
-            ],
+            'ruang' => $ruangList,
+            'alat'  => $alatList,
         ];
 
         return view('admin.laporan.index', compact('statistik', 'chartData', 'ringkasanFasilitas'));

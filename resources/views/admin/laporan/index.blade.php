@@ -162,7 +162,7 @@
                     Ringkasan Fasilitas
                 </h2>
 
-                <!-- Box 1: Ruang (Sesuai Mockup) -->
+                <!-- Box 1: Ruang (Real DB) -->
                 <div class="border border-gray-100 rounded-2xl p-4 sm:p-5 bg-white shadow-2xs transition-all hover:border-gray-200">
                     <div class="flex items-center gap-3 mb-3.5">
                         <div class="w-10 h-10 rounded-xl bg-[#FEE2E2] flex items-center justify-center shrink-0">
@@ -171,18 +171,18 @@
                         <h3 class="text-sm sm:text-base font-bold text-gray-900">Ruang</h3>
                     </div>
                     <ul class="space-y-2.5 pl-3">
+                        @forelse($ringkasanFasilitas['ruang'] as $r)
                         <li class="flex items-center gap-2.5 text-xs sm:text-sm font-medium text-gray-800">
                             <span class="w-2.5 h-2.5 rounded-full bg-[#DC2626] shrink-0"></span>
-                            <span>Aula FST</span>
+                            <span>{{ $r['nama'] }}</span>
                         </li>
-                        <li class="flex items-center gap-2.5 text-xs sm:text-sm font-medium text-gray-800">
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#DC2626] shrink-0"></span>
-                            <span>Ruang Rapat</span>
-                        </li>
+                        @empty
+                        <li class="text-xs text-gray-400 italic">Belum ada ruang</li>
+                        @endforelse
                     </ul>
                 </div>
 
-                <!-- Box 2: Alat (Sesuai Mockup) -->
+                <!-- Box 2: Alat (Real DB) -->
                 <div class="border border-gray-100 rounded-2xl p-4 sm:p-5 bg-white shadow-2xs transition-all hover:border-gray-200">
                     <div class="flex items-center gap-3 mb-3.5">
                         <div class="w-10 h-10 rounded-xl bg-[#FEF3C7] flex items-center justify-center shrink-0">
@@ -191,14 +191,14 @@
                         <h3 class="text-sm sm:text-base font-bold text-gray-900">Alat</h3>
                     </div>
                     <ul class="space-y-2.5 pl-3">
+                        @forelse($ringkasanFasilitas['alat'] as $a)
                         <li class="flex items-center gap-2.5 text-xs sm:text-sm font-medium text-gray-800">
                             <span class="w-2.5 h-2.5 rounded-full bg-[#D97706] shrink-0"></span>
-                            <span>Infocus</span>
+                            <span>{{ $a['nama'] }}</span>
                         </li>
-                        <li class="flex items-center gap-2.5 text-xs sm:text-sm font-medium text-gray-800">
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#D97706] shrink-0"></span>
-                            <span>Sound System</span>
-                        </li>
+                        @empty
+                        <li class="text-xs text-gray-400 italic">Belum ada alat</li>
+                        @endforelse
                     </ul>
                 </div>
             </div>
@@ -341,24 +341,7 @@ function laporanHandler() {
         setPeriod(period) {
             this.selectedPeriodText = period;
             this.showPeriodDropdown = false;
-            
-            // Variasi data periodik untuk efek dinamis jika filter diubah
-            if (!this.chartInstance) return;
-
-            if (period === 'Bulan Ini') {
-                this.chartInstance.data.datasets[0].data = [18, 12, 2, 1];
-                this.chartInstance.data.datasets[1].data = [2, 3, 15, 10];
-            } else if (period === 'Bulan Lalu') {
-                this.chartInstance.data.datasets[0].data = [14, 10, 3, 2];
-                this.chartInstance.data.datasets[1].data = [4, 2, 12, 8];
-            } else if (period === 'Tahun Ini') {
-                this.chartInstance.data.datasets[0].data = [20, 16, 5, 4];
-                this.chartInstance.data.datasets[1].data = [6, 7, 18, 14];
-            } else {
-                this.chartInstance.data.datasets[0].data = [18, 12, 2, 1];
-                this.chartInstance.data.datasets[1].data = [2, 3, 15, 10];
-            }
-            this.chartInstance.update();
+            // Filter periode hanya toggle visual — data real sudah di chart dari server
         },
 
         setType(type) {
@@ -460,9 +443,9 @@ function laporanHandler() {
                     scales: {
                         y: {
                             beginAtZero: true,
-                            max: 20,
                             ticks: {
-                                stepSize: 5,
+                                stepSize: 1,
+                                precision: 0,
                                 font: {
                                     size: 11,
                                     weight: '600'
