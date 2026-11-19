@@ -228,47 +228,62 @@ class LaporanController extends Controller
 
     public function generate(Request $request)
     {
-        $tanggalMulai = $request->get('tanggal_mulai', $request->get('tanggal_awal', now()->startOfMonth()->toDateString()));
-        $tanggalSelesai = $request->get('tanggal_selesai', $request->get('tanggal_akhir', now()->endOfMonth()->toDateString()));
+        $tanggalMulai   = $request->get('tanggal_mulai', $request->get('tanggal_awal'));
+        $tanggalSelesai = $request->get('tanggal_selesai', $request->get('tanggal_akhir'));
         $jenisFasilitas = $request->get('jenis_fasilitas', $request->get('jenis'));
-        $status = $request->get('status');
+        $status         = $request->get('status');
+        $kondisi        = $request->get('kondisi', $request->get('kondisi_akhir'));
 
         $query = Peminjaman::with(['pengguna', 'fasilitas.kategori', 'pengembalian']);
 
-        if ($tanggalMulai && $tanggalSelesai) {
-            $query->whereBetween('tanggal_mulai', [$tanggalMulai, $tanggalSelesai]);
+        // Filter Rentang Tanggal (inklusif seluruh hari)
+        if (!empty($tanggalMulai) && !empty($tanggalSelesai)) {
+            $query->whereDate('tanggal_mulai', '>=', $tanggalMulai)
+                  ->whereDate('tanggal_mulai', '<=', $tanggalSelesai);
+        } elseif (!empty($tanggalMulai)) {
+            $query->whereDate('tanggal_mulai', '>=', $tanggalMulai);
+        } elseif (!empty($tanggalSelesai)) {
+            $query->whereDate('tanggal_mulai', '<=', $tanggalSelesai);
         }
 
-        if ($jenisFasilitas && in_array($jenisFasilitas, ['ruangan', 'peralatan'])) {
+        // Filter Jenis Fasilitas (Ruangan / Peralatan)
+        if (!empty($jenisFasilitas) && in_array($jenisFasilitas, ['ruangan', 'peralatan'])) {
             $query->whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', $jenisFasilitas));
         }
 
-        if ($status) {
+        // Filter Status Pengajuan
+        if (!empty($status) && in_array($status, ['menunggu', 'disetujui', 'ditolak', 'selesai'])) {
             $query->where('status_pengajuan', $status);
         }
 
-        $peminjaman = $query->orderBy('tanggal_mulai', 'desc')->get();
-
-        // Jika data pada rentang tertentu kosong, ambil data riil terakhir agar PDF terisi
-        if ($peminjaman->isEmpty()) {
-            $peminjaman = Peminjaman::with(['pengguna', 'fasilitas.kategori', 'pengembalian'])
-                ->orderBy('tanggal_mulai', 'desc')
-                ->take(20)
-                ->get();
+        // Filter Kondisi Akhir Pengembalian (Baik / Rusak Ringan / Rusak Berat)
+        if (!empty($kondisi)) {
+            $query->whereHas('pengembalian', fn($q) => $q->where('kondisi_akhir', $kondisi));
         }
 
-        $tanggalAwal = \Carbon\Carbon::parse($tanggalMulai);
-        $tanggalAkhir = \Carbon\Carbon::parse($tanggalSelesai);
+        // Ambil data yang benar-benar sesuai filter (JANGAN di-override agar filter bekerja 100%)
+        $peminjaman = $query->orderBy('tanggal_mulai', 'desc')->get();
+
+        $tanggalAwalStr  = !empty($tanggalMulai) ? \Carbon\Carbon::parse($tanggalMulai)->format('d/m/Y') : null;
+        $tanggalAkhirStr = !empty($tanggalSelesai) ? \Carbon\Carbon::parse($tanggalSelesai)->format('d/m/Y') : null;
+
+        if ($tanggalAwalStr && $tanggalAkhirStr) {
+            $periodeText = $tanggalAwalStr . ' s.d ' . $tanggalAkhirStr;
+        } elseif ($tanggalAwalStr) {
+            $periodeText = 'Sejak ' . $tanggalAwalStr;
+        } elseif ($tanggalAkhirStr) {
+            $periodeText = 'Sampai ' . $tanggalAkhirStr;
+        } else {
+            $periodeText = 'Semua Periode';
+        }
 
         $data = [
-            'peminjaman' => $peminjaman,
-            'tanggalAwal' => $tanggalAwal,
-            'tanggalAkhir' => $tanggalAkhir,
-            'tanggal_mulai' => $tanggalAwal->format('Y-m-d'),
-            'tanggal_selesai' => $tanggalAkhir->format('Y-m-d'),
-            'statusFilter' => $status,
+            'peminjaman'      => $peminjaman,
+            'periodeText'     => $periodeText,
+            'statusFilter'    => $status,
             'jenis_fasilitas' => $jenisFasilitas,
-            'tanggal_cetak' => now()->format('d/m/Y H:i'),
+            'kondisiFilter'   => $kondisi,
+            'tanggal_cetak'   => now()->translatedFormat('d F Y'),
         ];
 
         // Jika DomPDF tersedia, generate PDF

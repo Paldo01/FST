@@ -80,15 +80,25 @@
 
     <div class="info-section">
         <h3 style="text-align: center; text-decoration: underline; margin-bottom: 15px;">Laporan Data Peminjaman Fasilitas</h3>
-        <table style="width: 50%; border: none;">
+        <table style="width: 55%; border: none;">
             <tr>
-                <td style="border: none; padding: 2px; width: 120px;"><strong>Periode</strong></td>
-                <td style="border: none; padding: 2px;">: {{ $tanggalAwal->format('d/m/Y') }} s.d {{ $tanggalAkhir->format('d/m/Y') }}</td>
+                <td style="border: none; padding: 2px; width: 130px;"><strong>Periode</strong></td>
+                <td style="border: none; padding: 2px;">: {{ $periodeText ?? 'Semua Periode' }}</td>
+            </tr>
+            <tr>
+                <td style="border: none; padding: 2px;"><strong>Filter Jenis</strong></td>
+                <td style="border: none; padding: 2px; text-transform: capitalize;">: {{ $jenis_fasilitas ? ucfirst($jenis_fasilitas) : 'Semua Jenis' }}</td>
             </tr>
             <tr>
                 <td style="border: none; padding: 2px;"><strong>Filter Status</strong></td>
-                <td style="border: none; padding: 2px; text-transform: capitalize;">: {{ $statusFilter ?: 'Semua Status' }}</td>
+                <td style="border: none; padding: 2px; text-transform: capitalize;">: {{ $statusFilter ? ucfirst($statusFilter) : 'Semua Status' }}</td>
             </tr>
+            @if(!empty($kondisiFilter))
+            <tr>
+                <td style="border: none; padding: 2px;"><strong>Filter Kondisi</strong></td>
+                <td style="border: none; padding: 2px; text-transform: capitalize;">: {{ str_replace('_', ' ', ucfirst($kondisiFilter)) }}</td>
+            </tr>
+            @endif
             <tr>
                 <td style="border: none; padding: 2px;"><strong>Total Data</strong></td>
                 <td style="border: none; padding: 2px;">: {{ count($peminjaman) }} Pengajuan</td>
