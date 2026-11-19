@@ -99,13 +99,14 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 3%;">No</th>
+                <th style="width: 4%;">No</th>
                 <th style="width: 15%;">Peminjam</th>
                 <th style="width: 15%;">Fasilitas</th>
-                <th style="width: 20%;">Tujuan Kegiatan</th>
-                <th style="width: 22%;">Jadwal Pelaksanaan</th>
-                <th style="width: 10%;">Status</th>
-                <th style="width: 15%;">Kondisi Akhir</th>
+                <th style="width: 12%;">Kategori</th>
+                <th style="width: 18%;">Tujuan Kegiatan</th>
+                <th style="width: 18%;">Jadwal Pelaksanaan</th>
+                <th style="width: 8%;">Status</th>
+                <th style="width: 10%;">Kondisi Akhir</th>
             </tr>
         </thead>
         <tbody>
@@ -119,6 +120,12 @@
                     <td>
                         {{ $p->fasilitas->nama_fasilitas }}<br>
                         <span style="font-size: 10px; color: #666;">({{ $p->fasilitas->kode_fasilitas }})</span>
+                    </td>
+                    <td>
+                        <strong>{{ $p->fasilitas->kategori->nama_kategori ?? '-' }}</strong>
+                        @if(isset($p->fasilitas->kategori->jenis))
+                            <br><span style="font-size: 10px; color: #666; text-transform: capitalize;">({{ $p->fasilitas->kategori->jenis }})</span>
+                        @endif
                     </td>
                     <td>{{ Str::limit($p->tujuan_peminjaman, 50) }}</td>
                     <td style="font-size: 11px;">
@@ -140,7 +147,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="text-center" style="padding: 20px;">Tidak ada data peminjaman pada periode ini.</td>
+                    <td colspan="8" class="text-center" style="padding: 20px;">Tidak ada data peminjaman pada periode ini.</td>
                 </tr>
             @endforelse
         </tbody>

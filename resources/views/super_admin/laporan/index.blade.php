@@ -227,6 +227,7 @@
                         <th scope="col" class="px-4 py-3.5 text-center w-12">No</th>
                         <th scope="col" class="px-4 py-3.5">Nama Peminjam</th>
                         <th scope="col" class="px-4 py-3.5">Fasilitas</th>
+                        <th scope="col" class="px-4 py-3.5">Kategori</th>
                         <th scope="col" class="px-4 py-3.5">Tanggal</th>
                         <th scope="col" class="px-4 py-3.5">Keperluan</th>
                         <th scope="col" class="px-4 py-3.5 text-center w-28">Status</th>
@@ -238,6 +239,7 @@
                             <td class="px-4 py-3.5 text-center font-medium text-gray-600" x-text="item.no"></td>
                             <td class="px-4 py-3.5 font-bold text-gray-900" x-text="item.nama"></td>
                             <td class="px-4 py-3.5 font-medium text-gray-800" x-text="item.fasilitas"></td>
+                            <td class="px-4 py-3.5 text-gray-600" x-text="item.kategori"></td>
                             <td class="px-4 py-3.5 text-gray-600" x-text="item.tanggal"></td>
                             <td class="px-4 py-3.5 text-gray-700" x-text="item.keperluan"></td>
                             <td class="px-4 py-3.5 text-center">
@@ -249,7 +251,7 @@
                         </tr>
                     </template>
                     <tr x-show="filteredPeminjaman.length === 0">
-                        <td colspan="6" class="px-4 py-8 text-center text-gray-400">
+                        <td colspan="7" class="px-4 py-8 text-center text-gray-400">
                             Tidak ada data peminjaman yang cocok dengan pencarian.
                         </td>
                     </tr>

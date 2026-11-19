@@ -65,13 +65,18 @@ class LaporanController extends Controller
             'alat'   => array_map(fn($l) => $alatMap[$l]  ?? 0, $allLabels),
         ];
 
-        // ── Ringkasan Fasilitas (Real DB) ─────────────────────────────────────
-        $ruangList = Fasilitas::whereHas('kategori', fn($q) => $q->where('jenis', 'ruangan'))
-            ->select('nama_fasilitas as nama')
-            ->get()->toArray();
-        $alatList  = Fasilitas::whereHas('kategori', fn($q) => $q->where('jenis', 'peralatan'))
-            ->select('nama_fasilitas as nama')
-            ->get()->toArray();
+        // ── Ringkasan Fasilitas: per Kategori (Real DB) ───────────────────────
+        $ruangList = KategoriFasilitas::where('jenis', 'ruangan')
+            ->withCount('fasilitas')
+            ->get()
+            ->map(fn($k) => ['nama' => $k->nama_kategori, 'jumlah' => $k->fasilitas_count])
+            ->toArray();
+
+        $alatList = KategoriFasilitas::where('jenis', 'peralatan')
+            ->withCount('fasilitas')
+            ->get()
+            ->map(fn($k) => ['nama' => $k->nama_kategori, 'jumlah' => $k->fasilitas_count])
+            ->toArray();
 
         $ringkasanFasilitas = [
             'ruang' => $ruangList,
@@ -162,6 +167,7 @@ class LaporanController extends Controller
                     'no'           => $index + 1,
                     'nama'         => optional($p->pengguna)->nama_lengkap ?? '-',
                     'fasilitas'    => optional($p->fasilitas)->nama_fasilitas ?? '-',
+                    'kategori'     => optional(optional($p->fasilitas)->kategori)->nama_kategori ?? '-',
                     'tanggal'      => $p->tanggal_mulai ? $p->tanggal_mulai->format('d F Y') : '-',
                     'keperluan'    => $p->tujuan_peminjaman ?? '-',
                     'status'       => $s['label'],

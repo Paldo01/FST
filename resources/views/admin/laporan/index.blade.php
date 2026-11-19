@@ -193,9 +193,14 @@
                          style="display:none;">
                         <ul class="space-y-2.5 px-4 sm:px-5 pb-4 sm:pb-5 max-h-52 overflow-y-auto pl-7">
                             @forelse($ringkasanFasilitas['ruang'] as $r)
-                            <li class="flex items-center gap-2.5 text-xs sm:text-sm font-medium text-gray-800">
-                                <span class="w-2.5 h-2.5 rounded-full bg-[#DC2626] shrink-0"></span>
-                                <span>{{ $r['nama'] }}</span>
+                            <li class="flex items-center justify-between gap-2.5 text-xs sm:text-sm font-medium text-gray-800">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#DC2626] shrink-0"></span>
+                                    <span>{{ $r['nama'] }}</span>
+                                </div>
+                                @if(isset($r['jumlah']))
+                                <span class="text-[11px] font-semibold text-gray-400 bg-gray-50 px-2 py-0.5 rounded-lg border border-gray-100">{{ $r['jumlah'] }} ruang</span>
+                                @endif
                             </li>
                             @empty
                             <li class="text-xs text-gray-400 italic">Belum ada ruang</li>
@@ -235,9 +240,14 @@
                          style="display:none;">
                         <ul class="space-y-2.5 px-4 sm:px-5 pb-4 sm:pb-5 max-h-52 overflow-y-auto pl-7">
                             @forelse($ringkasanFasilitas['alat'] as $a)
-                            <li class="flex items-center gap-2.5 text-xs sm:text-sm font-medium text-gray-800">
-                                <span class="w-2.5 h-2.5 rounded-full bg-[#D97706] shrink-0"></span>
-                                <span>{{ $a['nama'] }}</span>
+                            <li class="flex items-center justify-between gap-2.5 text-xs sm:text-sm font-medium text-gray-800">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#D97706] shrink-0"></span>
+                                    <span>{{ $a['nama'] }}</span>
+                                </div>
+                                @if(isset($a['jumlah']))
+                                <span class="text-[11px] font-semibold text-gray-400 bg-gray-50 px-2 py-0.5 rounded-lg border border-gray-100">{{ $a['jumlah'] }} alat</span>
+                                @endif
                             </li>
                             @empty
                             <li class="text-xs text-gray-400 italic">Belum ada alat</li>
