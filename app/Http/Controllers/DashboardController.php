@@ -94,68 +94,72 @@ class DashboardController extends Controller
 
     private function dashboardSuperAdmin()
     {
-        $totalAdmin = Pengguna::where('peran', 'admin')->count();
-        $totalPeminjaman = Peminjaman::count();
-        $totalRuangan = Fasilitas::whereHas('kategori', fn($q) => $q->where('jenis', 'ruangan'))->count();
-        $totalPeralatan = Fasilitas::whereHas('kategori', fn($q) => $q->where('jenis', 'peralatan'))->count();
-
-        // 4 Statistik Utama Sesuai Mockup Desain (dengan fallback cerdas data demo)
+        // ── Statistik Utama (Real DB) ──────────────────────────────────────
         $statistik = [
-            'total_admin' => $totalAdmin > 0 ? ($totalAdmin < 5 ? 5 : $totalAdmin) : 5,
-            'total_peminjaman' => $totalPeminjaman > 0 ? ($totalPeminjaman < 20 ? 20 : $totalPeminjaman) : 20,
-            'total_ruangan' => $totalRuangan > 0 ? ($totalRuangan < 12 ? 12 : $totalRuangan) : 12,
-            'total_peralatan' => $totalPeralatan > 0 ? ($totalPeralatan < 25 ? 25 : $totalPeralatan) : 25,
+            'total_admin'      => Pengguna::where('peran', 'admin')->count(),
+            'total_peminjaman' => Peminjaman::count(),
+            'total_ruangan'    => Fasilitas::whereHas('kategori', fn($q) => $q->where('jenis', 'ruangan'))->count(),
+            'total_peralatan'  => Fasilitas::whereHas('kategori', fn($q) => $q->where('jenis', 'peralatan'))->count(),
+            'total_pengguna'   => Pengguna::whereIn('peran', ['mahasiswa', 'dosen'])->count(),
         ];
 
-        // Status Peminjaman (Pending, Disetujui, Ditolak, Selesai)
+        // ── Status Peminjaman (Real DB) ────────────────────────────────────
         $statusCounts = [
-            'pending' => Peminjaman::where('status_pengajuan', 'menunggu')->count() ?: 4,
-            'disetujui' => Peminjaman::where('status_pengajuan', 'disetujui')->count() ?: 8,
-            'ditolak' => Peminjaman::where('status_pengajuan', 'ditolak')->count() ?: 2,
-            'selesai' => Peminjaman::where('status_pengajuan', 'selesai')->count() ?: 6,
+            'pending'   => Peminjaman::where('status_pengajuan', 'menunggu')->count(),
+            'disetujui' => Peminjaman::where('status_pengajuan', 'disetujui')->count(),
+            'ditolak'   => Peminjaman::where('status_pengajuan', 'ditolak')->count(),
+            'selesai'   => Peminjaman::where('status_pengajuan', 'selesai')->count(),
         ];
 
-        // Aktivitas Terbaru (Sesuai Mockup Desain FST)
-        $aktivitasTerbaru = [
-            [
-                'tipe' => 'setujui',
-                'judul' => 'Admin FST menyetujui peminjaman infocus',
-                'waktu' => '14 oktober 2026, 10:15',
-                'icon' => 'check',
-                'bg_color' => 'bg-[#DCFCE7]',
-                'icon_color' => 'text-[#16A34A]',
-            ],
-            [
-                'tipe' => 'admin_baru',
-                'judul' => 'Super admin menambahkan akun admin',
-                'waktu' => '14 oktober 2026, 09:40',
-                'icon' => 'user-plus',
-                'bg_color' => 'bg-[#FEE2E2]',
-                'icon_color' => 'text-[#E11D48]',
-            ],
-            [
-                'tipe' => 'pengajuan',
-                'judul' => 'Mahasiswa mengajukan peminjaman ruang',
-                'waktu' => '13 oktober 2026, 15:20',
-                'icon' => 'users',
-                'bg_color' => 'bg-[#DBEAFE]',
-                'icon_color' => 'text-[#2563EB]',
-            ],
-            [
-                'tipe' => 'update_alat',
-                'judul' => 'Admin FST memperbarui data alat',
-                'waktu' => '13 oktober 2026, 13:05',
-                'icon' => 'edit-3',
-                'bg_color' => 'bg-[#FEF3C7]',
-                'icon_color' => 'text-[#D97706]',
-            ],
+        // ── Aktivitas Terbaru dari LogAktivitas (Real DB) ──────────────────
+        $ikonMap = [
+            'setujui'    => ['icon' => 'check',      'bg' => 'bg-[#DCFCE7]', 'color' => 'text-[#16A34A]'],
+            'tolak'      => ['icon' => 'x-circle',   'bg' => 'bg-[#FEE2E2]', 'color' => 'text-[#E11D48]'],
+            'tambah'     => ['icon' => 'plus-circle', 'bg' => 'bg-[#DBEAFE]', 'color' => 'text-[#2563EB]'],
+            'edit'       => ['icon' => 'edit-3',      'bg' => 'bg-[#FEF3C7]', 'color' => 'text-[#D97706]'],
+            'hapus'      => ['icon' => 'trash-2',     'bg' => 'bg-[#FEE2E2]', 'color' => 'text-[#E11D48]'],
+            'login'      => ['icon' => 'log-in',      'bg' => 'bg-[#F3E8FF]', 'color' => 'text-[#9333EA]'],
+            'daftar'     => ['icon' => 'user-plus',   'bg' => 'bg-[#DCFCE7]', 'color' => 'text-[#16A34A]'],
+            'default'    => ['icon' => 'activity',    'bg' => 'bg-[#F1F5F9]', 'color' => 'text-[#64748B]'],
         ];
 
-        // Ringkasan Sistem (Sesuai Mockup Desain FST)
+        $logsRaw = LogAktivitas::with('pengguna')
+            ->latest()
+            ->limit(5)
+            ->get();
+
+        $aktivitasTerbaru = $logsRaw->map(function ($log) use ($ikonMap) {
+            $aksi = strtolower($log->aksi ?? '');
+            $key = 'default';
+            foreach (array_keys($ikonMap) as $k) {
+                if ($k !== 'default' && str_contains($aksi, $k)) {
+                    $key = $k;
+                    break;
+                }
+            }
+            $ikon = $ikonMap[$key];
+            $nama = $log->pengguna?->nama_lengkap ?? 'Sistem';
+            return [
+                'tipe'       => $key,
+                'judul'      => $nama . ' — ' . ($log->deskripsi ?? $log->aksi),
+                'waktu'      => $log->created_at->translatedFormat('d M Y, H:i'),
+                'icon'       => $ikon['icon'],
+                'bg_color'   => $ikon['bg'],
+                'icon_color' => $ikon['color'],
+            ];
+        })->toArray();
+
+        // ── Audit Log Terbaru ──────────────────────────────────────────────
+        $latestLog = LogAktivitas::latest()->first();
+        $auditLogTerbaru = $latestLog
+            ? $latestLog->created_at->translatedFormat('d M Y, H:i')
+            : 'Belum ada aktivitas';
+
+        // ── Ringkasan Sistem (Real DB) ─────────────────────────────────────
         $ringkasanSistem = [
-            'admin_aktif' => $statistik['total_admin'],
-            'total_feedback' => UlasanLayanan::count() ?: 32,
-            'audit_log_terbaru' => '14 oktober 2026, 10:15',
+            'admin_aktif'        => Pengguna::where('peran', 'admin')->count(),
+            'total_feedback'     => UlasanLayanan::count(),
+            'audit_log_terbaru'  => $auditLogTerbaru,
         ];
 
         return view('super_admin.dashboard', compact('statistik', 'statusCounts', 'aktivitasTerbaru', 'ringkasanSistem'));
