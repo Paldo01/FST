@@ -162,44 +162,88 @@
                     Ringkasan Fasilitas
                 </h2>
 
-                <!-- Box 1: Ruang (Real DB) -->
-                <div class="border border-gray-100 rounded-2xl p-4 sm:p-5 bg-white shadow-2xs transition-all hover:border-gray-200">
-                    <div class="flex items-center gap-3 mb-3.5">
-                        <div class="w-10 h-10 rounded-xl bg-[#FEE2E2] flex items-center justify-center shrink-0">
-                            <i data-lucide="door-open" class="w-5 h-5 text-[#EF4444]"></i>
+                <!-- Box 1: Ruang (Collapsible) -->
+                <div class="border border-gray-100 rounded-2xl bg-white shadow-2xs transition-all hover:border-gray-200"
+                     x-data="{ openRuang: false }">
+                    <!-- Header (klik untuk buka/tutup) -->
+                    <button type="button"
+                            @click="openRuang = !openRuang"
+                            class="w-full flex items-center justify-between gap-3 p-4 sm:p-5 cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-[#FEE2E2] flex items-center justify-center shrink-0">
+                                <i data-lucide="door-open" class="w-5 h-5 text-[#EF4444]"></i>
+                            </div>
+                            <div class="text-left">
+                                <h3 class="text-sm sm:text-base font-bold text-gray-900">Ruang</h3>
+                                <p class="text-xs text-gray-400 font-medium">{{ count($ringkasanFasilitas['ruang']) }} fasilitas</p>
+                            </div>
                         </div>
-                        <h3 class="text-sm sm:text-base font-bold text-gray-900">Ruang</h3>
+                        <i data-lucide="chevron-down"
+                           class="w-4 h-4 text-gray-400 transition-transform duration-200 shrink-0"
+                           :class="openRuang ? 'rotate-180' : ''"></i>
+                    </button>
+                    <!-- Isi (collapsible) -->
+                    <div x-show="openRuang"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 -translate-y-2"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 -translate-y-2"
+                         style="display:none;">
+                        <ul class="space-y-2.5 px-4 sm:px-5 pb-4 sm:pb-5 max-h-52 overflow-y-auto pl-7">
+                            @forelse($ringkasanFasilitas['ruang'] as $r)
+                            <li class="flex items-center gap-2.5 text-xs sm:text-sm font-medium text-gray-800">
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#DC2626] shrink-0"></span>
+                                <span>{{ $r['nama'] }}</span>
+                            </li>
+                            @empty
+                            <li class="text-xs text-gray-400 italic">Belum ada ruang</li>
+                            @endforelse
+                        </ul>
                     </div>
-                    <ul class="space-y-2.5 pl-3">
-                        @forelse($ringkasanFasilitas['ruang'] as $r)
-                        <li class="flex items-center gap-2.5 text-xs sm:text-sm font-medium text-gray-800">
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#DC2626] shrink-0"></span>
-                            <span>{{ $r['nama'] }}</span>
-                        </li>
-                        @empty
-                        <li class="text-xs text-gray-400 italic">Belum ada ruang</li>
-                        @endforelse
-                    </ul>
                 </div>
 
-                <!-- Box 2: Alat (Real DB) -->
-                <div class="border border-gray-100 rounded-2xl p-4 sm:p-5 bg-white shadow-2xs transition-all hover:border-gray-200">
-                    <div class="flex items-center gap-3 mb-3.5">
-                        <div class="w-10 h-10 rounded-xl bg-[#FEF3C7] flex items-center justify-center shrink-0">
-                            <i data-lucide="package" class="w-5 h-5 text-[#D97706]"></i>
+                <!-- Box 2: Alat (Collapsible) -->
+                <div class="border border-gray-100 rounded-2xl bg-white shadow-2xs transition-all hover:border-gray-200"
+                     x-data="{ openAlat: false }">
+                    <!-- Header (klik untuk buka/tutup) -->
+                    <button type="button"
+                            @click="openAlat = !openAlat"
+                            class="w-full flex items-center justify-between gap-3 p-4 sm:p-5 cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-[#FEF3C7] flex items-center justify-center shrink-0">
+                                <i data-lucide="package" class="w-5 h-5 text-[#D97706]"></i>
+                            </div>
+                            <div class="text-left">
+                                <h3 class="text-sm sm:text-base font-bold text-gray-900">Alat</h3>
+                                <p class="text-xs text-gray-400 font-medium">{{ count($ringkasanFasilitas['alat']) }} fasilitas</p>
+                            </div>
                         </div>
-                        <h3 class="text-sm sm:text-base font-bold text-gray-900">Alat</h3>
+                        <i data-lucide="chevron-down"
+                           class="w-4 h-4 text-gray-400 transition-transform duration-200 shrink-0"
+                           :class="openAlat ? 'rotate-180' : ''"></i>
+                    </button>
+                    <!-- Isi (collapsible) -->
+                    <div x-show="openAlat"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 -translate-y-2"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 -translate-y-2"
+                         style="display:none;">
+                        <ul class="space-y-2.5 px-4 sm:px-5 pb-4 sm:pb-5 max-h-52 overflow-y-auto pl-7">
+                            @forelse($ringkasanFasilitas['alat'] as $a)
+                            <li class="flex items-center gap-2.5 text-xs sm:text-sm font-medium text-gray-800">
+                                <span class="w-2.5 h-2.5 rounded-full bg-[#D97706] shrink-0"></span>
+                                <span>{{ $a['nama'] }}</span>
+                            </li>
+                            @empty
+                            <li class="text-xs text-gray-400 italic">Belum ada alat</li>
+                            @endforelse
+                        </ul>
                     </div>
-                    <ul class="space-y-2.5 pl-3">
-                        @forelse($ringkasanFasilitas['alat'] as $a)
-                        <li class="flex items-center gap-2.5 text-xs sm:text-sm font-medium text-gray-800">
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#D97706] shrink-0"></span>
-                            <span>{{ $a['nama'] }}</span>
-                        </li>
-                        @empty
-                        <li class="text-xs text-gray-400 italic">Belum ada alat</li>
-                        @endforelse
-                    </ul>
                 </div>
             </div>
 
