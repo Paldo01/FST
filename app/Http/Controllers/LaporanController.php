@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Fasilitas;
+use App\Models\KategoriFasilitas;
 use App\Models\Peminjaman;
 use App\Models\Pengguna;
 use Illuminate\Http\Request;
@@ -25,38 +26,38 @@ class LaporanController extends Controller
             'total_pengguna'   => Pengguna::whereIn('peran', ['mahasiswa', 'dosen'])->count(),
         ];
 
-        // ── Grafik: Jumlah Peminjaman per Fasilitas (Real DB) ─────────────────
-        // Ambil fasilitas ruang yang paling sering dipinjam (top 5)
-        $ruangPopuler = Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'ruangan'))
-            ->select('fasilitas_id', DB::raw('COUNT(*) as total'))
-            ->groupBy('fasilitas_id')
+        // ── Grafik: Peminjaman per Kategori (Real DB) ────────────────────────
+        // Kategori ruangan + jumlah peminjaman
+        $ruangPerKategori = Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'ruangan'))
+            ->join('fasilitas', 'peminjaman.fasilitas_id', '=', 'fasilitas.id')
+            ->join('kategori_fasilitas', 'fasilitas.kategori_id', '=', 'kategori_fasilitas.id')
+            ->select('kategori_fasilitas.nama_kategori as label', DB::raw('COUNT(*) as total'))
+            ->groupBy('kategori_fasilitas.nama_kategori')
             ->orderByDesc('total')
-            ->limit(5)
-            ->with('fasilitas')
             ->get();
 
-        // Ambil fasilitas alat yang paling sering dipinjam (top 5)
-        $alatPopuler = Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'peralatan'))
-            ->select('fasilitas_id', DB::raw('COUNT(*) as total'))
-            ->groupBy('fasilitas_id')
+        // Kategori peralatan + jumlah peminjaman
+        $alatPerKategori = Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'peralatan'))
+            ->join('fasilitas', 'peminjaman.fasilitas_id', '=', 'fasilitas.id')
+            ->join('kategori_fasilitas', 'fasilitas.kategori_id', '=', 'kategori_fasilitas.id')
+            ->select('kategori_fasilitas.nama_kategori as label', DB::raw('COUNT(*) as total'))
+            ->groupBy('kategori_fasilitas.nama_kategori')
             ->orderByDesc('total')
-            ->limit(5)
-            ->with('fasilitas')
             ->get();
 
-        // Gabungkan label unik dari ruang + alat populer
-        $labelsRuang = $ruangPopuler->pluck('fasilitas.nama_fasilitas')->toArray();
-        $labelsAlat  = $alatPopuler->pluck('fasilitas.nama_fasilitas')->toArray();
+        // Semua label gabungan (unik)
+        $labelsRuang = $ruangPerKategori->pluck('label')->toArray();
+        $labelsAlat  = $alatPerKategori->pluck('label')->toArray();
         $allLabels   = array_values(array_unique(array_merge($labelsRuang, $labelsAlat)));
 
+        // Jika belum ada data peminjaman sama sekali, tampilkan semua kategori
         if (empty($allLabels)) {
-            // Fallback: ambil nama fasilitas dari tabel fasilitas
-            $allLabels = Fasilitas::limit(4)->pluck('nama_fasilitas')->toArray();
+            $allLabels = KategoriFasilitas::pluck('nama_kategori')->toArray();
         }
 
-        // Mapping label ke total peminjaman per jenis
-        $ruangMap = $ruangPopuler->mapWithKeys(fn($p) => [$p->fasilitas->nama_fasilitas => $p->total])->toArray();
-        $alatMap  = $alatPopuler->mapWithKeys(fn($p) => [$p->fasilitas->nama_fasilitas => $p->total])->toArray();
+        // Map total per label untuk masing-masing jenis
+        $ruangMap = $ruangPerKategori->pluck('total', 'label')->toArray();
+        $alatMap  = $alatPerKategori->pluck('total', 'label')->toArray();
 
         $chartData = [
             'labels' => $allLabels,
