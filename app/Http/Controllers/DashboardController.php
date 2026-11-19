@@ -64,17 +64,21 @@ class DashboardController extends Controller
             ->whereYear('created_at', now()->year)
             ->count();
 
-        // Data untuk grafik bulanan (6 bulan terakhir)
-        $grafikBulanan = Peminjaman::select(
-                DB::raw("MONTH(created_at) as bulan"),
-                DB::raw("YEAR(created_at) as tahun"),
-                DB::raw("COUNT(*) as total")
-            )
-            ->where('created_at', '>=', now()->subMonths(6))
-            ->groupBy('tahun', 'bulan')
-            ->orderBy('tahun')
-            ->orderBy('bulan')
-            ->get();
+        // Data untuk grafik bulanan (6 bulan terakhir sinkron dengan tanggal peminjaman)
+        $grafikBulanan = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $dt = now()->subMonths($i);
+            $b = (int) $dt->month;
+            $y = (int) $dt->year;
+            $total = Peminjaman::whereYear('tanggal_mulai', $y)
+                ->whereMonth('tanggal_mulai', $b)
+                ->count();
+            $grafikBulanan[] = [
+                'bulan' => $b,
+                'tahun' => $y,
+                'total' => $total,
+            ];
+        }
 
         $statistik = [
             'total_fasilitas' => Fasilitas::count(),
@@ -100,7 +104,7 @@ class DashboardController extends Controller
             'total_peminjaman' => Peminjaman::count(),
             'total_ruangan'    => Fasilitas::whereHas('kategori', fn($q) => $q->where('jenis', 'ruangan'))->count(),
             'total_peralatan'  => Fasilitas::whereHas('kategori', fn($q) => $q->where('jenis', 'peralatan'))->count(),
-            'total_pengguna'   => Pengguna::whereIn('peran', ['mahasiswa', 'dosen'])->count(),
+            'total_pengguna'   => Pengguna::count(),
         ];
 
         // ── Status Peminjaman (Real DB) ────────────────────────────────────

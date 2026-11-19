@@ -60,9 +60,6 @@
             </div>
         </div>
 
-        <!-- Kartu 3: Total Ruangan -->
-        <!-- (unchanged above) -->
-
         <!-- Kartu 4: Total Peralatan -->
         <div class="bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-2xs p-4 sm:p-5 flex items-center gap-4 transition-all hover:shadow-xs">
             <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#FEF3C7] flex items-center justify-center shrink-0">
@@ -74,63 +71,6 @@
                     {{ $statistik['total_peralatan'] }}
                 </h3>
                 <span class="text-xs font-semibold text-gray-400 mt-1 inline-block">Alat</span>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Baris Statistik Tambahan: Total Peminjaman, Ruang Terpakai, Alat Dipinjam, Total Pengguna -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-
-        <!-- Kartu: Total Peminjaman -->
-        <div class="bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-2xs p-4 sm:p-5 flex items-center gap-4 transition-all hover:shadow-xs">
-            <div class="w-13 h-13 rounded-2xl bg-[#FEE2E2] flex items-center justify-center shrink-0">
-                <i data-lucide="file-text" class="w-6 h-6 text-[#801414]"></i>
-            </div>
-            <div>
-                <p class="text-xs sm:text-sm font-medium text-gray-500">Total Peminjaman</p>
-                <h3 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight mt-0.5 leading-none">
-                    {{ $statistik['total_peminjaman'] }}
-                </h3>
-            </div>
-        </div>
-
-        <!-- Kartu: Ruang Terpakai -->
-        <div class="bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-2xs p-4 sm:p-5 flex items-center gap-4 transition-all hover:shadow-xs">
-            <div class="w-13 h-13 rounded-2xl bg-[#DBEAFE] flex items-center justify-center shrink-0">
-                <i data-lucide="door-open" class="w-6 h-6 text-[#2563EB]"></i>
-            </div>
-            <div>
-                <p class="text-xs sm:text-sm font-medium text-gray-500">Ruang Terpakai</p>
-                <h3 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight mt-0.5 leading-none">
-                    {{ $statistik['total_ruangan'] }}
-                </h3>
-            </div>
-        </div>
-
-        <!-- Kartu: Alat Dipinjam -->
-        <div class="bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-2xs p-4 sm:p-5 flex items-center gap-4 transition-all hover:shadow-xs">
-            <div class="w-13 h-13 rounded-2xl bg-[#FEF3C7] flex items-center justify-center shrink-0">
-                <i data-lucide="package" class="w-6 h-6 text-[#F59E0B]"></i>
-            </div>
-            <div>
-                <p class="text-xs sm:text-sm font-medium text-gray-500">Alat Dipinjam</p>
-                <h3 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight mt-0.5 leading-none">
-                    {{ $statistik['total_peralatan'] }}
-                </h3>
-            </div>
-        </div>
-
-        <!-- Kartu: Total Pengguna -->
-        <div class="bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-2xs p-4 sm:p-5 flex items-center gap-4 transition-all hover:shadow-xs">
-            <div class="w-13 h-13 rounded-2xl bg-[#E0F2FE] flex items-center justify-center shrink-0">
-                <i data-lucide="users" class="w-6 h-6 text-[#0284C7]"></i>
-            </div>
-            <div>
-                <p class="text-xs sm:text-sm font-medium text-gray-500">Total Pengguna</p>
-                <h3 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight mt-0.5 leading-none">
-                    {{ $statistik['total_pengguna'] }}
-                </h3>
             </div>
         </div>
 

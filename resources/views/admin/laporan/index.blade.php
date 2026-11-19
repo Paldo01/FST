@@ -372,6 +372,7 @@ function laporanHandler() {
         selectedPeriodText: 'Bulan Ini',
         selectedTypeText: 'Semua Jenis',
         chartInstance: null,
+        periodData: @json($periodData ?? []),
 
         init() {
             this.$nextTick(() => {
@@ -395,7 +396,12 @@ function laporanHandler() {
         setPeriod(period) {
             this.selectedPeriodText = period;
             this.showPeriodDropdown = false;
-            // Filter periode hanya toggle visual — data real sudah di chart dari server
+            
+            if (this.chartInstance && this.periodData && this.periodData[period]) {
+                this.chartInstance.data.datasets[0].data = this.periodData[period].ruang;
+                this.chartInstance.data.datasets[1].data = this.periodData[period].alat;
+                this.chartInstance.update();
+            }
         },
 
         setType(type) {

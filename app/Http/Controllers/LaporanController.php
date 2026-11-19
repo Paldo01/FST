@@ -23,46 +23,86 @@ class LaporanController extends Controller
             'total_peminjaman' => Peminjaman::count(),
             'ruang_terpakai'   => Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'ruangan'))->count(),
             'alat_dipinjam'    => Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'peralatan'))->count(),
-            'total_pengguna'   => Pengguna::whereIn('peran', ['mahasiswa', 'dosen'])->count(),
+            'total_pengguna'   => Pengguna::count(),
         ];
 
         // ── Grafik: Peminjaman per Kategori (Real DB) ────────────────────────
-        // Kategori ruangan + jumlah peminjaman
-        $ruangPerKategori = Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'ruangan'))
-            ->join('fasilitas', 'peminjaman.fasilitas_id', '=', 'fasilitas.id')
-            ->join('kategori_fasilitas', 'fasilitas.kategori_id', '=', 'kategori_fasilitas.id')
-            ->select('kategori_fasilitas.nama_kategori as label', DB::raw('COUNT(*) as total'))
-            ->groupBy('kategori_fasilitas.nama_kategori')
-            ->orderByDesc('total')
-            ->get();
+        // Dapatkan semua nama kategori yang ada di sistem
+        $allLabels = KategoriFasilitas::orderBy('nama_kategori')->pluck('nama_kategori')->toArray();
 
-        // Kategori peralatan + jumlah peminjaman
-        $alatPerKategori = Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'peralatan'))
-            ->join('fasilitas', 'peminjaman.fasilitas_id', '=', 'fasilitas.id')
-            ->join('kategori_fasilitas', 'fasilitas.kategori_id', '=', 'kategori_fasilitas.id')
-            ->select('kategori_fasilitas.nama_kategori as label', DB::raw('COUNT(*) as total'))
-            ->groupBy('kategori_fasilitas.nama_kategori')
-            ->orderByDesc('total')
-            ->get();
+        // Helper untuk menghitung per periode
+        $getChartByPeriod = function ($filterCallback = null) use ($allLabels) {
+            $qRuang = Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'ruangan'))
+                ->join('fasilitas', 'peminjaman.fasilitas_id', '=', 'fasilitas.id')
+                ->join('kategori_fasilitas', 'fasilitas.kategori_id', '=', 'kategori_fasilitas.id');
+            if ($filterCallback) $filterCallback($qRuang);
+            $ruangMap = $qRuang->select('kategori_fasilitas.nama_kategori as label', DB::raw('COUNT(peminjaman.id) as total'))
+                ->groupBy('kategori_fasilitas.nama_kategori')
+                ->pluck('total', 'label')->toArray();
 
-        // Semua label gabungan (unik)
-        $labelsRuang = $ruangPerKategori->pluck('label')->toArray();
-        $labelsAlat  = $alatPerKategori->pluck('label')->toArray();
-        $allLabels   = array_values(array_unique(array_merge($labelsRuang, $labelsAlat)));
+            $qAlat = Peminjaman::whereHas('fasilitas.kategori', fn($q) => $q->where('jenis', 'peralatan'))
+                ->join('fasilitas', 'peminjaman.fasilitas_id', '=', 'fasilitas.id')
+                ->join('kategori_fasilitas', 'fasilitas.kategori_id', '=', 'kategori_fasilitas.id');
+            if ($filterCallback) $filterCallback($qAlat);
+            $alatMap = $qAlat->select('kategori_fasilitas.nama_kategori as label', DB::raw('COUNT(peminjaman.id) as total'))
+                ->groupBy('kategori_fasilitas.nama_kategori')
+                ->pluck('total', 'label')->toArray();
 
-        // Jika belum ada data peminjaman sama sekali, tampilkan semua kategori
-        if (empty($allLabels)) {
-            $allLabels = KategoriFasilitas::pluck('nama_kategori')->toArray();
+            return [
+                'ruang' => array_map(fn($l) => $ruangMap[$l] ?? 0, $allLabels),
+                'alat'  => array_map(fn($l) => $alatMap[$l] ?? 0, $allLabels),
+            ];
+        };
+
+        // Data real per filter periode
+        $periodData = [
+            'Semua'      => $getChartByPeriod(),
+            'Bulan Ini'  => $getChartByPeriod(fn($q) => $q->whereMonth('peminjaman.tanggal_mulai', now()->month)->whereYear('peminjaman.tanggal_mulai', now()->year)),
+            'Bulan Lalu' => $getChartByPeriod(fn($q) => $q->whereMonth('peminjaman.tanggal_mulai', now()->subMonth()->month)->whereYear('peminjaman.tanggal_mulai', now()->subMonth()->year)),
+            'Tahun Ini'  => $getChartByPeriod(fn($q) => $q->whereYear('peminjaman.tanggal_mulai', now()->year)),
+        ];
+
+        // Saring kategori yang memiliki data (minimal > 0) agar grafik tidak dipenuhi angka 0
+        $activeLabels = [];
+        $activeRuang  = [];
+        $activeAlat   = [];
+        foreach ($allLabels as $idx => $label) {
+            $totalSemua = $periodData['Semua']['ruang'][$idx] + $periodData['Semua']['alat'][$idx];
+            if ($totalSemua > 0) {
+                $activeLabels[] = $label;
+                $activeRuang[]  = $periodData['Bulan Ini']['ruang'][$idx];
+                $activeAlat[]   = $periodData['Bulan Ini']['alat'][$idx];
+            }
         }
 
-        // Map total per label untuk masing-masing jenis
-        $ruangMap = $ruangPerKategori->pluck('total', 'label')->toArray();
-        $alatMap  = $alatPerKategori->pluck('total', 'label')->toArray();
+        // Jika tidak ada data yang > 0 di bulan ini, tampilkan semua kategori yang pernah dipinjam
+        if (empty($activeLabels)) {
+            $activeLabels = $allLabels;
+            $activeRuang  = $periodData['Bulan Ini']['ruang'];
+            $activeAlat   = $periodData['Bulan Ini']['alat'];
+        }
+
+        // Rekonstruksi periodData sesuai activeLabels
+        $periodDataFiltered = [];
+        foreach ($periodData as $periodKey => $pData) {
+            $rFiltered = [];
+            $aFiltered = [];
+            foreach ($allLabels as $idx => $l) {
+                if (in_array($l, $activeLabels)) {
+                    $rFiltered[] = $pData['ruang'][$idx];
+                    $aFiltered[] = $pData['alat'][$idx];
+                }
+            }
+            $periodDataFiltered[$periodKey] = [
+                'ruang' => $rFiltered,
+                'alat'  => $aFiltered,
+            ];
+        }
 
         $chartData = [
-            'labels' => $allLabels,
-            'ruang'  => array_map(fn($l) => $ruangMap[$l] ?? 0, $allLabels),
-            'alat'   => array_map(fn($l) => $alatMap[$l]  ?? 0, $allLabels),
+            'labels' => $activeLabels,
+            'ruang'  => $periodDataFiltered['Bulan Ini']['ruang'],
+            'alat'   => $periodDataFiltered['Bulan Ini']['alat'],
         ];
 
         // ── Ringkasan Fasilitas: per Kategori (Real DB) ───────────────────────
@@ -83,7 +123,12 @@ class LaporanController extends Controller
             'alat'  => $alatList,
         ];
 
-        return view('admin.laporan.index', compact('statistik', 'chartData', 'ringkasanFasilitas'));
+        return view('admin.laporan.index', [
+            'statistik'          => $statistik,
+            'chartData'          => $chartData,
+            'periodData'         => $periodDataFiltered,
+            'ringkasanFasilitas' => $ringkasanFasilitas,
+        ]);
     }
 
     public function superAdminIndex(Request $request)
