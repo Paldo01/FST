@@ -148,7 +148,9 @@ class AuthController extends Controller
         // Kirim email OTP
         try {
             Mail::to($request->email)->send(new SendRegisterOtpMail($otp, $request->nama_lengkap));
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim OTP registrasi ke ' . $request->email . ' (OTP: ' . $otp . '): ' . $e->getMessage());
+        }
 
         return redirect()->route('daftar.verifikasi')
             ->with('pesan_sukses', 'Kode OTP telah dikirim ke email Anda! Silakan masukkan 6 digit kode OTP untuk menyelesaikan pendaftaran.');
@@ -252,7 +254,9 @@ class AuthController extends Controller
 
         try {
             Mail::to($email)->send(new SendRegisterOtpMail($otp, $namaLengkap));
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Gagal kirim ulang OTP registrasi ke ' . $email . ' (OTP: ' . $otp . '): ' . $e->getMessage());
+        }
 
         session(['register_otp_sent_at' => now()->timestamp]);
 
