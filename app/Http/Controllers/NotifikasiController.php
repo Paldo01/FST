@@ -9,9 +9,10 @@ class NotifikasiController extends Controller
     public function baca(string $notification): RedirectResponse
     {
         $notifikasi = auth()->user()->notifications()->whereKey($notification)->firstOrFail();
-        $notifikasi->markAsRead();
-
         $url = $notifikasi->data['url'] ?? route('dashboard', absolute: false);
+
+        // Hapus notifikasi setelah diklik agar langsung hilang dari daftar
+        $notifikasi->delete();
 
         if (!is_string($url) || !str_starts_with($url, '/') || str_starts_with($url, '//')) {
             $url = route('dashboard', absolute: false);
@@ -22,7 +23,8 @@ class NotifikasiController extends Controller
 
     public function bacaSemua(): RedirectResponse
     {
-        auth()->user()->unreadNotifications()->update(['read_at' => now()]);
+        // Hapus semua notifikasi milik user
+        auth()->user()->notifications()->delete();
 
         return back();
     }

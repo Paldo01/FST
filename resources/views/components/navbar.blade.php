@@ -9,16 +9,16 @@
     <div class="flex items-center gap-3 sm:gap-4 shrink-0">
         @php
             $notifikasiTerbaru = auth()->user()->notifications()->latest()->take(5)->get();
-            $jumlahBelumDibaca = auth()->user()->unreadNotifications()->count();
+            $jumlahNotifikasi = $notifikasiTerbaru->count();
         @endphp
         <div x-data="{ notifikasiTerbuka: false }" class="relative">
             <button type="button" @click="notifikasiTerbuka = !notifikasiTerbuka" :aria-expanded="notifikasiTerbuka"
                     class="relative p-2 text-gray-600 hover:text-[#801414] transition-colors rounded-full hover:bg-gray-50 cursor-pointer"
                     title="Notifikasi" aria-label="Notifikasi">
                 <i data-lucide="bell" class="w-5 h-5"></i>
-                @if ($jumlahBelumDibaca > 0)
+                @if ($jumlahNotifikasi > 0)
                     <span class="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 bg-[#801414] text-white text-[10px] leading-4 text-center rounded-full">
-                        {{ $jumlahBelumDibaca > 9 ? '9+' : $jumlahBelumDibaca }}
+                        {{ $jumlahNotifikasi > 9 ? '9+' : $jumlahNotifikasi }}
                     </span>
                 @endif
             </button>
@@ -27,10 +27,10 @@
                  class="absolute right-0 mt-3 w-80 max-w-[calc(100vw-2rem)] bg-white rounded-xl shadow-xl border border-gray-200 z-50 overflow-hidden">
                 <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
                     <p class="font-bold text-sm text-gray-900">Notifikasi</p>
-                    @if ($jumlahBelumDibaca > 0)
+                    @if ($jumlahNotifikasi > 0)
                         <form method="POST" action="{{ route('notifikasi.baca_semua') }}">
                             @csrf
-                            <button type="submit" class="text-xs font-semibold text-[#801414] hover:underline">Tandai semua dibaca</button>
+                            <button type="submit" class="text-xs font-semibold text-[#801414] hover:underline cursor-pointer">Hapus semua</button>
                         </form>
                     @endif
                 </div>
@@ -38,8 +38,11 @@
                 @forelse ($notifikasiTerbaru as $notifikasi)
                     <form method="POST" action="{{ route('notifikasi.baca', $notifikasi->id) }}">
                         @csrf
-                        <button type="submit" class="w-full text-left px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors {{ $notifikasi->read_at ? '' : 'bg-red-50/50' }}">
-                            <span class="block text-sm font-semibold text-gray-900">{{ $notifikasi->data['title'] ?? 'Notifikasi baru' }}</span>
+                        <button type="submit" class="w-full text-left px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer group">
+                            <div class="flex items-start justify-between gap-2">
+                                <span class="block text-sm font-semibold text-gray-900 group-hover:text-[#801414] transition-colors">{{ $notifikasi->data['title'] ?? 'Notifikasi baru' }}</span>
+                                <span class="text-[10px] text-gray-400 group-hover:text-[#801414] shrink-0 font-medium">Buka →</span>
+                            </div>
                             <span class="block mt-1 text-xs text-gray-600">{{ $notifikasi->data['message'] ?? '' }}</span>
                             <span class="block mt-1.5 text-[11px] text-gray-400">{{ $notifikasi->created_at->diffForHumans() }}</span>
                         </button>

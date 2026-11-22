@@ -99,8 +99,15 @@ class LaporanController extends Controller
             ];
         }
 
+        $categoryTypes = [];
+        $kategoriMap = KategoriFasilitas::pluck('jenis', 'nama_kategori')->toArray();
+        foreach ($activeLabels as $label) {
+            $categoryTypes[] = $kategoriMap[$label] ?? 'ruangan';
+        }
+
         $chartData = [
             'labels' => $activeLabels,
+            'types'  => $categoryTypes,
             'ruang'  => $periodDataFiltered['Bulan Ini']['ruang'],
             'alat'   => $periodDataFiltered['Bulan Ini']['alat'],
         ];

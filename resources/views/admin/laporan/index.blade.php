@@ -144,11 +144,11 @@
 
             <!-- Legend di Bagian Bawah Sesuai Mockup (Merah: Ruang, Biru: Alat) -->
             <div class="flex items-center justify-center gap-8 pt-4 border-t border-gray-100/60">
-                <div class="flex items-center gap-2.5">
+                <div x-show="selectedTypeText === 'Semua Jenis' || selectedTypeText === 'Ruang'" class="flex items-center gap-2.5">
                     <span class="w-3.5 h-3.5 rounded-full bg-[#DC2626]"></span>
                     <span class="text-xs sm:text-sm font-bold text-gray-800">Ruang</span>
                 </div>
-                <div class="flex items-center gap-2.5">
+                <div x-show="selectedTypeText === 'Semua Jenis' || selectedTypeText === 'Alat'" class="flex items-center gap-2.5">
                     <span class="w-3.5 h-3.5 rounded-full bg-[#2563EB]"></span>
                     <span class="text-xs sm:text-sm font-bold text-gray-800">Alat</span>
                 </div>
@@ -163,7 +163,8 @@
                 </h2>
 
                 <!-- Box 1: Ruang (Collapsible) -->
-                <div class="border border-gray-100 rounded-2xl bg-white shadow-2xs transition-all hover:border-gray-200"
+                <div x-show="selectedTypeText === 'Semua Jenis' || selectedTypeText === 'Ruang'"
+                     class="border border-gray-100 rounded-2xl bg-white shadow-2xs transition-all hover:border-gray-200"
                      x-data="{ openRuang: false }">
                     <!-- Header (klik untuk buka/tutup) -->
                     <button type="button"
@@ -210,7 +211,8 @@
                 </div>
 
                 <!-- Box 2: Alat (Collapsible) -->
-                <div class="border border-gray-100 rounded-2xl bg-white shadow-2xs transition-all hover:border-gray-200"
+                <div x-show="selectedTypeText === 'Semua Jenis' || selectedTypeText === 'Alat'"
+                     class="border border-gray-100 rounded-2xl bg-white shadow-2xs transition-all hover:border-gray-200"
                      x-data="{ openAlat: false }">
                     <!-- Header (klik untuk buka/tutup) -->
                     <button type="button"
@@ -375,6 +377,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+let globalUsageChart = null;
+
 function laporanHandler() {
     return {
         showPeriodDropdown: false,
@@ -382,8 +386,9 @@ function laporanHandler() {
         openModalPdf: false,
         selectedPeriodText: 'Bulan Ini',
         selectedTypeText: 'Semua Jenis',
-        chartInstance: null,
         periodData: @json($periodData ?? []),
+        allLabels: @json($chartData['labels'] ?? []),
+        categoryTypes: @json($chartData['types'] ?? []),
 
         init() {
             this.$nextTick(() => {
@@ -407,31 +412,97 @@ function laporanHandler() {
         setPeriod(period) {
             this.selectedPeriodText = period;
             this.showPeriodDropdown = false;
-            
-            if (this.chartInstance && this.periodData && this.periodData[period]) {
-                this.chartInstance.data.datasets[0].data = this.periodData[period].ruang;
-                this.chartInstance.data.datasets[1].data = this.periodData[period].alat;
-                this.chartInstance.update();
-            }
+            this.updateChart();
         },
 
         setType(type) {
             this.selectedTypeText = type;
             this.showTypeDropdown = false;
+            this.updateChart();
+        },
 
-            if (!this.chartInstance) return;
+        updateChart() {
+            if (!globalUsageChart) return;
+
+            const period = this.selectedPeriodText;
+            const type = this.selectedTypeText;
+            const pData = this.periodData[period] || { ruang: [], alat: [] };
+
+            let filteredLabels = [];
+            let filteredRuang = [];
+            let filteredAlat = [];
+
+            for (let idx = 0; idx < this.allLabels.length; idx++) {
+                const label = this.allLabels[idx];
+                const catType = this.categoryTypes[idx] || 'ruangan';
+                
+                if (type === 'Ruang') {
+                    if (catType === 'ruangan') {
+                        filteredLabels.push(label);
+                        filteredRuang.push(pData.ruang[idx] || 0);
+                    }
+                } else if (type === 'Alat') {
+                    if (catType === 'peralatan') {
+                        filteredLabels.push(label);
+                        filteredAlat.push(pData.alat[idx] || 0);
+                    }
+                } else {
+                    filteredLabels.push(label);
+                    filteredRuang.push(pData.ruang[idx] || 0);
+                    filteredAlat.push(pData.alat[idx] || 0);
+                }
+            }
+
+            globalUsageChart.data.labels = filteredLabels;
 
             if (type === 'Ruang') {
-                this.chartInstance.getDatasetMeta(0).hidden = false;
-                this.chartInstance.getDatasetMeta(1).hidden = true;
+                globalUsageChart.data.datasets = [
+                    {
+                        label: 'Ruang',
+                        data: filteredRuang,
+                        backgroundColor: '#DC2626',
+                        borderRadius: { topLeft: 4, topRight: 4 },
+                        borderSkipped: false,
+                        barPercentage: 0.65,
+                        categoryPercentage: 0.55
+                    }
+                ];
             } else if (type === 'Alat') {
-                this.chartInstance.getDatasetMeta(0).hidden = true;
-                this.chartInstance.getDatasetMeta(1).hidden = false;
+                globalUsageChart.data.datasets = [
+                    {
+                        label: 'Alat',
+                        data: filteredAlat,
+                        backgroundColor: '#2563EB',
+                        borderRadius: { topLeft: 4, topRight: 4 },
+                        borderSkipped: false,
+                        barPercentage: 0.65,
+                        categoryPercentage: 0.55
+                    }
+                ];
             } else {
-                this.chartInstance.getDatasetMeta(0).hidden = false;
-                this.chartInstance.getDatasetMeta(1).hidden = false;
+                globalUsageChart.data.datasets = [
+                    {
+                        label: 'Ruang',
+                        data: filteredRuang,
+                        backgroundColor: '#DC2626',
+                        borderRadius: { topLeft: 4, topRight: 4 },
+                        borderSkipped: false,
+                        barPercentage: 0.65,
+                        categoryPercentage: 0.55
+                    },
+                    {
+                        label: 'Alat',
+                        data: filteredAlat,
+                        backgroundColor: '#2563EB',
+                        borderRadius: { topLeft: 4, topRight: 4 },
+                        borderSkipped: false,
+                        barPercentage: 0.65,
+                        categoryPercentage: 0.55
+                    }
+                ];
             }
-            this.chartInstance.update();
+
+            globalUsageChart.update();
         },
 
         initChart() {
@@ -439,6 +510,10 @@ function laporanHandler() {
             if (!canvas) return;
 
             const ctx = canvas.getContext('2d');
+
+            if (globalUsageChart) {
+                globalUsageChart.destroy();
+            }
 
             // Custom Plugin untuk menampilkan angka di atas setiap bar (Sesuai Mockup)
             const valueLabelsPlugin = {
@@ -465,7 +540,7 @@ function laporanHandler() {
                 }
             };
 
-            this.chartInstance = new Chart(ctx, {
+            globalUsageChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: @json($chartData['labels']),
