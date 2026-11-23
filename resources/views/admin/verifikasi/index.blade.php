@@ -145,13 +145,30 @@
                                 <span class="text-gray-400 font-medium">:</span>
                                 <span class="font-medium text-gray-800 truncate">{{ $p->tujuan_peminjaman }}</span>
                             </div>
+
+                            <!-- Berkas Persyaratan -->
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="paperclip" class="w-4 h-4 text-gray-500 shrink-0"></i>
+                                <span class="text-gray-500 font-medium w-24 shrink-0">Berkas</span>
+                                <span class="text-gray-400 font-medium">:</span>
+                                @if($p->berkas_persyaratan)
+                                    <a href="{{ Storage::url($p->berkas_persyaratan) }}" target="_blank" 
+                                       class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-50 hover:bg-red-100 text-[#801414] border border-red-200/80 rounded-lg text-xs font-bold transition-all shadow-2xs hover:shadow-xs cursor-pointer">
+                                        <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                                        <span>Review Surat (PDF)</span>
+                                        <i data-lucide="external-link" class="w-3 h-3 text-[#801414]/70"></i>
+                                    </a>
+                                @else
+                                    <span class="text-xs text-gray-400 italic">Tidak ada berkas</span>
+                                @endif
+                            </div>
                         </div>
 
                         <!-- Divider Kolom 2 ke 3 -->
                         <div class="hidden lg:block w-px bg-gray-200/80 self-stretch my-1"></div>
 
                         <!-- Kolom 3: Status & Tombol Aksi (Sesuai Mockup) -->
-                        <div class="w-full lg:w-[24%] shrink-0 flex flex-col items-center justify-center gap-3 pt-3 lg:pt-0 border-t lg:border-t-0 border-gray-100">
+                        <div class="w-full lg:w-[24%] shrink-0 flex flex-col items-center justify-center gap-2.5 pt-3 lg:pt-0 border-t lg:border-t-0 border-gray-100">
                             
                             <!-- Status Badges -->
                             @if($p->status_pengajuan === 'menunggu')
@@ -162,11 +179,11 @@
                                 </span>
 
                                 <!-- Tombol Setujui & Tolak Sesuai Mockup -->
-                                <div class="flex items-center gap-2.5 w-full justify-center">
+                                <div class="flex items-center gap-2 w-full justify-center">
                                     <!-- Setujui (Green Outline Sesuai Mockup) -->
                                     <button type="button" 
                                             @click="bukaModalSetuju({{ $p->id }}, '{{ addslashes($p->pengguna->nama_lengkap) }}', '{{ addslashes($p->fasilitas->nama_fasilitas) }}')"
-                                            class="flex-1 max-w-[110px] px-3.5 py-1.5 sm:py-2 bg-white hover:bg-emerald-50 text-emerald-600 border border-emerald-500 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all shadow-2xs active:scale-95 cursor-pointer">
+                                            class="flex-1 max-w-[105px] px-3 py-1.5 sm:py-2 bg-white hover:bg-emerald-50 text-emerald-600 border border-emerald-500 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all shadow-2xs active:scale-95 cursor-pointer">
                                         <i data-lucide="check" class="w-4 h-4"></i>
                                         <span>Setujui</span>
                                     </button>
@@ -174,11 +191,19 @@
                                     <!-- Tolak (Red Outline Sesuai Mockup) -->
                                     <button type="button" 
                                             @click="bukaModalTolak({{ $p->id }}, '{{ addslashes($p->pengguna->nama_lengkap) }}', '{{ addslashes($p->fasilitas->nama_fasilitas) }}')"
-                                            class="flex-1 max-w-[110px] px-3.5 py-1.5 sm:py-2 bg-white hover:bg-red-50 text-red-500 border border-red-400 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all shadow-2xs active:scale-95 cursor-pointer">
+                                            class="flex-1 max-w-[105px] px-3 py-1.5 sm:py-2 bg-white hover:bg-red-50 text-red-500 border border-red-400 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all shadow-2xs active:scale-95 cursor-pointer">
                                         <i data-lucide="x" class="w-4 h-4"></i>
                                         <span>Tolak</span>
                                     </button>
                                 </div>
+
+                                <!-- Tombol Review Detail & Berkas -->
+                                <button type="button" 
+                                        @click="bukaModalDetail({{ $p->id }}, '{{ addslashes($p->pengguna->nama_lengkap) }}', '{{ ucfirst($p->pengguna->jenis_pengguna ?? 'Mahasiswa') }}', '{{ $p->pengguna->nomor_identitas ?? '-' }}', '{{ $p->pengguna->nomor_telepon ?? '-' }}', '{{ $p->pengguna->email }}', '{{ addslashes($p->fasilitas->nama_fasilitas) }}', '{{ $p->fasilitas->kode_fasilitas }}', '{{ $p->fasilitas->kategori->nama_kategori ?? '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->translatedFormat('d F Y') : '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->format('H.i') : '' }} - {{ $p->tanggal_selesai ? $p->tanggal_selesai->format('H.i') : '' }}', '{{ addslashes($p->tujuan_peminjaman) }}', '{{ $p->status_pengajuan }}', '{{ addslashes($p->alasan_penolakan ?? '') }}', '{{ $p->berkas_persyaratan ? Storage::url($p->berkas_persyaratan) : '' }}', '{{ $p->created_at ? $p->created_at->translatedFormat('d F Y, H.i') : '-' }}')"
+                                        class="w-full text-center text-xs font-semibold text-gray-600 hover:text-[#801414] hover:underline flex items-center justify-center gap-1 transition-colors cursor-pointer pt-0.5">
+                                    <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                    <span>Lihat Detail & Berkas</span>
+                                </button>
 
                             @elseif($p->status_pengajuan === 'disetujui')
                                 <!-- Badge Disetujui (Soft Green Sesuai Mockup) -->
@@ -467,23 +492,30 @@
                         <p class="text-gray-900 font-medium leading-relaxed" x-text="detailData.keperluan"></p>
                     </div>
 
-                    <!-- Box 4: Berkas Persyaratan (Jika Ada) -->
+                    <!-- Box 4: Berkas Persyaratan -->
                     <template x-if="detailData.berkasUrl">
-                        <div class="bg-blue-50/60 rounded-2xl p-4 border border-blue-100 flex items-center justify-between">
+                        <div class="bg-red-50/50 rounded-2xl p-4 border border-red-100 flex items-center justify-between gap-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
+                                <div class="w-10 h-10 rounded-xl bg-[#801414]/10 text-[#801414] flex items-center justify-center shrink-0">
                                     <i data-lucide="file-check" class="w-5 h-5"></i>
                                 </div>
                                 <div>
-                                    <h5 class="font-bold text-gray-900">Berkas Lampiran / Proposal</h5>
-                                    <p class="text-[11px] text-gray-500">Tersedia dokumen persyaratan peminjaman</p>
+                                    <h5 class="font-bold text-gray-900 text-sm">Berkas Persyaratan (Surat Peminjaman)</h5>
+                                    <p class="text-xs text-gray-500">Format PDF dokumen persyaratan dari pemohon</p>
                                 </div>
                             </div>
                             <a :href="detailData.berkasUrl" target="_blank" 
-                               class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 transition-colors shadow-2xs">
-                                <span>Lihat Berkas</span>
+                               class="px-4 py-2.5 bg-[#801414] hover:bg-[#681010] text-white rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-2xs hover:shadow-xs shrink-0 cursor-pointer">
+                                <i data-lucide="file-text" class="w-4 h-4"></i>
+                                <span>Buka / Review Berkas</span>
                                 <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
                             </a>
+                        </div>
+                    </template>
+                    <template x-if="!detailData.berkasUrl">
+                        <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100 flex items-center gap-3 text-gray-500 text-xs">
+                            <i data-lucide="file-x" class="w-5 h-5 text-gray-400"></i>
+                            <span>Tidak ada berkas persyaratan yang dilampirkan pada pengajuan ini.</span>
                         </div>
                     </template>
 
@@ -510,11 +542,29 @@
                 </div>
 
                 <!-- Footer Modal -->
-                <div class="pt-2 flex justify-end">
-                    <button type="button" @click="modalDetailOpen = false" 
-                            class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs sm:text-sm transition-colors cursor-pointer">
-                        Tutup
-                    </button>
+                <div class="pt-3 border-t border-gray-100 flex items-center justify-between gap-3">
+                    <template x-if="detailData.status === 'menunggu'">
+                        <div class="flex items-center gap-2">
+                            <button type="button" 
+                                    @click="modalDetailOpen = false; bukaModalSetuju(detailData.id, detailData.namaPemohon, detailData.namaFasilitas)"
+                                    class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                                <span>Setujui</span>
+                            </button>
+                            <button type="button" 
+                                    @click="modalDetailOpen = false; bukaModalTolak(detailData.id, detailData.namaPemohon, detailData.namaFasilitas)"
+                                    class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs sm:text-sm flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs">
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                                <span>Tolak</span>
+                            </button>
+                        </div>
+                    </template>
+                    <div class="ml-auto">
+                        <button type="button" @click="modalDetailOpen = false" 
+                                class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs sm:text-sm transition-colors cursor-pointer">
+                            Tutup
+                        </button>
+                    </div>
                 </div>
 
             </div>
