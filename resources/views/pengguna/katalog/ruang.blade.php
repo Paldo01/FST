@@ -485,11 +485,11 @@
                                 </div>
                             </div>
 
-                            <!-- 5. Berkas Persyaratan -->
+                            <!-- 5. Berkas Persyaratan (Wajib) -->
                             <div>
                                 <label class="flex items-center gap-2 text-xs sm:text-sm font-bold text-gray-900 mb-1.5">
                                     <i data-lucide="paperclip" class="w-4 h-4 text-gray-800 shrink-0"></i>
-                                    <span>Berkas Persyaratan (Surat Peminjaman)</span>
+                                    <span>Berkas Persyaratan (Surat Peminjaman) <span class="text-red-500">*</span></span>
                                 </label>
                                 <div class="flex items-center gap-3 px-3 py-2 bg-white border border-gray-200 rounded-xl focus-within:ring-2 focus-within:ring-[#801414]/20 focus-within:border-[#801414] transition-all">
                                     <label class="cursor-pointer shrink-0 px-3.5 py-1.5 bg-[#FEE2E2] hover:bg-[#FCD8D8] text-[#801414] text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 select-none">
@@ -497,6 +497,7 @@
                                         <input type="file" 
                                                name="berkas_persyaratan" 
                                                accept=".pdf" 
+                                               required
                                                @change="fileName = $event.target.files[0] ? $event.target.files[0].name : ''" 
                                                class="hidden">
                                     </label>
@@ -512,7 +513,10 @@
                                         <i data-lucide="x" class="w-3.5 h-3.5"></i>
                                     </button>
                                 </div>
-                                <p class="text-[11px] text-gray-400 mt-1 pl-1">Opsional. Format PDF maksimal 5MB.</p>
+                                <p class="text-[11px] text-gray-500 mt-1 pl-1 font-medium"><span class="text-red-500 font-bold">*Wajib diunggah.</span> Format PDF maksimal 5MB.</p>
+                                @error('berkas_persyaratan')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
 
                         </div>

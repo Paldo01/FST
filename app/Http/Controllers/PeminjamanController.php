@@ -153,7 +153,12 @@ class PeminjamanController extends Controller
             'tanggal_selesai' => 'required|date|after:tanggal_mulai',
             'tujuan_peminjaman' => 'required|string|max:1000',
             'jumlah_peserta' => 'nullable|integer|min:1',
-            'berkas_persyaratan' => 'nullable|file|mimes:pdf|max:5120',
+            'berkas_persyaratan' => 'required|file|mimes:pdf|max:5120',
+        ], [
+            'berkas_persyaratan.required' => 'Berkas persyaratan (surat peminjaman) wajib diunggah.',
+            'berkas_persyaratan.file' => 'Berkas persyaratan harus berupa file.',
+            'berkas_persyaratan.mimes' => 'Berkas persyaratan harus berformat PDF.',
+            'berkas_persyaratan.max' => 'Ukuran berkas persyaratan maksimal 5MB.',
         ]);
 
         // Conflict checking: cek jadwal ganda
