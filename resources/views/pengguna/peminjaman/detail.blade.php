@@ -66,6 +66,16 @@
                     </div>
                 </div>
             </div>
+        @elseif($peminjaman->status_pengajuan === 'disetujui' && $peminjaman->catatan_persetujuan)
+            <div class="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-lg">
+                <div class="flex items-start gap-3">
+                    <i data-lucide="info" class="w-5 h-5 text-emerald-600 mt-0.5 shrink-0"></i>
+                    <div>
+                        <h4 class="text-emerald-800 font-bold mb-1">Catatan Persetujuan dari Admin</h4>
+                        <p class="text-emerald-700 text-sm">{{ $peminjaman->catatan_persetujuan }}</p>
+                    </div>
+                </div>
+            </div>
         @endif
 
         @if($peminjaman->pengembalian)

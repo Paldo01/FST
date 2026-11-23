@@ -238,6 +238,10 @@
                                 <div class="p-2.5 rounded-xl bg-red-50 border border-red-200 text-xs text-red-800">
                                     <span class="font-bold">Alasan Penolakan:</span> {{ $p->alasan_penolakan }}
                                 </div>
+                            @elseif($p->status_pengajuan === 'disetujui' && $p->catatan_persetujuan)
+                                <div class="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800">
+                                    <span class="font-bold">Catatan Admin:</span> {{ $p->catatan_persetujuan }}
+                                </div>
                             @endif
                         </div>
                     </div>

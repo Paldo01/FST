@@ -258,16 +258,33 @@ class PeminjamanController extends Controller
         return view('admin.verifikasi.index', compact('pengajuan'));
     }
 
-    public function setujui(Peminjaman $peminjaman)
+    public function setujui(Request $request, Peminjaman $peminjaman)
     {
-        $peminjaman->update(['status_pengajuan' => 'disetujui']);
+        $request->validate([
+            'catatan_persetujuan' => 'nullable|string|max:500',
+        ]);
+
+        $peminjaman->update([
+            'status_pengajuan' => 'disetujui',
+            'catatan_persetujuan' => $request->catatan_persetujuan,
+        ]);
+
+        $pesanNotif = 'Pengajuan peminjaman #' . $peminjaman->id . ' telah disetujui.';
+        if ($request->filled('catatan_persetujuan')) {
+            $pesanNotif .= ' Catatan: ' . $request->catatan_persetujuan;
+        }
+
         $peminjaman->pengguna->notify(new SystemNotification(
             'Peminjaman disetujui',
-            'Pengajuan peminjaman #' . $peminjaman->id . ' telah disetujui.',
+            $pesanNotif,
             route('peminjaman.status', absolute: false),
         ));
 
-        LogAktivitas::catat('setujui_peminjaman', 'Menyetujui peminjaman #' . $peminjaman->id . ' oleh ' . $peminjaman->pengguna->nama_lengkap);
+        $logMsg = 'Menyetujui peminjaman #' . $peminjaman->id . ' oleh ' . $peminjaman->pengguna->nama_lengkap;
+        if ($request->filled('catatan_persetujuan')) {
+            $logMsg .= ' (Catatan: ' . $request->catatan_persetujuan . ')';
+        }
+        LogAktivitas::catat('setujui_peminjaman', $logMsg);
 
         return back()->with('pesan_sukses', 'Peminjaman berhasil disetujui!');
     }
@@ -276,6 +293,9 @@ class PeminjamanController extends Controller
     {
         $request->validate([
             'alasan_penolakan' => 'required|string|max:500',
+        ], [
+            'alasan_penolakan.required' => 'Alasan penolakan wajib diisi.',
+            'alasan_penolakan.max' => 'Alasan penolakan maksimal 500 karakter.',
         ]);
 
         $peminjaman->update([

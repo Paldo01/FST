@@ -19,6 +19,7 @@ class Peminjaman extends Model
         'jumlah_peserta',
         'status_pengajuan',
         'alasan_penolakan',
+        'catatan_persetujuan',
         'berkas_persyaratan',
     ];
 

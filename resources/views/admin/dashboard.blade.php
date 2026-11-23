@@ -237,7 +237,7 @@
                 @csrf
                 <div>
                     <label for="alasan_penolakan" class="block text-xs font-semibold text-gray-700 mb-1">
-                        Alasan Penolakan <span class="text-rose-500">*</span>
+                        Alasan Penolakan <span class="text-rose-500 font-bold">* (Wajib diisi)</span>
                     </label>
                     <textarea name="alasan_penolakan" id="alasan_penolakan" required rows="3"
                               class="w-full p-3 border border-gray-300 rounded-xl text-xs sm:text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all"

@@ -188,7 +188,7 @@
                             <!-- Aksi: Tombol Detail (Sesuai Mockup: Border Putih + Icon Eye) -->
                             <td class="py-3.5 px-5 text-center whitespace-nowrap">
                                 <button type="button" 
-                                        @click="bukaModalDetail({{ $p->id }}, '{{ addslashes($p->pengguna->nama_lengkap) }}', '{{ ucfirst($p->pengguna->jenis_pengguna ?? 'Mahasiswa') }}', '{{ $p->pengguna->nomor_identitas ?? '-' }}', '{{ $p->pengguna->nomor_telepon ?? '-' }}', '{{ $p->pengguna->email }}', '{{ addslashes($p->fasilitas->nama_fasilitas) }}', '{{ $p->fasilitas->kode_fasilitas }}', '{{ $p->fasilitas->kategori->nama_kategori ?? '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->translatedFormat('d F Y') : '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->format('H.i') : '' }} - {{ $p->tanggal_selesai ? $p->tanggal_selesai->format('H.i') : '' }}', '{{ addslashes($p->tujuan_peminjaman) }}', '{{ $p->status_pengajuan }}', '{{ addslashes($p->alasan_penolakan ?? '') }}', '{{ $p->berkas_persyaratan ? Storage::url($p->berkas_persyaratan) : '' }}', '{{ $p->created_at ? $p->created_at->translatedFormat('d F Y, H.i') : '-' }}', '{{ $p->pengembalian ? $p->pengembalian->tanggal_pengembalian->translatedFormat('d F Y, H.i') : '-' }}', '{{ $p->pengembalian ? ucfirst($p->pengembalian->kondisi_akhir) : '-' }}', '{{ addslashes($p->pengembalian->catatan_admin ?? '-') }}')"
+                                        @click="bukaModalDetail({{ $p->id }}, '{{ addslashes($p->pengguna->nama_lengkap) }}', '{{ ucfirst($p->pengguna->jenis_pengguna ?? 'Mahasiswa') }}', '{{ $p->pengguna->nomor_identitas ?? '-' }}', '{{ $p->pengguna->nomor_telepon ?? '-' }}', '{{ $p->pengguna->email }}', '{{ addslashes($p->fasilitas->nama_fasilitas) }}', '{{ $p->fasilitas->kode_fasilitas }}', '{{ $p->fasilitas->kategori->nama_kategori ?? '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->translatedFormat('d F Y') : '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->format('H.i') : '' }} - {{ $p->tanggal_selesai ? $p->tanggal_selesai->format('H.i') : '' }}', '{{ addslashes($p->tujuan_peminjaman) }}', '{{ $p->status_pengajuan }}', '{{ addslashes($p->alasan_penolakan ?? '') }}', '{{ $p->berkas_persyaratan ? Storage::url($p->berkas_persyaratan) : '' }}', '{{ $p->created_at ? $p->created_at->translatedFormat('d F Y, H.i') : '-' }}', '{{ $p->pengembalian ? $p->pengembalian->tanggal_pengembalian->translatedFormat('d F Y, H.i') : '-' }}', '{{ $p->pengembalian ? ucfirst($p->pengembalian->kondisi_akhir) : '-' }}', '{{ addslashes($p->pengembalian->catatan_admin ?? '-') }}', '{{ addslashes($p->catatan_persetujuan ?? '') }}')"
                                         class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-semibold text-xs transition-all shadow-2xs active:scale-95 cursor-pointer">
                                     <i data-lucide="eye" class="w-3.5 h-3.5 text-gray-500"></i>
                                     <span>Detail</span>
@@ -350,6 +350,12 @@
                                 <span class="text-xs text-red-800 italic" x-text="detailData.alasanPenolakan"></span>
                             </div>
                         </template>
+                        <template x-if="detailData.status === 'disetujui' && detailData.catatanPersetujuan">
+                            <div class="text-right max-w-xs">
+                                <span class="text-[11px] font-bold text-emerald-600 block">Catatan Persetujuan:</span>
+                                <span class="text-xs text-emerald-800 italic" x-text="detailData.catatanPersetujuan"></span>
+                            </div>
+                        </template>
                         <template x-if="detailData.status === 'selesai'">
                             <div class="text-right">
                                 <span class="text-[11px] font-bold text-blue-600 block">Dikembalikan:</span>
@@ -399,10 +405,11 @@
                 diajukanPada: '',
                 tglPengembalian: '',
                 kondisiAkhir: '',
-                catatanPengembalian: ''
+                catatanPengembalian: '',
+                catatanPersetujuan: ''
             },
 
-            bukaModalDetail(id, namaPemohon, jenisPemohon, nomorIdentitas, nomorTelepon, email, namaFasilitas, kodeFasilitas, kategori, tanggal, waktu, keperluan, status, alasanPenolakan, berkasUrl, diajukanPada, tglPengembalian, kondisiAkhir, catatanPengembalian) {
+            bukaModalDetail(id, namaPemohon, jenisPemohon, nomorIdentitas, nomorTelepon, email, namaFasilitas, kodeFasilitas, kategori, tanggal, waktu, keperluan, status, alasanPenolakan, berkasUrl, diajukanPada, tglPengembalian, kondisiAkhir, catatanPengembalian, catatanPersetujuan = '') {
                 this.detailData = {
                     id: id,
                     namaPemohon: namaPemohon,
@@ -422,7 +429,8 @@
                     diajukanPada: diajukanPada,
                     tglPengembalian: tglPengembalian,
                     kondisiAkhir: kondisiAkhir,
-                    catatanPengembalian: catatanPengembalian
+                    catatanPengembalian: catatanPengembalian,
+                    catatanPersetujuan: catatanPersetujuan
                 };
                 this.modalDetailOpen = true;
                 this.$nextTick(() => { if (window.lucide) lucide.createIcons(); });
