@@ -146,22 +146,7 @@
                                 <span class="font-medium text-gray-800 truncate">{{ $p->tujuan_peminjaman }}</span>
                             </div>
 
-                            <!-- Berkas Persyaratan -->
-                            <div class="flex items-center gap-2">
-                                <i data-lucide="paperclip" class="w-4 h-4 text-gray-500 shrink-0"></i>
-                                <span class="text-gray-500 font-medium w-24 shrink-0">Berkas</span>
-                                <span class="text-gray-400 font-medium">:</span>
-                                @if($p->berkas_persyaratan)
-                                    <a href="{{ Storage::url($p->berkas_persyaratan) }}" target="_blank" 
-                                       class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-red-50 hover:bg-red-100 text-[#801414] border border-red-200/80 rounded-lg text-xs font-bold transition-all shadow-2xs hover:shadow-xs cursor-pointer">
-                                        <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
-                                        <span>Review Surat (PDF)</span>
-                                        <i data-lucide="external-link" class="w-3 h-3 text-[#801414]/70"></i>
-                                    </a>
-                                @else
-                                    <span class="text-xs text-gray-400 italic">Tidak ada berkas</span>
-                                @endif
-                            </div>
+
                         </div>
 
                         <!-- Divider Kolom 2 ke 3 -->
