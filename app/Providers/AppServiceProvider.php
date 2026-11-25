@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
         // Bagikan data pengaturan website ke semua view Blade
         View::composer('*', function ($view) {
             $view->with([
-                'appNamaWebsite'      => Pengaturan::get('nama_website', 'Sistem Peminjaman FST'),
+                'appNamaWebsite'      => Pengaturan::get('nama_website', 'SIMORA FST'),
                 'appSubNamaWebsite'   => Pengaturan::get('sub_nama_website', 'Sistem'),
                 'appWarnaNamaWebsite' => Pengaturan::get('warna_nama_website', '#801414'),
                 'appDeskripsi'        => Pengaturan::get('deskripsi_website', 'Sistem Manajemen Peminjaman Ruang dan Alat Fakultas Sains dan Teknologi UIN Imam Bonjol Padang'),

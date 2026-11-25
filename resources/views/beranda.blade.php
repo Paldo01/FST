@@ -1,6 +1,5 @@
 @extends('layouts.guest')
 
-@section('title', 'Beranda - ' . ($appNamaWebsite ?? 'SIMORA FST'))
 @section('main_class', 'w-full flex-1')
 
 @push('styles')

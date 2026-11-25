@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard') - {{ $appNamaWebsite ?? 'SIMORA FST' }}</title>
+    <title>{{ $appNamaWebsite ?? 'SIMORA FST' }}</title>
     <link rel="icon" type="image/png" href="{{ $appFavicon ?? asset('images/logo-fst.png') }}">
     <meta name="description" content="{{ $appDeskripsi ?? 'Sistem Manajemen Peminjaman Ruang dan Alat' }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
