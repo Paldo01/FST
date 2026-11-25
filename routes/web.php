@@ -62,6 +62,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/peminjaman/status', [PeminjamanController::class, 'status'])->name('peminjaman.status');
         Route::get('/peminjaman/riwayat', [PeminjamanController::class, 'riwayat'])->name('peminjaman.riwayat');
         Route::post('/peminjaman/{peminjaman}/batalkan', [PeminjamanController::class, 'batalkan'])->name('peminjaman.batalkan');
+        Route::get('/peminjaman/{peminjaman}/batalkan', fn() => redirect()->route('peminjaman.status'));
         Route::resource('peminjaman', PeminjamanController::class)->only(['index', 'create', 'store', 'show']);
         Route::post('/api/cek-ketersediaan', [PeminjamanController::class, 'cekKetersediaan'])->name('api.cek_ketersediaan');
         
@@ -97,6 +98,8 @@ Route::middleware('auth')->group(function () {
         Route::get('verifikasi', [PeminjamanController::class, 'verifikasiIndex'])->name('verifikasi.index');
         Route::post('verifikasi/{peminjaman}/setujui', [PeminjamanController::class, 'setujui'])->name('verifikasi.setujui');
         Route::post('verifikasi/{peminjaman}/tolak', [PeminjamanController::class, 'tolak'])->name('verifikasi.tolak');
+        Route::get('verifikasi/{peminjaman}/setujui', fn() => redirect()->route('admin.verifikasi.index'));
+        Route::get('verifikasi/{peminjaman}/tolak', fn() => redirect()->route('admin.verifikasi.index'));
 
         // Pengembalian
         Route::get('pengembalian', [PengembalianController::class, 'index'])->name('pengembalian.index');
