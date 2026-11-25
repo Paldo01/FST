@@ -37,11 +37,14 @@ class PeminjamanController extends Controller
             ->whereIn('status_pengajuan', ['selesai', 'ditolak', 'dibatalkan'])
             ->count();
 
+        $reputasiAkun = auth()->user()->reputasi_prioritas;
+
         return view('pengguna.peminjaman.status', compact(
             'peminjamanAktif',
             'countMenunggu',
             'countDisetujui',
-            'countRiwayat'
+            'countRiwayat',
+            'reputasiAkun'
         ));
     }
 
@@ -118,8 +121,17 @@ class PeminjamanController extends Controller
 
         LogAktivitas::catat('batalkan_peminjaman', 'Membatalkan pengajuan peminjaman: ' . $peminjaman->kode_peminjaman);
 
+        // Evaluasi reputasi pembatalan setelah pembatalan disimpan
+        $jumlahBatal = auth()->user()->jumlah_pembatalan;
+        $pesanSukses = 'Pengajuan peminjaman berhasil dibatalkan.';
+        if ($jumlahBatal >= 4) {
+            $pesanSukses .= ' Perhatian: Anda telah membatalkan ' . $jumlahBatal . ' peminjaman dalam 60 hari terakhir sehingga prioritas akun Anda berada pada tingkat terendah.';
+        } elseif ($jumlahBatal === 3) {
+            $pesanSukses .= ' Perhatian: Anda telah membatalkan 3 peminjaman dalam 60 hari terakhir sehingga prioritas akun Anda diturunkan.';
+        }
+
         return redirect()->route('peminjaman.status')
-            ->with('pesan_sukses', 'Pengajuan peminjaman berhasil dibatalkan.');
+            ->with('pesan_sukses', $pesanSukses);
     }
 
     public function create(Request $request)
@@ -228,7 +240,26 @@ class PeminjamanController extends Controller
 
     public function verifikasiIndex(Request $request)
     {
-        $query = Peminjaman::with(['pengguna', 'fasilitas.kategori']);
+        $cutoff = now()->subDays(60)->toDateTimeString();
+
+        $query = Peminjaman::with(['pengguna', 'fasilitas.kategori'])
+            ->join('pengguna', 'peminjaman.pengguna_id', '=', 'pengguna.id')
+            ->select('peminjaman.*')
+            ->selectRaw("
+                (SELECT COUNT(*) FROM peminjaman AS p_sub 
+                 WHERE p_sub.pengguna_id = peminjaman.pengguna_id 
+                   AND p_sub.status_pengajuan = 'dibatalkan' 
+                   AND p_sub.updated_at >= '{$cutoff}') AS batal_count
+            ")
+            ->selectRaw("
+                CASE 
+                    WHEN (SELECT COUNT(*) FROM peminjaman AS p_sub WHERE p_sub.pengguna_id = peminjaman.pengguna_id AND p_sub.status_pengajuan = 'dibatalkan' AND p_sub.updated_at >= '{$cutoff}') >= 4 THEN 10
+                    WHEN (SELECT COUNT(*) FROM peminjaman AS p_sub WHERE p_sub.pengguna_id = peminjaman.pengguna_id AND p_sub.status_pengajuan = 'dibatalkan' AND p_sub.updated_at >= '{$cutoff}') = 3 AND pengguna.jenis_pengguna = 'dosen' THEN 50
+                    WHEN (SELECT COUNT(*) FROM peminjaman AS p_sub WHERE p_sub.pengguna_id = peminjaman.pengguna_id AND p_sub.status_pengajuan = 'dibatalkan' AND p_sub.updated_at >= '{$cutoff}') = 3 THEN 30
+                    WHEN pengguna.jenis_pengguna = 'dosen' THEN 100
+                    ELSE 80
+                END AS skor_prioritas
+            ");
 
         // Filter Pencarian (nama peminjam, nomor identitas, atau nama fasilitas)
         if ($request->filled('cari')) {
@@ -245,15 +276,35 @@ class PeminjamanController extends Controller
 
         // Filter Status Pengajuan
         if ($request->filled('status')) {
-            $query->where('status_pengajuan', $request->status);
+            $query->where('peminjaman.status_pengajuan', $request->status);
+        }
+
+        // Filter Prioritas
+        if ($request->filled('prioritas')) {
+            $prioritas = $request->prioritas;
+            if ($prioritas === 'dosen') {
+                $query->where('pengguna.jenis_pengguna', 'dosen')
+                      ->whereRaw("(SELECT COUNT(*) FROM peminjaman AS p_sub WHERE p_sub.pengguna_id = peminjaman.pengguna_id AND p_sub.status_pengajuan = 'dibatalkan' AND p_sub.updated_at >= '{$cutoff}') < 3");
+            } elseif ($prioritas === 'normal') {
+                $query->where('pengguna.jenis_pengguna', '!=', 'dosen')
+                      ->whereRaw("(SELECT COUNT(*) FROM peminjaman AS p_sub WHERE p_sub.pengguna_id = peminjaman.pengguna_id AND p_sub.status_pengajuan = 'dibatalkan' AND p_sub.updated_at >= '{$cutoff}') < 3");
+            } elseif ($prioritas === 'perhatian') {
+                $query->whereRaw("(SELECT COUNT(*) FROM peminjaman AS p_sub WHERE p_sub.pengguna_id = peminjaman.pengguna_id AND p_sub.status_pengajuan = 'dibatalkan' AND p_sub.updated_at >= '{$cutoff}') = 3");
+            } elseif ($prioritas === 'rendah') {
+                $query->whereRaw("(SELECT COUNT(*) FROM peminjaman AS p_sub WHERE p_sub.pengguna_id = peminjaman.pengguna_id AND p_sub.status_pengajuan = 'dibatalkan' AND p_sub.updated_at >= '{$cutoff}') >= 4");
+            }
         }
 
         // Filter Tanggal
         if ($request->filled('tanggal')) {
-            $query->whereDate('tanggal_mulai', $request->tanggal);
+            $query->whereDate('peminjaman.tanggal_mulai', $request->tanggal);
         }
 
-        $pengajuan = $query->latest('id')->paginate(10)->withQueryString();
+        $pengajuan = $query->orderByRaw("CASE WHEN peminjaman.status_pengajuan = 'menunggu' THEN 0 ELSE 1 END")
+            ->orderByDesc('skor_prioritas')
+            ->latest('peminjaman.id')
+            ->paginate(10)
+            ->withQueryString();
 
         return view('admin.verifikasi.index', compact('pengajuan'));
     }

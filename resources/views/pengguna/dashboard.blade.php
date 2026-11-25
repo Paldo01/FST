@@ -11,6 +11,17 @@
         <p class="text-xs sm:text-sm text-gray-500 font-medium mt-1.5">
             Kelola peminjaman ruang dan alat dengan mudah.
         </p>
+        @php
+            $repUser = auth()->user()->reputasi_prioritas;
+        @endphp
+        <div class="mt-3.5 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold border {{ $repUser['badge_class'] }}"
+             title="{{ $repUser['keterangan'] }}">
+            <i data-lucide="{{ $repUser['icon'] }}" class="w-3.5 h-3.5"></i>
+            <span>Status Akun: {{ $repUser['label'] }}</span>
+            @if($repUser['jumlah_batal'] > 0)
+                <span class="opacity-80">({{ $repUser['jumlah_batal'] }}x batal)</span>
+            @endif
+        </div>
     </div>
 
     <!-- 2 Kartu Katalog Fasilitas (Sesuai Mockup) -->

@@ -12,6 +12,36 @@
         </p>
     </div>
 
+    <!-- Banner Status Prioritas & Reputasi Akun -->
+    @php
+        $repUser = $reputasiAkun ?? auth()->user()->reputasi_prioritas;
+    @endphp
+    <div class="rounded-2xl border p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all {{ $repUser['tingkat'] === 'rendah' ? 'bg-rose-50/90 border-rose-200 text-rose-950' : ($repUser['tingkat'] === 'perhatian' ? 'bg-amber-50/90 border-amber-200 text-amber-950' : 'bg-emerald-50/80 border-emerald-200 text-emerald-950') }}">
+        <div class="flex items-start sm:items-center gap-3.5">
+            <div class="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 shadow-2xs {{ $repUser['tingkat'] === 'rendah' ? 'bg-rose-100 text-rose-700 border border-rose-200' : ($repUser['tingkat'] === 'perhatian' ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-emerald-100 text-emerald-800 border border-emerald-200') }}">
+                <i data-lucide="{{ $repUser['icon'] }}" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+            </div>
+            <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Kredibilitas Akun:</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-xs font-black border {{ $repUser['badge_class'] }}">
+                        {{ $repUser['label'] }}
+                    </span>
+                    @if($repUser['jumlah_batal'] > 0)
+                        <span class="text-xs font-semibold text-gray-600">({{ $repUser['jumlah_batal'] }}x batal dalam 60 hari)</span>
+                    @endif
+                </div>
+                <p class="text-xs sm:text-sm mt-1 font-medium text-gray-700">
+                    {{ $repUser['keterangan'] }}
+                </p>
+            </div>
+        </div>
+        <div class="text-left sm:text-right shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-200/50 w-full sm:w-auto">
+            <span class="text-[11px] font-semibold text-gray-500 block">Sistem Antrean Prioritas</span>
+            <span class="text-xs font-bold text-gray-700">Toleransi batal: maks 2x</span>
+        </div>
+    </div>
+
     <!-- Tab Navigasi Turunan (Status vs Riwayat) -->
     <div class="flex items-center gap-2 p-1.5 bg-gray-100/80 rounded-2xl border border-gray-200/70 w-full sm:w-fit">
         <!-- Tab 1: Status Peminjaman (Aktif) -->
@@ -227,7 +257,7 @@
 
                         <div class="flex items-center gap-2 self-end sm:self-auto">
                             @if($isMenunggu)
-                                <form method="POST" action="{{ route('peminjaman.batalkan', $p->id) }}" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pengajuan ini?')">
+                                <form method="POST" action="{{ route('peminjaman.batalkan', $p->id) }}" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pengajuan ini?\n\nPerhatian: Membatalkan peminjaman lebih dari 2 kali dalam 60 hari akan menurunkan prioritas akun Anda pada antrean pengajuan berikutnya.')">
                                     @csrf
                                     <button type="submit" 
                                             class="px-4 py-2 bg-white hover:bg-red-50 text-red-600 border border-red-200 text-xs font-bold rounded-xl transition cursor-pointer">

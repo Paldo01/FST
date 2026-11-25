@@ -50,4 +50,22 @@ class Peminjaman extends Model
     {
         return $this->hasOne(UlasanLayanan::class, 'peminjaman_id');
     }
+
+    /**
+     * Dapatkan detail reputasi dan prioritas dari pemohon peminjaman ini.
+     */
+    public function getReputasiPemohonAttribute(): array
+    {
+        return $this->pengguna ? $this->pengguna->reputasi_prioritas : [
+            'tingkat'      => 'normal',
+            'label'        => 'Prioritas Normal',
+            'badge_class'  => 'bg-gray-100 text-gray-700 border-gray-200',
+            'badge_label'  => 'Normal',
+            'icon'         => 'check-circle-2',
+            'warna'        => 'gray',
+            'skor_antrean' => 80,
+            'keterangan'   => '',
+            'jumlah_batal' => 0,
+        ];
+    }
 }

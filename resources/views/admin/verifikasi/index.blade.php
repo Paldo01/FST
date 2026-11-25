@@ -25,7 +25,7 @@
             </div>
 
             <!-- Dropdown Semua Status -->
-            <div class="relative md:w-52 shrink-0">
+            <div class="relative md:w-44 shrink-0">
                 <select name="status" 
                         class="w-full appearance-none px-4 py-2.5 sm:py-3 bg-white border border-gray-200/90 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#801414]/15 focus:border-[#801414] transition-all shadow-2xs cursor-pointer pr-10">
                     <option value="">Semua Status</option>
@@ -37,8 +37,21 @@
                 <i data-lucide="chevron-down" class="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
             </div>
 
-            <!-- Filter Tanggal (Pilih Tanggal) -->
+            <!-- Dropdown Prioritas Akun -->
             <div class="relative md:w-48 shrink-0">
+                <select name="prioritas" 
+                        class="w-full appearance-none px-4 py-2.5 sm:py-3 bg-white border border-gray-200/90 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#801414]/15 focus:border-[#801414] transition-all shadow-2xs cursor-pointer pr-10">
+                    <option value="">Semua Prioritas</option>
+                    <option value="dosen" {{ request('prioritas') === 'dosen' ? 'selected' : '' }}>Prioritas Dosen</option>
+                    <option value="normal" {{ request('prioritas') === 'normal' ? 'selected' : '' }}>Prioritas Normal</option>
+                    <option value="perhatian" {{ request('prioritas') === 'perhatian' ? 'selected' : '' }}>Diturunkan (Batal 3x)</option>
+                    <option value="rendah" {{ request('prioritas') === 'rendah' ? 'selected' : '' }}>Prioritas Rendah (Batal 4x+)</option>
+                </select>
+                <i data-lucide="chevron-down" class="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"></i>
+            </div>
+
+            <!-- Filter Tanggal (Pilih Tanggal) -->
+            <div class="relative md:w-44 shrink-0">
                 <input type="date" name="tanggal" value="{{ request('tanggal') }}" 
                        placeholder="Pilih Tanggal"
                        class="w-full px-4 py-2.5 sm:py-3 bg-white border border-gray-200/90 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold text-gray-700 focus:outline-none focus:ring-2 focus:ring-[#801414]/15 focus:border-[#801414] transition-all shadow-2xs cursor-pointer">
@@ -52,9 +65,9 @@
             </button>
 
             <!-- Reset Filter Jika Sedang Ada Filter -->
-            @if(request()->hasAny(['cari', 'status', 'tanggal']))
+            @if(request()->hasAny(['cari', 'status', 'tanggal', 'prioritas']))
                 <a href="{{ route('admin.verifikasi.index') }}" 
-                   class="px-3.5 py-2.5 sm:py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center gap-1.5 shrink-0" title="Reset Filter">
+                    class="px-3.5 py-2.5 sm:py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold transition-colors flex items-center justify-center gap-1.5 shrink-0" title="Reset Filter">
                     <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
                     <span class="md:hidden lg:inline">Reset</span>
                 </a>
@@ -101,6 +114,16 @@
                                     <span class="text-gray-300 mx-1">|</span> 
                                     <span>{{ ($p->pengguna->jenis_pengguna === 'dosen') ? 'FST' : 'Sistem Informasi' }}</span>
                                 </p>
+                                @php
+                                    $rep = $p->reputasi_pemohon;
+                                @endphp
+                                <div class="mt-1.5 flex items-center gap-1.5 flex-wrap">
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold border {{ $rep['badge_class'] }}"
+                                          title="{{ $rep['keterangan'] }}">
+                                        <i data-lucide="{{ $rep['icon'] }}" class="w-3 h-3"></i>
+                                        <span>{{ $rep['badge_label'] }}</span>
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
@@ -181,7 +204,7 @@
 
                                 <!-- Tombol Review Detail & Berkas -->
                                 <button type="button" 
-                                        @click="bukaModalDetail({{ $p->id }}, '{{ addslashes($p->pengguna->nama_lengkap) }}', '{{ ucfirst($p->pengguna->jenis_pengguna ?? 'Mahasiswa') }}', '{{ $p->pengguna->nomor_identitas ?? '-' }}', '{{ $p->pengguna->nomor_telepon ?? '-' }}', '{{ $p->pengguna->email }}', '{{ addslashes($p->fasilitas->nama_fasilitas) }}', '{{ $p->fasilitas->kode_fasilitas }}', '{{ $p->fasilitas->kategori->nama_kategori ?? '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->translatedFormat('d F Y') : '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->format('H.i') : '' }} - {{ $p->tanggal_selesai ? $p->tanggal_selesai->format('H.i') : '' }}', '{{ addslashes($p->tujuan_peminjaman) }}', '{{ $p->status_pengajuan }}', '{{ addslashes($p->alasan_penolakan ?? '') }}', '{{ $p->berkas_persyaratan ? Storage::url($p->berkas_persyaratan) : '' }}', '{{ $p->created_at ? $p->created_at->translatedFormat('d F Y, H.i') : '-' }}', '{{ addslashes($p->catatan_persetujuan ?? '') }}')"
+                                        @click="bukaModalDetail({{ $p->id }}, '{{ addslashes($p->pengguna->nama_lengkap) }}', '{{ ucfirst($p->pengguna->jenis_pengguna ?? 'Mahasiswa') }}', '{{ $p->pengguna->nomor_identitas ?? '-' }}', '{{ $p->pengguna->nomor_telepon ?? '-' }}', '{{ $p->pengguna->email }}', '{{ addslashes($p->fasilitas->nama_fasilitas) }}', '{{ $p->fasilitas->kode_fasilitas }}', '{{ $p->fasilitas->kategori->nama_kategori ?? '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->translatedFormat('d F Y') : '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->format('H.i') : '' }} - {{ $p->tanggal_selesai ? $p->tanggal_selesai->format('H.i') : '' }}', '{{ addslashes($p->tujuan_peminjaman) }}', '{{ $p->status_pengajuan }}', '{{ addslashes($p->alasan_penolakan ?? '') }}', '{{ $p->berkas_persyaratan ? Storage::url($p->berkas_persyaratan) : '' }}', '{{ $p->created_at ? $p->created_at->translatedFormat('d F Y, H.i') : '-' }}', '{{ addslashes($p->catatan_persetujuan ?? '') }}', '{{ addslashes($rep['label']) }}', '{{ $rep['badge_class'] }}', '{{ addslashes($rep['keterangan']) }}', {{ $rep['jumlah_batal'] }})"
                                         class="w-full text-center text-xs font-semibold text-gray-600 hover:text-[#801414] hover:underline flex items-center justify-center gap-1 transition-colors cursor-pointer pt-0.5">
                                     <i data-lucide="eye" class="w-3.5 h-3.5"></i>
                                     <span>Lihat Detail & Berkas</span>
@@ -196,7 +219,7 @@
 
                                 <!-- Tombol Lihat -> Sesuai Mockup -->
                                 <button type="button" 
-                                        @click="bukaModalDetail({{ $p->id }}, '{{ addslashes($p->pengguna->nama_lengkap) }}', '{{ ucfirst($p->pengguna->jenis_pengguna ?? 'Mahasiswa') }}', '{{ $p->pengguna->nomor_identitas ?? '-' }}', '{{ $p->pengguna->nomor_telepon ?? '-' }}', '{{ $p->pengguna->email }}', '{{ addslashes($p->fasilitas->nama_fasilitas) }}', '{{ $p->fasilitas->kode_fasilitas }}', '{{ $p->fasilitas->kategori->nama_kategori ?? '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->translatedFormat('d F Y') : '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->format('H.i') : '' }} - {{ $p->tanggal_selesai ? $p->tanggal_selesai->format('H.i') : '' }}', '{{ addslashes($p->tujuan_peminjaman) }}', '{{ $p->status_pengajuan }}', '{{ addslashes($p->alasan_penolakan ?? '') }}', '{{ $p->berkas_persyaratan ? Storage::url($p->berkas_persyaratan) : '' }}', '{{ $p->created_at ? $p->created_at->translatedFormat('d F Y, H.i') : '-' }}', '{{ addslashes($p->catatan_persetujuan ?? '') }}')"
+                                        @click="bukaModalDetail({{ $p->id }}, '{{ addslashes($p->pengguna->nama_lengkap) }}', '{{ ucfirst($p->pengguna->jenis_pengguna ?? 'Mahasiswa') }}', '{{ $p->pengguna->nomor_identitas ?? '-' }}', '{{ $p->pengguna->nomor_telepon ?? '-' }}', '{{ $p->pengguna->email }}', '{{ addslashes($p->fasilitas->nama_fasilitas) }}', '{{ $p->fasilitas->kode_fasilitas }}', '{{ $p->fasilitas->kategori->nama_kategori ?? '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->translatedFormat('d F Y') : '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->format('H.i') : '' }} - {{ $p->tanggal_selesai ? $p->tanggal_selesai->format('H.i') : '' }}', '{{ addslashes($p->tujuan_peminjaman) }}', '{{ $p->status_pengajuan }}', '{{ addslashes($p->alasan_penolakan ?? '') }}', '{{ $p->berkas_persyaratan ? Storage::url($p->berkas_persyaratan) : '' }}', '{{ $p->created_at ? $p->created_at->translatedFormat('d F Y, H.i') : '-' }}', '{{ addslashes($p->catatan_persetujuan ?? '') }}', '{{ addslashes($rep['label']) }}', '{{ $rep['badge_class'] }}', '{{ addslashes($rep['keterangan']) }}', {{ $rep['jumlah_batal'] }})"
                                         class="px-4 py-1.5 sm:py-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200/90 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition-all shadow-2xs active:scale-95 cursor-pointer">
                                     <span>Lihat</span>
                                     <i data-lucide="arrow-right" class="w-4 h-4"></i>
@@ -211,7 +234,7 @@
 
                                 <!-- Tombol Lihat -> Sesuai Mockup -->
                                 <button type="button" 
-                                        @click="bukaModalDetail({{ $p->id }}, '{{ addslashes($p->pengguna->nama_lengkap) }}', '{{ ucfirst($p->pengguna->jenis_pengguna ?? 'Mahasiswa') }}', '{{ $p->pengguna->nomor_identitas ?? '-' }}', '{{ $p->pengguna->nomor_telepon ?? '-' }}', '{{ $p->pengguna->email }}', '{{ addslashes($p->fasilitas->nama_fasilitas) }}', '{{ $p->fasilitas->kode_fasilitas }}', '{{ $p->fasilitas->kategori->nama_kategori ?? '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->translatedFormat('d F Y') : '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->format('H.i') : '' }} - {{ $p->tanggal_selesai ? $p->tanggal_selesai->format('H.i') : '' }}', '{{ addslashes($p->tujuan_peminjaman) }}', '{{ $p->status_pengajuan }}', '{{ addslashes($p->alasan_penolakan ?? '') }}', '{{ $p->berkas_persyaratan ? Storage::url($p->berkas_persyaratan) : '' }}', '{{ $p->created_at ? $p->created_at->translatedFormat('d F Y, H.i') : '-' }}', '{{ addslashes($p->catatan_persetujuan ?? '') }}')"
+                                        @click="bukaModalDetail({{ $p->id }}, '{{ addslashes($p->pengguna->nama_lengkap) }}', '{{ ucfirst($p->pengguna->jenis_pengguna ?? 'Mahasiswa') }}', '{{ $p->pengguna->nomor_identitas ?? '-' }}', '{{ $p->pengguna->nomor_telepon ?? '-' }}', '{{ $p->pengguna->email }}', '{{ addslashes($p->fasilitas->nama_fasilitas) }}', '{{ $p->fasilitas->kode_fasilitas }}', '{{ $p->fasilitas->kategori->nama_kategori ?? '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->translatedFormat('d F Y') : '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->format('H.i') : '' }} - {{ $p->tanggal_selesai ? $p->tanggal_selesai->format('H.i') : '' }}', '{{ addslashes($p->tujuan_peminjaman) }}', '{{ $p->status_pengajuan }}', '{{ addslashes($p->alasan_penolakan ?? '') }}', '{{ $p->berkas_persyaratan ? Storage::url($p->berkas_persyaratan) : '' }}', '{{ $p->created_at ? $p->created_at->translatedFormat('d F Y, H.i') : '-' }}', '{{ addslashes($p->catatan_persetujuan ?? '') }}', '{{ addslashes($rep['label']) }}', '{{ $rep['badge_class'] }}', '{{ addslashes($rep['keterangan']) }}', {{ $rep['jumlah_batal'] }})"
                                         class="px-4 py-1.5 sm:py-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200/90 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition-all shadow-2xs active:scale-95 cursor-pointer">
                                     <span>Lihat</span>
                                     <i data-lucide="arrow-right" class="w-4 h-4"></i>
@@ -225,7 +248,7 @@
                                 </span>
 
                                 <button type="button" 
-                                        @click="bukaModalDetail({{ $p->id }}, '{{ addslashes($p->pengguna->nama_lengkap) }}', '{{ ucfirst($p->pengguna->jenis_pengguna ?? 'Mahasiswa') }}', '{{ $p->pengguna->nomor_identitas ?? '-' }}', '{{ $p->pengguna->nomor_telepon ?? '-' }}', '{{ $p->pengguna->email }}', '{{ addslashes($p->fasilitas->nama_fasilitas) }}', '{{ $p->fasilitas->kode_fasilitas }}', '{{ $p->fasilitas->kategori->nama_kategori ?? '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->translatedFormat('d F Y') : '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->format('H.i') : '' }} - {{ $p->tanggal_selesai ? $p->tanggal_selesai->format('H.i') : '' }}', '{{ addslashes($p->tujuan_peminjaman) }}', '{{ $p->status_pengajuan }}', '{{ addslashes($p->alasan_penolakan ?? '') }}', '{{ $p->berkas_persyaratan ? Storage::url($p->berkas_persyaratan) : '' }}', '{{ $p->created_at ? $p->created_at->translatedFormat('d F Y, H.i') : '-' }}', '{{ addslashes($p->catatan_persetujuan ?? '') }}')"
+                                        @click="bukaModalDetail({{ $p->id }}, '{{ addslashes($p->pengguna->nama_lengkap) }}', '{{ ucfirst($p->pengguna->jenis_pengguna ?? 'Mahasiswa') }}', '{{ $p->pengguna->nomor_identitas ?? '-' }}', '{{ $p->pengguna->nomor_telepon ?? '-' }}', '{{ $p->pengguna->email }}', '{{ addslashes($p->fasilitas->nama_fasilitas) }}', '{{ $p->fasilitas->kode_fasilitas }}', '{{ $p->fasilitas->kategori->nama_kategori ?? '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->translatedFormat('d F Y') : '-' }}', '{{ $p->tanggal_mulai ? $p->tanggal_mulai->format('H.i') : '' }} - {{ $p->tanggal_selesai ? $p->tanggal_selesai->format('H.i') : '' }}', '{{ addslashes($p->tujuan_peminjaman) }}', '{{ $p->status_pengajuan }}', '{{ addslashes($p->alasan_penolakan ?? '') }}', '{{ $p->berkas_persyaratan ? Storage::url($p->berkas_persyaratan) : '' }}', '{{ $p->created_at ? $p->created_at->translatedFormat('d F Y, H.i') : '-' }}', '{{ addslashes($p->catatan_persetujuan ?? '') }}', '{{ addslashes($rep['label']) }}', '{{ $rep['badge_class'] }}', '{{ addslashes($rep['keterangan']) }}', {{ $rep['jumlah_batal'] }})"
                                         class="px-4 py-1.5 sm:py-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200/90 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-1.5 transition-all shadow-2xs active:scale-95 cursor-pointer">
                                     <span>Lihat</span>
                                     <i data-lucide="arrow-right" class="w-4 h-4"></i>
@@ -452,6 +475,24 @@
                                 <span class="text-gray-500 block text-[11px]">No. Telepon / WA</span>
                                 <span class="font-semibold text-gray-800" x-text="detailData.nomorTelepon"></span>
                             </div>
+                            <div class="col-span-2 pt-2 border-t border-gray-200/60 flex items-center justify-between gap-2 flex-wrap">
+                                <div>
+                                    <span class="text-gray-500 block text-[11px]">Tingkat Prioritas Akun</span>
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold border mt-0.5"
+                                          :class="detailData.prioritasBadgeClass"
+                                          x-text="detailData.prioritasLabel"></span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-gray-500 block text-[11px]">Riwayat Batal (60 Hari)</span>
+                                    <span class="text-xs font-bold text-gray-800" x-text="detailData.jumlahBatal + ' kali'"></span>
+                                </div>
+                            </div>
+                            <template x-if="detailData.prioritasKeterangan">
+                                <div class="col-span-2 text-[11px] text-gray-600 bg-white/80 p-2.5 rounded-xl border border-gray-200/70 font-medium">
+                                    <i data-lucide="info" class="w-3.5 h-3.5 inline text-amber-600 mr-1"></i>
+                                    <span x-text="detailData.prioritasKeterangan"></span>
+                                </div>
+                            </template>
                         </div>
                     </div>
 
@@ -599,7 +640,11 @@
                 alasanPenolakan: '',
                 catatanPersetujuan: '',
                 berkasUrl: '',
-                diajukanPada: ''
+                diajukanPada: '',
+                prioritasLabel: '',
+                prioritasBadgeClass: '',
+                prioritasKeterangan: '',
+                jumlahBatal: 0
             },
 
             bukaModalSetuju(id, namaPemohon, namaFasilitas) {
@@ -618,7 +663,7 @@
                 this.$nextTick(() => { if (window.lucide) lucide.createIcons(); });
             },
 
-            bukaModalDetail(id, namaPemohon, jenisPemohon, nomorIdentitas, nomorTelepon, email, namaFasilitas, kodeFasilitas, kategori, tanggal, waktu, keperluan, status, alasanPenolakan, berkasUrl, diajukanPada, catatanPersetujuan = '') {
+            bukaModalDetail(id, namaPemohon, jenisPemohon, nomorIdentitas, nomorTelepon, email, namaFasilitas, kodeFasilitas, kategori, tanggal, waktu, keperluan, status, alasanPenolakan, berkasUrl, diajukanPada, catatanPersetujuan = '', prioritasLabel = 'Prioritas Normal', prioritasBadgeClass = '', prioritasKeterangan = '', jumlahBatal = 0) {
                 this.detailData = {
                     id: id,
                     namaPemohon: namaPemohon,
@@ -636,7 +681,11 @@
                     alasanPenolakan: alasanPenolakan,
                     catatanPersetujuan: catatanPersetujuan,
                     berkasUrl: berkasUrl,
-                    diajukanPada: diajukanPada
+                    diajukanPada: diajukanPada,
+                    prioritasLabel: prioritasLabel,
+                    prioritasBadgeClass: prioritasBadgeClass,
+                    prioritasKeterangan: prioritasKeterangan,
+                    jumlahBatal: jumlahBatal
                 };
                 this.modalDetailOpen = true;
                 this.$nextTick(() => { if (window.lucide) lucide.createIcons(); });
