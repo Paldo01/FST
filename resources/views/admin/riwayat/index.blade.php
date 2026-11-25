@@ -1,7 +1,4 @@
 @extends('layouts.app')
-
-@section('title', 'Riwayat Peminjaman - Sistem Peminjaman FST')
-
 @section('content')
 <div class="space-y-6 pb-12 pt-1 sm:pt-2" x-data="riwayatHandler()">
 

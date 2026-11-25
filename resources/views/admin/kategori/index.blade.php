@@ -1,6 +1,4 @@
 @extends('layouts.app')
-
-@section('title', 'Kategori Fasilitas')
 @section('header', 'Kelola Kategori')
 @section('description', 'Manajemen kategori untuk ruangan dan peralatan.')
 

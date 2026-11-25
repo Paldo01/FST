@@ -1,6 +1,5 @@
 @extends('layouts.guest')
-
-@section('title', ($appNamaWebsite ?? 'Sistem Peminjaman FST') . ' - Masuk')
+. ' - Masuk')
 
 @section('no_nav', true)
 @section('no_footer', true)
@@ -31,7 +30,7 @@
         </div>
         <h1 class="text-xl sm:text-2xl font-black tracking-tight leading-snug"
             style="color: {{ $appWarnaNamaWebsite ?? '#801414' }};">
-            {{ $appNamaWebsite ?? 'Sistem Peminjaman FST' }}
+            {{ $appNamaWebsite ?? 'SIMORA FST' }}
         </h1>
         <p class="text-xs sm:text-sm text-gray-500 font-medium mt-1">
             {{ $appSubNamaWebsite ?? 'Fakultas Sains dan Teknologi' }} - Masuk Akun

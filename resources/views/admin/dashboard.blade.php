@@ -1,7 +1,4 @@
 @extends('layouts.app')
-
-@section('title', 'Dashboard Admin')
-
 @section('content')
 <div class="space-y-7 pb-10" x-data="dashboardAdmin()">
     

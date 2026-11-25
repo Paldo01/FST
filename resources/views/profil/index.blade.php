@@ -1,6 +1,4 @@
 @extends('layouts.app')
-
-@section('title', 'Profil Pengguna')
 @section('header', 'Profil Saya')
 @section('description', 'Kelola informasi akun dan keamanan Anda.')
 

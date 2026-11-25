@@ -1,7 +1,4 @@
 @extends('layouts.app')
-
-@section('title', 'Pengajuan Peminjaman - Sistem Peminjaman FST')
-
 @section('content')
 <div class="space-y-6 pb-12" x-data="pengajuanHandler()">
 

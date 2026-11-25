@@ -1,6 +1,5 @@
 @extends('layouts.guest')
-
-@section('title', ($appNamaWebsite ?? 'Sistem Peminjaman FST') . ' - Buat Kata Sandi Baru')
+. ' - Buat Kata Sandi Baru')
 
 @section('no_nav', true)
 @section('no_footer', true)

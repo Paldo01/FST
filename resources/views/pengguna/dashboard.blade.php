@@ -1,7 +1,4 @@
 @extends('layouts.app')
-
-@section('title', 'Beranda - Sistem Peminjaman FST')
-
 @section('content')
 <div class="space-y-6 sm:space-y-7 pb-12 pt-2">
 

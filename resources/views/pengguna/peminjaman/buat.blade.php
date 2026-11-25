@@ -1,7 +1,4 @@
 @extends('layouts.app')
-
-@section('title', 'Ajukan Peminjaman - Sistem Peminjaman FST')
-
 @section('content')
 @php
     $semuaRuangan = $fasilitas->map(function($r) {

@@ -1,7 +1,4 @@
 @extends('layouts.app')
-
-@section('title', 'Feedback Sistem')
-
 @section('content')
 <div class="space-y-6 pb-10">
     <header>

@@ -1,7 +1,4 @@
 @extends('layouts.app')
-
-@section('title', 'Audit Log - Super Admin SIMORA FST')
-
 @section('content')
 @php
     $logsPayload = $logs->map(function ($log) {

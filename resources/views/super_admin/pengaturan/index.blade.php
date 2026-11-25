@@ -1,6 +1,4 @@
 @extends('layouts.app')
-
-@section('title', 'Pengaturan Website - Super Admin')
 @section('header', 'Pengaturan Website')
 @section('description', 'Kelola identitas, logo, warna, dan informasi umum sistem.')
 

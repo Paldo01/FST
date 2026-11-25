@@ -1,6 +1,5 @@
 @extends('layouts.guest')
-
-@section('title', ($appNamaWebsite ?? 'Sistem Peminjaman FST') . ' - Verifikasi OTP')
+. ' - Verifikasi OTP')
 
 @section('no_nav', true)
 @section('no_footer', true)

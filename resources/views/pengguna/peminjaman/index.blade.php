@@ -1,6 +1,4 @@
 @extends('layouts.app')
-
-@section('title', 'Riwayat Peminjaman')
 @section('header', 'Riwayat Peminjaman')
 @section('description', 'Daftar peminjaman Anda berdasarkan bulan dan tanggal.')
 

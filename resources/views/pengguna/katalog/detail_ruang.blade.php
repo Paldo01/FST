@@ -1,7 +1,4 @@
 @extends('layouts.app')
-
-@section('title', 'Detail Ruang - ' . $fasilitas->nama_fasilitas . ' - Sistem Peminjaman FST')
-
 @section('content')
 <div class="space-y-5 pb-12 pt-1 sm:pt-2" 
      x-data="{ 

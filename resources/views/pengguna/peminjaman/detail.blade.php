@@ -1,6 +1,4 @@
 @extends('layouts.app')
-
-@section('title', 'Detail Peminjaman #' . $peminjaman->id)
 @section('header', 'Detail Peminjaman')
 @section('description', 'Informasi lengkap mengenai status pengajuan fasilitas.')
 

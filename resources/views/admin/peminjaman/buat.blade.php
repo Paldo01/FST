@@ -1,7 +1,4 @@
 @extends('layouts.app')
-
-@section('title', 'Input Peminjaman Alat - Sistem Peminjaman FST')
-
 @section('content')
 <div class="space-y-6 pb-12 pt-1 sm:pt-2" x-data="inputPeminjamanAlatHandler()">
 

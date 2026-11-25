@@ -4,8 +4,6 @@
     $isEdit = isset($fasilitas);
     $action = $isEdit ? route('admin.fasilitas.update', $fasilitas->id) : route('admin.fasilitas.store');
 @endphp
-
-@section('title', $isEdit ? 'Edit Fasilitas' : 'Tambah Fasilitas')
 @section('header', $isEdit ? 'Edit Fasilitas' : 'Tambah Fasilitas Baru')
 @section('description', 'Lengkapi informasi fasilitas pada form di bawah ini.')
 

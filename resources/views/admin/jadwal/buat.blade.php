@@ -1,6 +1,4 @@
 @extends('layouts.app')
-
-@section('title', 'Input Jadwal Ruangan')
 @section('header', 'Input Jadwal Ruangan')
 @section('description', 'Masukkan jadwal penggunaan ruangan yang sudah disetujui secara langsung (misal: jadwal perkuliahan atau rapat rutin).')
 
