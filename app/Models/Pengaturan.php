@@ -39,7 +39,12 @@ class Pengaturan extends Model
     {
         $logoPath = static::get('logo');
         if ($logoPath && Storage::disk('public')->exists($logoPath)) {
-            return Storage::url($logoPath);
+            try {
+                $version = Storage::disk('public')->lastModified($logoPath);
+                return Storage::url($logoPath) . '?v=' . $version;
+            } catch (\Exception $e) {
+                return Storage::url($logoPath);
+            }
         }
         return asset('images/logo-fst.png');
     }
@@ -51,7 +56,12 @@ class Pengaturan extends Model
     {
         $faviconPath = static::get('favicon');
         if ($faviconPath && Storage::disk('public')->exists($faviconPath)) {
-            return Storage::url($faviconPath);
+            try {
+                $version = Storage::disk('public')->lastModified($faviconPath);
+                return Storage::url($faviconPath) . '?v=' . $version;
+            } catch (\Exception $e) {
+                return Storage::url($faviconPath);
+            }
         }
         return static::logoUrl();
     }

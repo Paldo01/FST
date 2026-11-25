@@ -71,6 +71,15 @@ class PengaturanController extends Controller
 
             $path = $request->file('logo')->store('pengaturan', 'public');
             Pengaturan::set('logo', $path);
+
+            // Jika super admin tidak mengunggah favicon secara terpisah, sinkronkan favicon dengan logo baru
+            if (!$request->hasFile('favicon')) {
+                $favSetting = Pengaturan::where('key', 'favicon')->first();
+                if ($favSetting && $favSetting->value && Storage::disk('public')->exists($favSetting->value)) {
+                    Storage::disk('public')->delete($favSetting->value);
+                }
+                Pengaturan::where('key', 'favicon')->delete();
+            }
         }
 
         // Simpan upload Favicon
@@ -82,6 +91,14 @@ class PengaturanController extends Controller
 
             $favPath = $request->file('favicon')->store('pengaturan', 'public');
             Pengaturan::set('favicon', $favPath);
+        }
+
+        // Bersihkan cache view dan aplikasi agar perubahan nama & logo langsung sinkron
+        try {
+            \Illuminate\Support\Facades\Artisan::call('view:clear');
+            \Illuminate\Support\Facades\Artisan::call('cache:clear');
+        } catch (\Exception $e) {
+            // Abaikan jika command gagal
         }
 
         // Catat Audit Log

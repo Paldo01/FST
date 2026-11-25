@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $appNamaWebsite ?? 'SIMORA FST' }}</title>
     <link rel="icon" type="image/png" href="{{ $appFavicon ?? asset('images/logo-fst.png') }}">
+    <link rel="shortcut icon" href="{{ $appFavicon ?? asset('images/logo-fst.png') }}">
+    <link rel="apple-touch-icon" href="{{ $appLogo ?? asset('images/logo-fst.png') }}">
     <meta name="description" content="{{ $appDeskripsi ?? 'Sistem Manajemen Peminjaman Ruang dan Alat' }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <!-- Alpine.js -->

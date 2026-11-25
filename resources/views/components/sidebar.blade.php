@@ -29,7 +29,7 @@
                     <span class="text-xs font-semibold text-gray-700 leading-tight">{{ $appSubNamaWebsite ?? 'Sistem' }}</span>
                     <span class="text-sm sm:text-base font-black leading-tight tracking-tight"
                           style="color: {{ $appWarnaNamaWebsite ?? '#801414' }};">
-                        {{ $appNamaWebsite ?? 'Peminjaman FST' }}
+                        {{ $appNamaWebsite ?? 'SIMORA FST' }}
                     </span>
                 </div>
             </a>

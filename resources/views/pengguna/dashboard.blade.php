@@ -8,7 +8,7 @@
     <!-- Header Banner Selamat Datang (Sesuai Mockup) -->
     <div class="text-center py-2 sm:py-4">
         <h1 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight flex items-center justify-center gap-2">
-            <span>Selamat Datang di Sistem Peminjaman FST</span>
+            <span>Selamat Datang di {{ $appNamaWebsite ?? 'SIMORA FST' }}</span>
             <span class="text-2xl sm:text-3xl select-none inline-block"></span>
         </h1>
         <p class="text-xs sm:text-sm text-gray-500 font-medium mt-1.5">
