@@ -29,8 +29,11 @@
                  alt="{{ $appNamaWebsite ?? 'Logo' }}" 
                  class="w-14 sm:w-16 h-auto max-h-16 object-contain drop-shadow-xs select-none">
         </div>
-        <h1 class="text-xl sm:text-2xl font-black tracking-tight leading-snug"
-            style="color: {{ $appWarnaNamaWebsite ?? '#801414' }};">
+        <div class="mb-2">
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider block">{{ $appSubNamaWebsite ?? 'Fakultas Sains dan Teknologi' }}</span>
+            <span class="text-base font-black tracking-tight block" style="color: {{ $appWarnaNamaWebsite ?? '#801414' }};">{{ $appNamaWebsite ?? 'SIMORA FST' }}</span>
+        </div>
+        <h1 class="text-xl sm:text-2xl font-black tracking-tight text-gray-900 leading-snug">
             Verifikasi Email Akun
         </h1>
         <p class="text-xs sm:text-sm text-gray-500 font-medium mt-1">

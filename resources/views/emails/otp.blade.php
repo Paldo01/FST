@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kode OTP Verifikasi</title>
+    <title>Kode OTP Verifikasi - {{ \App\Models\Pengaturan::get('nama_website', 'SIMORA FST') }}</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -106,8 +106,22 @@
     <div class="container">
         <!-- Header Branding -->
         <div class="header">
-            <h1>{{ \App\Models\Pengaturan::get('nama_website', 'SIMORA FST') }}</h1>
-            <p>{{ \App\Models\Pengaturan::get('sub_nama_website', 'Fakultas Sains dan Teknologi') }}</p>
+            @php
+                $namaWeb = \App\Models\Pengaturan::get('nama_website', 'SIMORA FST');
+                $subNamaWeb = \App\Models\Pengaturan::get('sub_nama_website', 'Fakultas Sains dan Teknologi');
+                $logoFile = \App\Models\Pengaturan::logoFilePath();
+            @endphp
+            @if(isset($message) && file_exists($logoFile))
+                <div style="margin-bottom: 12px;">
+                    <img src="{{ $message->embed($logoFile) }}" alt="{{ $namaWeb }}" style="height: 52px; max-height: 52px; width: auto; object-fit: contain; display: inline-block;">
+                </div>
+            @else
+                <div style="margin-bottom: 12px;">
+                    <img src="{{ url(\App\Models\Pengaturan::logoUrl()) }}" alt="{{ $namaWeb }}" style="height: 52px; max-height: 52px; width: auto; object-fit: contain; display: inline-block;">
+                </div>
+            @endif
+            <h1>{{ $namaWeb }}</h1>
+            <p>{{ $subNamaWeb }}</p>
         </div>
 
         <!-- Content -->

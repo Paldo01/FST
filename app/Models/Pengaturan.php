@@ -65,5 +65,17 @@ class Pengaturan extends Model
         }
         return static::logoUrl();
     }
+
+    /**
+     * Dapatkan path fisik file Logo Website di disk server (untuk email embed).
+     */
+    public static function logoFilePath(): string
+    {
+        $logoPath = static::get('logo');
+        if ($logoPath && Storage::disk('public')->exists($logoPath)) {
+            return Storage::disk('public')->path($logoPath);
+        }
+        return public_path('images/logo-fst.png');
+    }
 }
 

@@ -31,7 +31,9 @@ class SendRegisterOtpMail extends Mailable
     public function envelope(): Envelope
     {
         $appName = Pengaturan::get('nama_website', 'SIMORA FST');
+        $fromEmail = config('mail.from.address');
         return new Envelope(
+            from: new \Illuminate\Mail\Mailables\Address($fromEmail, $appName),
             subject: 'Kode Verifikasi Pendaftaran Akun - ' . $appName,
         );
     }
